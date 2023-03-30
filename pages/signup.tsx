@@ -48,7 +48,6 @@ export default function SignUpPage() {
 			reader.onload = (event) => {
 				setavatarUrl(event.target?.result as string);
 				setavatarData(avatarFiles);
-				console.log(avatarFiles);
 			};
 			reader.readAsDataURL(avatarFile);
 		} else {
@@ -65,6 +64,7 @@ export default function SignUpPage() {
 
 	const onSubmit = async (data: FormData) => {
 		data.avatar = avatarData;
+		console.log(avatarData);
 		const formData = JSON.stringify(data);
 		console.log(formData);
 		const res = await fetch('/api/users/me', {
