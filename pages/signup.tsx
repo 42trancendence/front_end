@@ -206,11 +206,11 @@ export default function SignUpPage({token}: {token?:string}) {
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-	const authHeader = context.req.headers.authorization;
-	if (authHeader) {
-		const token = authHeader.split(" ")[1];
+	const isLoggedIn = checkIsLoggedIn()
+	if (isLoggedIn) {
+		const token = isLoggedIn;
 		const isValidated2fa = await isTwoFactorAuthEnabled(token);
-		if (isValidated2fa) {
+		if (isValidated2fa === 200) {
 			return {
 				redirect: {
 					destination: "/lobby/overview",
