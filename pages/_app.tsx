@@ -3,7 +3,7 @@ import { GetServerSideProps } from "next";
 import type { AppProps } from "next/app";
 import { useEffect } from "react";
 
-export default function MyApp(token: string, { Component, pageProps }: AppProps) {
+export default function MyApp({ Component, pageProps }: AppProps, {token} : {token? :string}) {
   useEffect(() => {
     if (token) {
       localStorage.setItem("token", token as string);
