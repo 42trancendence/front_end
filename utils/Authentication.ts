@@ -1,12 +1,16 @@
 export async function isTwoFactorAuthEnabled(token: string) {
-	const res = await fetch('http://localhost:3000/2fa', {
-		method: 'GET',
-		headers: {
-			Authorization: `Bearer ${token}`,
-		}, // This is the token
-	});
+	try {
+		const res = await fetch('http://localhost:3000/2fa', {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${token}`,
+			}, // This is the token
+		});
 
-	return res.status;
+		return res.status;
+	} catch (err) {
+		console.log(err);
+	}
 }
 
 export function checkIsLoggedIn() {
