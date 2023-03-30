@@ -1,19 +1,9 @@
-import type { ReactElement } from 'react'
 import Layout from '@/components/Layout'
-import type { NextPageWithLayout } from '@/pages/_app'
 
-const OverView: NextPageWithLayout = () => {
+export default function OverView({pageProps}: {pageProps?:any}) {
   return (
-    <p>hello world</p>
-  );
-}
-
-OverView.getLayout = function getLayout(page: ReactElement) {
-  return (
-    <Layout>
-    	{page}
+    <Layout pageProps={pageProps}>
+      <p className='text-white'>this is lobby overview</p>
     </Layout>
   )
 }
-
-export default OverView

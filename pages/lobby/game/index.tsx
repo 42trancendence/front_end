@@ -1,17 +1,9 @@
-import type { ReactElement } from 'react'
 import Layout from '@/components/Layout'
-import type { NextPageWithLayout } from '@/pages/_app'
 
-const GameRooms: NextPageWithLayout = () => {
-  return <p className='text-white'>this is game room</p>
-}
-
-GameRooms.getLayout = function getLayout(page: ReactElement) {
+export default function GameRoom({pageProps}: {pageProps?:any}) {
   return (
-    <Layout>
-    	{page}
+    <Layout pageProps={pageProps}>
+		<p className='text-white'>this is game room</p>
     </Layout>
   )
 }
-
-export default GameRooms

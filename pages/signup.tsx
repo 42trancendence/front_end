@@ -4,22 +4,34 @@ import { useEffect, useRef, useState } from "react";
 import TabFor2fa from "@/components/TabFor2fa";
 import { Tab } from "@headlessui/react";
 import { NormalButton } from "@/components/ui/NormalButton";
+import { useRouter } from "next/router";
+import { isTwoFactorAuthEnabled, checkIsLoggedIn } from "@/utils/Authentication";
+import { GetServerSideProps } from "next";
 
-type FormData = {
+interface MyFormData {
 	avatar: FileList;
 	name: string;
 	validation_code: string;
-};
+}
 
-export default function SignUpPage() {
+export default function SignUpPage({token}: {token?:string}) {
 	const {
 		register,
 		handleSubmit,
 		formState: { errors },
-	} = useForm<FormData>();
+	} = useForm<MyFormData>();
+
+	const router = useRouter();
+
+	useEffect(() => {
+		if (token) {
+			localStorage.setItem("token", token as string);
+		} else {
+			router.push("/");
+		}
+	}, [token, router]);
 
 	const [avatarUrl, setavatarUrl] = useState<string | null>(null);
-	const [avatarData, setavatarData] = useState<any>("");
 	const [isValidated2fa, setisValidated2fa] = useState<boolean>(false);
 	const [validationCode, setvalidationCode] = useState<string>("");
 	const avatar_bg = useRef<any>();
@@ -33,26 +45,21 @@ export default function SignUpPage() {
 		}
 	}, [avatarUrl]);
 
-
 	function checkSize(event: React.ChangeEvent<HTMLInputElement>) {
-		const avatarFiles = event.target.files
 		const avatarFile = event.target.files?.[0];
 		if (avatarFile) {
 			if (avatarFile.size > 5 * 1024 * 1024) {
 				alert("아바타 사이즈는 5MB 이내로 등록 가능합니다.");
 				setavatarUrl(null);
-				setavatarData(null);
 				return;
 			}
 			const reader = new FileReader();
 			reader.onload = (event) => {
 				setavatarUrl(event.target?.result as string);
-				setavatarData(avatarFiles);
 			};
 			reader.readAsDataURL(avatarFile);
 		} else {
 			setavatarUrl(null);
-			setavatarData(null);
 		}
 	}
 
@@ -62,15 +69,27 @@ export default function SignUpPage() {
 		setisValidated2fa(true);
 	};
 
-	const onSubmit = async (data: FormData) => {
-		data.avatar = avatarData;
-		console.log(avatarData);
-		const formData = JSON.stringify(data);
-		console.log(formData);
-		const res = await fetch('/api/users/me', {
-			method: 'PUT',
-			body: formData,
-		});
+	const onSubmit = async (data: MyFormData) => {
+		try {
+			const formData = new FormData();
+			formData.append("name", data.name);
+			formData.append("avatar", data.avatar[0]);
+			const res = await fetch("http://localhost:3000/auth/signup", {
+				headers: {
+					"Content-Type": "multipart/form-data",
+					"Authentication": `Bearer ${token}`,
+				},
+				method: "POST",
+				body: formData,
+			});
+			if (res.status === 200) {
+				router.push("/lobby/oveirview");
+			} else {
+				alert("회원가입에 실패했습니다.");
+			}
+		} catch (err) {
+			console.log(err);
+		}
 	};
 
 	return (
@@ -132,12 +151,18 @@ export default function SignUpPage() {
 										<input
 											type="text"
 											id="validation_email"
-											className="block w-full border-0 bg-zinc-950 px-4 py-2.5 text-white disabled:text-zinc-400 shadow-darkbox placeholder:text-gray-400"
+											className="block w-full border-0 bg-zinc-950 px-4 py-2.5 text-white shadow-darkbox placeholder:text-gray-400 disabled:text-zinc-400"
 											placeholder="이메일"
 											value="info@naver.com"
 											readOnly
 										/>
-										<NormalButton className="mt-3" variant="dark" onClick={send2faValidationCode}>인증번호 전송</NormalButton>
+										<NormalButton
+											className="mt-3"
+											variant="dark"
+											onClick={send2faValidationCode}
+										>
+											인증번호 전송
+										</NormalButton>
 									</div>
 								) : (
 									<div className="relative flex w-full max-w-lg">
@@ -157,9 +182,13 @@ export default function SignUpPage() {
 											className="block w-full border-0 bg-zinc-950 px-4 py-2.5 text-white shadow-darkbox placeholder:text-gray-400"
 											placeholder="인증번호"
 											value={validationCode}
-											onChange={(e) => {setvalidationCode(e.target.value)}}
+											onChange={(e) => {
+												setvalidationCode(e.target.value);
+											}}
 										/>
-										<NormalButton className="ml-3" variant="dark">인증</NormalButton>
+										<NormalButton className="ml-3" variant="dark">
+											인증
+										</NormalButton>
 									</div>
 								)}
 							</Tab.Panel>
@@ -175,3 +204,32 @@ export default function SignUpPage() {
 		</div>
 	);
 }
+
+export const getServerSideProps: GetServerSideProps = async (context) => {
+	const authHeader = context.req.headers.authorization;
+	if (authHeader) {
+		const token = authHeader.split(" ")[1];
+		const isValidated2fa = await isTwoFactorAuthEnabled(token);
+		if (isValidated2fa) {
+			return {
+				redirect: {
+					destination: "/lobby/overview",
+					permanent: false,
+				},
+			};
+		} else {
+			return {
+				props: {
+					token,
+				},
+			};
+		}
+	} else {
+		return {
+			redirect: {
+				destination: "/",
+				permanent: false,
+			},
+		};
+	}
+};
