@@ -1,4 +1,4 @@
-import { checkIsLoggedIn } from "@/utils/Authentication";
+import { checkIsLoggedIn, isTwoFactorAuthEnabled } from "@/utils/Authentication";
 import { useRouter } from "next/router";
 import { useState, useEffect } from "react";
 import NavBar from "./NavBar";
@@ -22,6 +22,10 @@ export default function Layout({
 				router.push("/");
 			}
 			else {
+				const isValidated2fa = await isTwoFactorAuthEnabled(isLoggedIn);
+				if (!isValidated2fa) {
+					router.push("/");
+				}
 				setLoading(false);
 			}
 
