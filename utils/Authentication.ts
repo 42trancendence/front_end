@@ -17,7 +17,7 @@ export function checkIsLoggedIn() {
 	// 로그인 상태 확인하는 함수
 	const token = localStorage.getItem("token");
 	if (token) {
-		return true;
+		return token;
 	} else {
 		return false;
 	}
