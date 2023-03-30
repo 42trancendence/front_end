@@ -37,7 +37,7 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 					permanent: false,
 				},
 			};
-		} else if (isValidated2fa === 200) {
+		} else if (isValidated2fa === 409) {
 			return {
 				props: {
 					token,

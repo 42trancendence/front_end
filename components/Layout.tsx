@@ -23,7 +23,7 @@ export default function Layout({
 			}
 			else {
 				const isValidated2fa = await isTwoFactorAuthEnabled(isLoggedIn);
-				if (!isValidated2fa) {
+				if (isValidated2fa !== 409) {
 					router.push("/");
 				}
 				setLoading(false);
