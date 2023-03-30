@@ -6,7 +6,6 @@ import { Tab } from "@headlessui/react";
 import { NormalButton } from "@/components/ui/NormalButton";
 import { useRouter } from "next/router";
 import { isTwoFactorAuthEnabled, checkIsLoggedIn } from "@/utils/Authentication";
-import { GetServerSideProps } from "next";
 
 interface MyFormData {
 	avatar: FileList;
@@ -23,13 +22,27 @@ export default function SignUpPage({token}: {token?:string}) {
 
 	const router = useRouter();
 
+	const [loading, setLoading] = useState(true);
 	useEffect(() => {
-		if (token) {
-			localStorage.setItem("token", token as string);
-		} else {
-			router.push("/");
-		}
-	}, [token, router]);
+		const checkLoginStatus = async () => {
+			// 로그인 상태 확인하는 비동기 함수
+			const isLoggedIn = await checkIsLoggedIn();
+
+			if (!isLoggedIn) {
+				router.push("/");
+			}
+			else {
+				const isValidated2fa = await isTwoFactorAuthEnabled(isLoggedIn);
+				if (isValidated2fa !== 200) {
+					router.push("/");
+				}
+				setLoading(false);
+			}
+
+		};
+
+		checkLoginStatus();
+	}, [router]);
 
 	const [avatarUrl, setavatarUrl] = useState<string | null>(null);
 	const [isValidated2fa, setisValidated2fa] = useState<boolean>(false);
@@ -204,32 +217,3 @@ export default function SignUpPage({token}: {token?:string}) {
 		</div>
 	);
 }
-
-export const getServerSideProps: GetServerSideProps = async (context) => {
-	const isLoggedIn = checkIsLoggedIn()
-	if (isLoggedIn) {
-		const token = isLoggedIn;
-		const isValidated2fa = await isTwoFactorAuthEnabled(token);
-		if (isValidated2fa === 200) {
-			return {
-				redirect: {
-					destination: "/lobby/overview",
-					permanent: false,
-				},
-			};
-		} else {
-			return {
-				props: {
-					token,
-				},
-			};
-		}
-	} else {
-		return {
-			redirect: {
-				destination: "/",
-				permanent: false,
-			},
-		};
-	}
-};

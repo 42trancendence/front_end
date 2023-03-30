@@ -11,12 +11,7 @@ export default function AuthCallback({ token, isValidated2fa }: { token?: string
 		if (token) {
 			localStorage.setItem("token", token as string);
 			if (isValidated2fa === true) {
-				return {
-					redirect: {
-						destination: "/lobby/overview",
-						permanent: false,
-					},
-				};
+				router.push("/lobby/overview");
 			}
 			else {
 				router.push("/signup");
