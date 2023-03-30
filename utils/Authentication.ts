@@ -6,11 +6,7 @@ export async function isTwoFactorAuthEnabled(token: string) {
 		}, // This is the token
 	});
 
-	if (res.status === 200) {
-		return true;
-	} else {
-		return false;
-	}
+	return res.status;
 }
 
 export function checkIsLoggedIn() {
