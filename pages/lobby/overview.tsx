@@ -3,7 +3,9 @@ import Layout from '@/components/Layout'
 import type { NextPageWithLayout } from '@/pages/_app'
 
 const OverView: NextPageWithLayout = () => {
-  return <p>hello world</p>
+  return (
+    <p>hello world</p>
+  );
 }
 
 OverView.getLayout = function getLayout(page: ReactElement) {
