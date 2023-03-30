@@ -33,8 +33,8 @@ export default function SignUpPage({token}: {token?:string}) {
 			}
 			else {
 				const isValidated2fa = await isTwoFactorAuthEnabled(isLoggedIn);
-				if (isValidated2fa !== 200) {
-					router.push("/");
+				if (isValidated2fa === 409) {
+					router.push("/lobby/overview");
 				}
 				setLoading(false);
 			}
