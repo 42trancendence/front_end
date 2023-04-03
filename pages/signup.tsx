@@ -61,38 +61,29 @@ export default function SignUpPage() {
 	const [validationCode, setvalidationCode] = useState<string>("");
 	let [isOpen, setIsOpen] = useState(false);
 	let [dialogText, setDialogText] = useState("");
-	const validationEmailRef = useRef<HTMLInputElement>(null);
+	const [validationEmail, setvalidationEmail] = useState<string>("");
 
 	useEffect(() => {
 		const inputEmailValue = async () => {
-			try {
-				const res = await fetch("http://localhost:3000/users/me", {
-					method: "GET",
-					headers: {
-						"Content-Type": "application/json",
-						Authentication: `Bearer ${localStorage.getItem("token")}`,
-					},
-				});
-				const data = await res.json();
-				if (data.error) {
-					if (validationEmailRef.current) {
-						validationEmailRef.current.value = "no email";
-					}
-				} else {
-					if (validationEmailRef.current) {
-						validationEmailRef.current.value = data.email;
-					}
-				}
-			} catch (e) {
-				console.log(e);
-				if (validationEmailRef.current) {
-					validationEmailRef.current.value = "no email";
-				}
-			}
+			await fetch("http://localhost:3000/users/me", {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					Authorization: `Bearer ${localStorage.getItem("token")}`,
+				},
+			}).then((res) =>
+				res.json()
+				.then((data) => {
+					setvalidationEmail(data.email);
+				})
+				.catch((err) => {
+					setvalidationEmail("no email");
+				})
+			);
 		};
 
 		inputEmailValue();
-	}, [validationEmailRef]);
+	}, []);
 
 	// 아바타 이미지 미리보기
 	const avatar_bg = useCallback(
@@ -134,7 +125,7 @@ export default function SignUpPage() {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
-					Authentication: `Bearer ${localStorage.getItem("token")}`,
+					Authorization: `Bearer ${localStorage.getItem("token")}`,
 				},
 			});
 			const data = await res.json();
@@ -164,7 +155,7 @@ export default function SignUpPage() {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
-					Authentication: `Bearer ${localStorage.getItem("token")}`,
+					Authorization: `Bearer ${localStorage.getItem("token")}`,
 				},
 			});
 			if (res.status === 201) {
@@ -184,7 +175,7 @@ export default function SignUpPage() {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
-					Authentication: `Bearer ${localStorage.getItem("token")}`,
+					Authorization: `Bearer ${localStorage.getItem("token")}`,
 				},
 				body: JSON.stringify({
 					code: validationCode,
@@ -221,7 +212,7 @@ export default function SignUpPage() {
 			const res = await fetch("http://localhost:3000/auth/signup", {
 				headers: {
 					"Content-Type": "multipart/form-data",
-					Authentication: `Bearer ${localStorage.getItem("token")}`,
+					Authorization: `Bearer ${localStorage.getItem("token")}`,
 				},
 				method: "POST",
 				body: formData,
@@ -320,7 +311,7 @@ export default function SignUpPage() {
 															id="validation_email"
 															className="block w-full border-0 bg-zinc-950 px-4 py-2.5 text-white shadow-darkbox placeholder:text-gray-400 disabled:text-zinc-400"
 															placeholder="이메일"
-															ref={validationEmailRef}
+															value={validationEmail}
 															readOnly
 														/>
 														<NormalButton
@@ -366,56 +357,6 @@ export default function SignUpPage() {
 											<p>2FA 인증 완료</p>
 										</div>
 									)}
-									<TabFor2fa tapnames={["Email로 인증", "QR Code로 인증"]}>
-										<Tab.Panel className="">
-											{!is2faNext ? (
-												<div className="relative flex w-full max-w-lg flex-col">
-													<label htmlFor="validation_email" className="sr-only">
-														이메일
-													</label>
-													<input
-														type="text"
-														id="validation_email"
-														className="block w-full border-0 bg-zinc-950 px-4 py-2.5 text-white shadow-darkbox placeholder:text-gray-400 disabled:text-zinc-400"
-														placeholder="이메일"
-														ref={validationEmailRef}
-														readOnly
-													/>
-													<NormalButton
-														className="mt-3"
-														variant="dark"
-														onClick={send2faValidationCode}
-													>
-														인증번호 전송
-													</NormalButton>
-												</div>
-											) : (
-												<div className="relative flex w-full max-w-lg">
-													<label htmlFor="validation_code" className="sr-only">
-														인증번호
-													</label>
-													<input
-														type="text"
-														id="validation_code"
-														className="block w-full border-0 bg-zinc-950 px-4 py-2.5 text-white shadow-darkbox placeholder:text-gray-400"
-														placeholder="인증번호"
-														value={validationCode}
-														onChange={(e) => {
-															setvalidationCode(e.target.value);
-														}}
-													/>
-													<NormalButton
-														className="ml-3"
-														variant="dark"
-														onClick={validate2faValidationCode}
-													>
-														인증
-													</NormalButton>
-												</div>
-											)}
-										</Tab.Panel>
-										<Tab.Panel className="">test</Tab.Panel>
-									</TabFor2fa>
 									<input
 										className="cursor-pointer border bg-white px-12 py-4 text-lg font-semibold tracking-wider text-zinc-900 shadow-bt shadow-white/40 hover:bg-zinc-100"
 										type="submit"
