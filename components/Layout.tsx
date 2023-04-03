@@ -16,13 +16,13 @@ export default function Layout({
 	useEffect(() => {
 		const checkLoginStatus = async () => {
 			// 로그인 상태 확인하는 비동기 함수
-			const isLoggedIn = await checkIsLoggedIn();
+			const token = await checkIsLoggedIn();
 
-			if (!isLoggedIn) {
+			if (!token) {
 				router.push("/");
 			}
 			else {
-				const isValidated2fa = await isTwoFactorAuthEnabled(isLoggedIn);
+				const isValidated2fa = await isTwoFactorAuthEnabled(token);
 				if (isValidated2fa !== 409) {
 					router.push("/");
 				}
