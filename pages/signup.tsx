@@ -1,6 +1,6 @@
 import Seo from "@/components/Seo";
 import { useForm } from "react-hook-form";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import TabFor2fa from "@/components/TabFor2fa";
 import { Tab } from "@headlessui/react";
 import { NormalButton } from "@/components/ui/NormalButton";
@@ -33,17 +33,19 @@ export default function SignUpPage() {
 	useEffect(() => {
 		const checkLoginStatus = async () => {
 			// 로그인 상태 확인하는 비동기 함수
-			const isLoggedIn = await checkIsLoggedIn();
+			const token = await checkIsLoggedIn();
 
-			if (!isLoggedIn) {
+			if (!token) {
 				//router.push("/");
 				setLoading(false);
 			} else {
-				const isValidated2fa = await isTwoFactorAuthEnabled(isLoggedIn);
+				const isValidated2fa = await isTwoFactorAuthEnabled(token);
 				if (isValidated2fa === 409) {
 					router.push("/lobby/overview");
 				}
-				setLoading(false);
+				else {
+					setLoading(false);
+				}
 			}
 		};
 
@@ -56,17 +58,18 @@ export default function SignUpPage() {
 	let [isOpen, setIsOpen] = useState(false);
 	let [dialogText, setDialogText] = useState("");
 
-	const avatar_bg = useRef<any>();
+	//const avatar_bg = useRef<any>();
 
-	// useEffect : 아바타 미리보기 이미지 변경
-	useEffect(() => {
-		if (avatarUrl) {
-			avatar_bg.current && (avatar_bg.current.style.backgroundImage = `url('${avatarUrl}')`);
-		} else {
-			avatar_bg.current && (avatar_bg.current.style.backgroundImage = "url('/default_avatar.svg')");
+	// 아바타 이미지 미리보기
+	const avatar_bg = useCallback((node: HTMLLabelElement) => {
+		if (node !== null) {
+			if (avatarUrl) {
+				node.style.backgroundImage = `url('${avatarUrl}')`
+			} else {
+				node.style.backgroundImage = "url('/default_avatar.svg')"
+			}
 		}
 	}, [avatarUrl]);
-
 
 	// 아바타 사이즈 체크
 	function checkSize(event: React.ChangeEvent<HTMLInputElement>) {
@@ -137,8 +140,8 @@ export default function SignUpPage() {
 									<label
 										ref={avatar_bg}
 										htmlFor="avatar"
-										className={`group/avatar relative m-auto flex h-36 w-36 cursor-pointer items-center justify-center rounded-full bg-zinc-700 bg-cover bg-center bg-no-repeat bg-origin-content
-									 p-2 shadow-md`}
+										className="group/avatar relative m-auto flex h-36 w-36 cursor-pointer items-center justify-center rounded-full bg-zinc-700 bg-cover bg-center bg-no-repeat bg-origin-content
+									 p-2 shadow-md"
 									>
 										<div className="invisible absolute h-36 w-full rounded-full bg-zinc-700 opacity-50 group-hover/avatar:visible"></div>
 										<span className="invisible z-10 w-full font-semibold text-white group-hover/avatar:visible">

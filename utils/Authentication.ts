@@ -19,6 +19,6 @@ export function checkIsLoggedIn() {
 	if (token) {
 		return token;
 	} else {
-		return false;
+		return "";
 	}
 }
