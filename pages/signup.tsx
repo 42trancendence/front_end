@@ -61,7 +61,7 @@ export default function SignUpPage() {
 	const [validationCode, setvalidationCode] = useState<string>("");
 	let [isOpen, setIsOpen] = useState(false);
 	let [dialogText, setDialogText] = useState("");
-	const [validationEmail, setvalidationEmail] = useState<string>("");
+	const [validationEmail, setvalidationEmail] = useState<string>("no email");
 
 	useEffect(() => {
 		const inputEmailValue = async () => {
@@ -77,9 +77,14 @@ export default function SignUpPage() {
 					setvalidationEmail(data.email);
 				})
 				.catch((err) => {
+					console.log(err);
 					setvalidationEmail("no email");
 				})
-			);
+			)
+			.catch((err) => {
+				console.log(err);
+				setvalidationEmail("no email");
+			});
 		};
 
 		inputEmailValue();
