@@ -288,7 +288,7 @@ export default function SignUpPage() {
 										<button
 											className="text-md ml-3 inline-flex items-center justify-center whitespace-nowrap rounded bg-zinc-800 px-4 font-semibold tracking-wider text-white shadow"
 											onClick={() =>
-												checkNameDuplication(JSON.stringify(getValues("name")))
+												checkNameDuplication(getValues("name"))
 											}
 										>
 											중복확인
