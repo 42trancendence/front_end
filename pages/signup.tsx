@@ -11,6 +11,8 @@ import {
 } from "@/utils/Authentication";
 import MyDialog from "@/components/ui/Dialog";
 import Alert from "@/components/ui/Alert";
+import OneLineInform from "@/components/ui/OneLineInform";
+import Loading from "@/components/ui/Loading";
 
 interface MyFormData {
 	avatar: FileList;
@@ -53,15 +55,27 @@ export default function SignUpPage() {
 		checkLoginStatus();
 	}, [router]);
 
+	// input State
 	const [avatarUrl, setavatarUrl] = useState<string | null>(null);
 	const [isNameDuplicatedPass, setisNameDuplicatedPass] =
 		useState<boolean>(false);
-	const [is2faNext, setis2faNext] = useState<boolean>(false);
+	const [nameLoading, setnameLoading] = useState<boolean>(false);
+	// 2fa State
+	const [is2faNext, setis2faNext] = useState<"before" | "loading" | "after">(
+		"before"
+	);
 	const [isValidated2fa, setisValidated2fa] = useState<boolean>(false);
 	const [validationCode, setvalidationCode] = useState<string>("");
-	let [isOpen, setIsOpen] = useState(false);
-	let [dialogText, setDialogText] = useState("");
 	const [validationEmail, setvalidationEmail] = useState<string>("no email");
+	// 팝업 State
+	let [isOpen, setIsOpen] = useState(false);
+	let [dialogState, setDialogState] = useState<"success" | "fail">("fail");
+	let [dialogText, setDialogText] = useState("");
+	function openDialog(message: string, state: "success" | "fail") {
+		setDialogText(message);
+		setDialogState(state);
+		setIsOpen(true);
+	}
 
 	useEffect(() => {
 		const inputEmailValue = async () => {
@@ -71,20 +85,22 @@ export default function SignUpPage() {
 					"Content-Type": "application/json",
 					Authorization: `Bearer ${localStorage.getItem("token")}`,
 				},
-			}).then((res) =>
-				res.json()
-				.then((data) => {
-					setvalidationEmail(data.email);
-				})
+			})
+				.then((res) =>
+					res
+						.json()
+						.then((data) => {
+							setvalidationEmail(data.email);
+						})
+						.catch((err) => {
+							console.log(err);
+							setvalidationEmail("no email");
+						})
+				)
 				.catch((err) => {
 					console.log(err);
 					setvalidationEmail("no email");
-				})
-			)
-			.catch((err) => {
-				console.log(err);
-				setvalidationEmail("no email");
-			});
+				});
 		};
 
 		inputEmailValue();
@@ -104,13 +120,13 @@ export default function SignUpPage() {
 		[avatarUrl]
 	);
 
-	// 아바타 사이즈 체크
+	// 아바타 사이즈 체크 & 미리보기 주소 생성
 	function checkSize(event: React.ChangeEvent<HTMLInputElement>) {
 		const avatarFile = event.target.files?.[0];
 		if (avatarFile) {
 			if (avatarFile.size > 5 * 1024 * 1024) {
-				alert("아바타 사이즈는 5MB 이내로 등록 가능합니다.");
 				setavatarUrl(null);
+				openDialog("아바타 사이즈는 5MB 이내로 등록 가능합니다.", "fail");
 				return;
 			}
 			const reader = new FileReader();
@@ -125,36 +141,41 @@ export default function SignUpPage() {
 
 	// 이름 중복 체크
 	const checkNameDuplication = async (name: string) => {
+		setnameLoading(true);
 		try {
-			const res = await fetch(`http://localhost:3000/users/name/${name}`, {
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-					Authorization: `Bearer ${localStorage.getItem("token")}`,
-				},
-			});
+			const res = await fetch(
+				`http://localhost:3000/users/name?userName=${name}`,
+				{
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${localStorage.getItem("token")}`,
+					},
+				}
+			);
 			const data = await res.json();
+			setnameLoading(false);
 			if (res.status === 200) {
 				setisNameDuplicatedPass(true);
-				setDialogText(data.message);
-				setIsOpen(true);
+				openDialog("사용 가능한 이름입니다.", "success");
 			} else if (data.error) {
 				setisNameDuplicatedPass(false);
-				setDialogText(data.message);
-				setIsOpen(true);
+				openDialog(data.message, "fail");
 			} else {
 				setisNameDuplicatedPass(false);
-				setDialogText("이름 중복 확인에 실패했습니다.");
-				setIsOpen(true);
+				openDialog("이름 중복 확인에 실패했습니다.", "fail");
 			}
 		} catch (error) {
-			console.log(error);
+			setnameLoading(false);
+			setisNameDuplicatedPass(false);
+			openDialog("이름 중복 확인에 실패했습니다.", "fail");
 		}
 	};
 
 	// 2fa 인증 코드 전송
 	const send2faValidationCode = async (event: any) => {
 		event.preventDefault();
+		setis2faNext("loading");
 		try {
 			const res = await fetch("http://localhost:3000/2fa/email", {
 				method: "POST",
@@ -164,12 +185,13 @@ export default function SignUpPage() {
 				},
 			});
 			if (res.status === 201) {
-				setis2faNext(true);
+				setis2faNext("after");
 			} else {
-				setis2faNext(false);
+				setis2faNext("before");
 			}
 		} catch (error) {
 			console.log(error);
+			setis2faNext("before");
 		}
 	};
 
@@ -190,11 +212,11 @@ export default function SignUpPage() {
 				setisValidated2fa(true);
 			} else if (res.status === 404) {
 				setisValidated2fa(false);
-				setDialogText("2FA 인증 코드가 일치하지 않습니다.");
-				setIsOpen(true);
+				openDialog("2FA 인증 코드가 일치하지 않습니다.", "fail");
 			}
 		} catch (error) {
 			setisValidated2fa(false);
+			openDialog("2FA 인증에 실패했습니다.", "fail");
 			console.log(error);
 		}
 	};
@@ -207,8 +229,7 @@ export default function SignUpPage() {
 					isNameDuplicatedPass === false
 						? "- 이름 중복 확인을 해주세요."
 						: "- 2FA 인증을 해주세요.";
-				setDialogText(text);
-				setIsOpen(true);
+				openDialog(text, "fail");
 				return;
 			}
 			const formData = new FormData();
@@ -222,26 +243,28 @@ export default function SignUpPage() {
 				method: "POST",
 				body: formData,
 			});
-			if (res.status === 200) {
+			if (res.status === 201) {
 				router.push("/lobby/overview");
+				setIsOpen;
 			} else {
 				const errorData = await res.json();
-				setDialogText(errorData.message);
+				openDialog(errorData.message, "fail");
 				setIsOpen(true);
 			}
 		} catch (err) {
-			setDialogText("회원가입에 실패했습니다.");
-			setIsOpen(true);
+			openDialog("회원가입에 실패했습니다.", "fail");
 		}
 	};
 
 	return (
 		<>
 			{loading ? (
-				<div>loading...</div>
+				<Loading />
 			) : (
 				<>
 					<MyDialog
+						type={dialogState}
+						dialogTitle="회원가입"
 						dialogText={dialogText}
 						isOpen={isOpen}
 						setIsOpen={setIsOpen}
@@ -273,6 +296,7 @@ export default function SignUpPage() {
 										</label>
 									</div>
 									<div className="relative flex w-full max-w-lg">
+										{nameLoading && <Loading />}
 										<label htmlFor="name" className="sr-only">
 											이름
 										</label>
@@ -286,10 +310,9 @@ export default function SignUpPage() {
 											placeholder="사이트에서 표시되는 이름을 정해주세요."
 										/>
 										<button
+											type="button"
 											className="text-md ml-3 inline-flex items-center justify-center whitespace-nowrap rounded bg-zinc-800 px-4 font-semibold tracking-wider text-white shadow"
-											onClick={() =>
-												checkNameDuplication(getValues("name"))
-											}
+											onClick={() => checkNameDuplication(getValues("name"))}
 										>
 											중복확인
 										</button>
@@ -300,67 +323,86 @@ export default function SignUpPage() {
 											messages={[errors.name.message || ""]}
 										/>
 									)}
-									{!isValidated2fa ? (
-										<TabFor2fa tapnames={["Email로 인증", "QR Code로 인증"]}>
-											<Tab.Panel className="">
-												{!is2faNext ? (
-													<div className="relative flex w-full max-w-lg flex-col">
-														<label
-															htmlFor="validation_email"
-															className="sr-only"
-														>
-															이메일
-														</label>
-														<input
-															type="text"
-															id="validation_email"
-															className="block w-full border-0 bg-zinc-950 px-4 py-2.5 text-white shadow-darkbox placeholder:text-gray-400 disabled:text-zinc-400"
-															placeholder="이메일"
-															value={validationEmail}
-															readOnly
-														/>
-														<NormalButton
-															className="mt-3"
-															variant="dark"
-															onClick={send2faValidationCode}
-														>
-															인증번호 전송
-														</NormalButton>
-													</div>
-												) : (
-													<div className="relative flex w-full max-w-lg">
-														<label
-															htmlFor="validation_code"
-															className="sr-only"
-														>
-															인증번호
-														</label>
-														<input
-															type="text"
-															id="validation_code"
-															className="block w-full border-0 bg-zinc-950 px-4 py-2.5 text-white shadow-darkbox placeholder:text-gray-400"
-															placeholder="인증번호"
-															value={validationCode}
-															onChange={(e) => {
-																setvalidationCode(e.target.value);
-															}}
-														/>
-														<NormalButton
-															className="ml-3"
-															variant="dark"
-															onClick={validate2faValidationCode}
-														>
-															인증
-														</NormalButton>
-													</div>
-												)}
-											</Tab.Panel>
-											<Tab.Panel className="">test</Tab.Panel>
-										</TabFor2fa>
-									) : (
-										<div className="m-auto w-full max-w-lg px-2 py-16 sm:px-0">
-											<p>2FA 인증 완료</p>
+									<div className="relative mt-8 w-full max-w-lg">
+										<div
+											className="absolute inset-0 flex items-center"
+											aria-hidden="true"
+										>
+											<div className="w-full border-t border-zinc-300" />
 										</div>
+										<div className="relative flex justify-start">
+											<span className="bg-zinc-900 pr-3 text-base font-semibold leading-6 text-white">
+												2FA 인증
+											</span>
+										</div>
+									</div>
+									{!isValidated2fa ? (
+										<>
+											<TabFor2fa tapnames={["Email", "QR Code"]}>
+												{is2faNext === "loading" && <Loading />}
+												<Tab.Panel>
+													{(is2faNext === "before" ||
+														is2faNext === "loading") && (
+														<div className="relative flex w-full max-w-lg flex-col">
+															<label
+																htmlFor="validation_email"
+																className="sr-only"
+															>
+																이메일
+															</label>
+															<input
+																type="text"
+																id="validation_email"
+																className="block w-full border-0 bg-zinc-950 px-4 py-2.5 text-white shadow-darkbox placeholder:text-gray-400 disabled:text-zinc-400"
+																placeholder="이메일"
+																value={validationEmail}
+																readOnly
+															/>
+															<NormalButton
+																className="mt-3"
+																variant="dark"
+																onClick={send2faValidationCode}
+															>
+																인증번호 전송
+															</NormalButton>
+														</div>
+													)}
+													{is2faNext === "after" && (
+														<div className="relative flex w-full max-w-lg">
+															<label
+																htmlFor="validation_code"
+																className="sr-only"
+															>
+																인증번호
+															</label>
+															<input
+																type="text"
+																id="validation_code"
+																className="block w-full border-0 bg-zinc-950 px-4 py-2.5 text-white shadow-darkbox placeholder:text-gray-400"
+																placeholder="인증번호"
+																value={validationCode}
+																onChange={(e) => {
+																	setvalidationCode(e.target.value);
+																}}
+															/>
+															<NormalButton
+																className="ml-3"
+																variant="dark"
+																onClick={validate2faValidationCode}
+															>
+																인증
+															</NormalButton>
+														</div>
+													)}
+												</Tab.Panel>
+												<Tab.Panel className="">QRcode</Tab.Panel>
+											</TabFor2fa>
+										</>
+									) : (
+										<OneLineInform
+											type="success"
+											message="2FA 인증이 완료되었습니다!"
+										/>
 									)}
 									<input
 										className="cursor-pointer border bg-white px-12 py-4 text-lg font-semibold tracking-wider text-zinc-900 shadow-bt shadow-white/40 hover:bg-zinc-100"
