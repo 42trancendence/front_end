@@ -8,7 +8,7 @@ type StyleType = {
 };
 
 let variantStyles: StyleType = {
-	bright: "bg-white bg-zinc-800 shadow",
+	bright: "bg-white text-zinc-800 shadow",
 	dark: "bg-zinc-800 text-white shadow",
 };
 
