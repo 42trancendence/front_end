@@ -19,7 +19,8 @@ export default function Layout({
 			const token = await checkIsLoggedIn();
 
 			if (!token) {
-				router.push("/");
+				//router.push("/");
+				setLoading(false);
 			}
 			else {
 				const isValidated2fa = await isTwoFactorAuthEnabled(token);
@@ -43,7 +44,7 @@ export default function Layout({
 			) : (
 				<div className="flex bg-zinc-800 text-white">
 					<NavBar />
-					<div className="">
+					<div className="relative flex flex-1 w-full py-6 px-8">
 						{pageProps}
 						{children}
 					</div>
