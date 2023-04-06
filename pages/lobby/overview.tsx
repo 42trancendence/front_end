@@ -3,8 +3,29 @@ import Image from "next/image";
 import DefaultAvatar from "@/public/default_avatar.svg";
 import ProfileBackground from "@/public/profile_background.jpg";
 import { NormalButton } from "@/components/ui/NormalButton";
+import { useEffect, useState } from "react";
 
 export default function OverView({ pageProps }: { pageProps?: any }) {
+
+	const [username, setUsername] = useState("");
+	const [avatar, setavatarUrl] = useState("");
+
+	useEffect(() => {
+		async function getUser() {
+			const res = await fetch("http://localhost:3000/users/me", {
+				method: "GET",
+				headers: {
+					"Content-Type": "application/json",
+					"Authorization": "Bearer " + localStorage.getItem("token"),
+				},
+			});
+			const data = await res.json();
+			setUsername(data.name);
+			setavatarUrl(data.avatar);
+		}
+		getUser();
+	}, [username]);
+
 	return (
 		<Layout pageProps={pageProps}>
 			<div className="relative flex flex-1 flex-col">
@@ -19,8 +40,10 @@ export default function OverView({ pageProps }: { pageProps?: any }) {
 					<div className="z-20 flex">
 						<Image
 							className="h-24 w-24 rounded-full bg-zinc-800 shadow ring-4 ring-zinc-800 sm:h-32 sm:w-32"
-							src={DefaultAvatar}
+							src={avatar}
 							alt=""
+							width={300}
+							height={300}
 						/>
 					</div>
 				</div>
@@ -41,7 +64,7 @@ export default function OverView({ pageProps }: { pageProps?: any }) {
 					</div>
 					<div className="flex m-auto">
 						<div className="text-2xl font-bold">
-							<p className="text-white">gson</p>
+							<p className="text-white">{username}</p>
 						</div>
 					</div>
 					<div className="flex divide-x divide-zinc-400 ml-auto">

@@ -1,6 +1,6 @@
 import Seo from "@/components/Seo";
 import { useForm } from "react-hook-form";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { use, useCallback, useEffect, useRef, useState } from "react";
 import TabFor2fa from "@/components/TabFor2fa";
 import { Tab } from "@headlessui/react";
 import { NormalButton } from "@/components/ui/NormalButton";
@@ -13,6 +13,7 @@ import MyDialog from "@/components/ui/Dialog";
 import Alert from "@/components/ui/Alert";
 import OneLineInform from "@/components/ui/OneLineInform";
 import Loading from "@/components/ui/Loading";
+import Image from "next/image";
 
 interface MyFormData {
 	avatar: FileList;
@@ -40,8 +41,7 @@ export default function SignUpPage() {
 			const token = await checkIsLoggedIn();
 
 			if (!token) {
-				//router.push("/");
-				setLoading(false);
+				router.push("/");
 			} else {
 				const isValidated2fa = await isTwoFactorAuthEnabled(token);
 				if (isValidated2fa === 409) {
@@ -64,6 +64,7 @@ export default function SignUpPage() {
 	const [is2faNext, setis2faNext] = useState<"before" | "loading" | "after">(
 		"before"
 	);
+	const [qrCodeImg, setqrCodeImg] = useState<any>(null);
 	const [isValidated2fa, setisValidated2fa] = useState<boolean>(false);
 	const [validationCode, setvalidationCode] = useState<string>("");
 	const [validationEmail, setvalidationEmail] = useState<string>("no email");
@@ -77,13 +78,40 @@ export default function SignUpPage() {
 		setIsOpen(true);
 	}
 
+	// qr code 생성
+	useEffect(() => {
+		const createQrCode = async () => {
+			try {
+				let res = await fetch("http://localhost:3000/2fa/qrcode", {
+					method: "POST",
+					headers: {
+						"Authorization": `Bearer ${localStorage.getItem("token")}`,
+					},
+				});
+				if (res) {
+					let blob = await res.blob();
+					let qrImgUrl = URL.createObjectURL(blob);
+					let qrImg = () => {
+						return <Image src={qrImgUrl} alt="" className="h-48 w-48 rounded shadow" width={500} height={500} />
+					}
+					setqrCodeImg(qrImg);
+				}
+			}
+			catch (err) {
+				console.log(err);
+			}
+		}
+		createQrCode();
+	}, []);
+
+	// 이메일 초기화
 	useEffect(() => {
 		const inputEmailValue = async () => {
 			await fetch("http://localhost:3000/users/me", {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
-					Authorization: `Bearer ${localStorage.getItem("token")}`,
+					"Authorization": `Bearer ${localStorage.getItem("token")}`,
 				},
 			})
 				.then((res) =>
@@ -149,7 +177,7 @@ export default function SignUpPage() {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",
-						Authorization: `Bearer ${localStorage.getItem("token")}`,
+						"Authorization": `Bearer ${localStorage.getItem("token")}`,
 					},
 				}
 			);
@@ -181,7 +209,7 @@ export default function SignUpPage() {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
-					Authorization: `Bearer ${localStorage.getItem("token")}`,
+					"Authorization": `Bearer ${localStorage.getItem("token")}`,
 				},
 			});
 			if (res.status === 201) {
@@ -195,14 +223,42 @@ export default function SignUpPage() {
 		}
 	};
 
-	const validate2faValidationCode = async (event: any) => {
+	// 2fa 인증 코드 검증 email
+	const validate2faValidationCode_email = async (event: any) => {
 		event.preventDefault();
 		try {
 			const res = await fetch("http://localhost:3000/2fa/email/turn-on", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
-					Authorization: `Bearer ${localStorage.getItem("token")}`,
+					"Authorization": `Bearer ${localStorage.getItem("token")}`,
+				},
+				body: JSON.stringify({
+					code: validationCode,
+				}),
+			});
+			if (res.status === 201) {
+				setisValidated2fa(true);
+			} else if (res.status === 404) {
+				setisValidated2fa(false);
+				openDialog("2FA 인증 코드가 일치하지 않습니다.", "fail");
+			}
+		} catch (error) {
+			setisValidated2fa(false);
+			openDialog("2FA 인증에 실패했습니다.", "fail");
+			console.log(error);
+		}
+	};
+
+	// 2fa 인증 코드 검증 google qrcode
+	const validate2faValidationCode_qr = async (event: any) => {
+		event.preventDefault();
+		try {
+			const res = await fetch("http://localhost:3000/2fa/qrcode/turn-on", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					"Authorization": `Bearer ${localStorage.getItem("token")}`,
 				},
 				body: JSON.stringify({
 					code: validationCode,
@@ -238,7 +294,7 @@ export default function SignUpPage() {
 			const res = await fetch("http://localhost:3000/auth/signup", {
 				headers: {
 					"Content-Type": "multipart/form-data",
-					Authorization: `Bearer ${localStorage.getItem("token")}`,
+					"Authorization": `Bearer ${localStorage.getItem("token")}`,
 				},
 				method: "POST",
 				body: formData,
@@ -377,7 +433,7 @@ export default function SignUpPage() {
 															</label>
 															<input
 																type="text"
-																id="validation_code"
+																id="validation_code_email"
 																className="block w-full border-0 bg-zinc-950 px-4 py-2.5 text-white shadow-darkbox placeholder:text-gray-400"
 																placeholder="인증번호"
 																value={validationCode}
@@ -388,14 +444,45 @@ export default function SignUpPage() {
 															<NormalButton
 																className="ml-3"
 																variant="dark"
-																onClick={validate2faValidationCode}
+																onClick={validate2faValidationCode_email}
 															>
 																인증
 															</NormalButton>
 														</div>
 													)}
 												</Tab.Panel>
-												<Tab.Panel className="">QRcode</Tab.Panel>
+												<Tab.Panel>
+												<div className="relative flex w-full max-w-lg flex-col">
+													<div className="flex justify-center">
+														{qrCodeImg}
+													</div>
+													<div className="relative flex w-full max-w-lg mt-3">
+															<label
+																htmlFor="validation_code"
+																className="sr-only"
+															>
+																인증번호
+															</label>
+															<input
+																type="text"
+																id="validation_code_qrcode"
+																className="block w-full border-0 bg-zinc-950 px-4 py-2.5 text-white shadow-darkbox placeholder:text-gray-400"
+																placeholder="인증번호"
+																value={validationCode}
+																onChange={(e) => {
+																	setvalidationCode(e.target.value);
+																}}
+															/>
+															<NormalButton
+																className="ml-3"
+																variant="dark"
+																onClick={validate2faValidationCode_qr}
+															>
+																인증
+															</NormalButton>
+														</div>
+														</div>
+												</Tab.Panel>
 											</TabFor2fa>
 										</>
 									) : (

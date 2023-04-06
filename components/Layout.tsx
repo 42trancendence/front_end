@@ -1,7 +1,8 @@
 import { checkIsLoggedIn, isTwoFactorAuthEnabled } from "@/utils/Authentication";
 import { useRouter } from "next/router";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useLayoutEffect } from "react";
 import NavBar from "./NavBar";
+import Loading from "./ui/Loading";
 
 export default function Layout({
 	pageProps,
@@ -19,15 +20,20 @@ export default function Layout({
 			const token = await checkIsLoggedIn();
 
 			if (!token) {
-				//router.push("/");
-				setLoading(false);
+				alert("로그인이 필요합니다.");
+				router.push("/");
 			}
 			else {
 				const isValidated2fa = await isTwoFactorAuthEnabled(token);
+				setLoading(false);
+				return;
 				if (isValidated2fa !== 409) {
+					alert("2FA 인증이 필요합니다.");
 					router.push("/");
 				}
-				setLoading(false);
+				else {
+					setLoading(false);
+				}
 			}
 
 		};
@@ -38,9 +44,9 @@ export default function Layout({
 	return (
 		<>
 			{loading ? (
-				<div>
-					<p>Loading...</p>
-				</div>
+				<>
+					<Loading />
+				</>
 			) : (
 				<div className="flex bg-zinc-800 text-white">
 					<NavBar />
