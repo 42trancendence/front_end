@@ -20,13 +20,10 @@ export default function Layout({
 			const token = await checkIsLoggedIn();
 
 			if (!token) {
-				alert("로그인이 필요합니다.");
 				router.push("/");
 			}
 			else {
 				const isValidated2fa = await isTwoFactorAuthEnabled(token);
-				setLoading(false);
-				return;
 				if (isValidated2fa !== 409) {
 					alert("2FA 인증이 필요합니다.");
 					router.push("/");
