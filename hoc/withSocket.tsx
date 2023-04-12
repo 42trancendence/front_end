@@ -16,7 +16,7 @@ const WithSocket = (WrappedComponent) => {
       }
       // Disconnect the socket when the component is unmounted
 
-    }, []);
+    }, [socketio]);
 
     return <WrappedComponent {...props} socket={socketio} />;
   };
