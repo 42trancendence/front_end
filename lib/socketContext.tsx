@@ -23,10 +23,10 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
 	}); // Replace with your server URL
     setSocket(newSocket);
 
-	if (socket) {
-		socket.connect();
-	}
-  }, [socket]);
+	return () => {
+		newSocket.close();
+	};
+  }, []);
 
   return (
     <SocketContext.Provider value={{ socket }}>

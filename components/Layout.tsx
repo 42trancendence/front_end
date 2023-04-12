@@ -1,8 +1,9 @@
 import { checkIsLoggedIn, isTwoFactorAuthEnabled } from "@/utils/Authentication";
 import { useRouter } from "next/router";
-import { useState, useEffect, useLayoutEffect } from "react";
+import { useState, useEffect, useLayoutEffect, useContext } from "react";
 import NavBar from "./NavBar";
 import Loading from "./ui/Loading";
+import { SocketContext } from "@/lib/socketContext";
 
 export default function Layout({
 	pageProps,
@@ -42,6 +43,21 @@ export default function Layout({
 
 		checkLoginStatus();
 	}, [router]);
+
+	const { socket } = useContext(SocketContext);
+	useEffect(() => {
+		if (socket) {
+			socket.on("connect", () => {
+				console.log("Connected to server");
+			});
+			socket.on("disconnect", () => {
+				console.log("Disconnected from server");
+			});
+			socket.on("freindRequest", (data) => {
+				console.log(data);
+			});
+		}
+	}, [socket]);
 
 	return (
 		<>
