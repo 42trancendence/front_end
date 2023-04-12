@@ -23,6 +23,7 @@ export default function Layout({
 				router.push("/");
 			}
 			else {
+				/*
 				const isValidated2fa = await isTwoFactorAuthEnabled(token);
 				if (isValidated2fa !== 409) {
 					alert("2FA 인증이 필요합니다.");
@@ -31,6 +32,8 @@ export default function Layout({
 				else {
 					setLoading(false);
 				}
+				*/
+				setLoading(false);
 			}
 
 		};
