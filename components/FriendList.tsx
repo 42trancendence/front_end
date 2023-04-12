@@ -6,8 +6,8 @@ import clsx from "clsx";
 export default function FreindList(userData: any) {
 	return (
 		<>
-			{userData.map((user: any) => (
-			<li key={user.id}>
+			{Object.keys(userData).map((user: any, index: number) => (
+			<li key={index}>
 				<Link
 					href="#"
 					className="group flex items-center gap-x-4 rounded-md p-2 text-sm font-normal leading-6 text-indigo-200 hover:bg-zinc-700 hover:text-white"

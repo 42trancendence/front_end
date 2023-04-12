@@ -3,15 +3,16 @@ import Image from "next/image";
 import DefaultAvatar from "@/public/default_avatar.svg";
 import ProfileBackground from "@/public/profile_background.jpg";
 import { NormalButton } from "@/components/ui/NormalButton";
-import { useEffect, useState } from "react";
-import withSocket from "@/hoc/withSocket";
+import { useContext, useEffect, useState } from "react";
 import { Socket } from "socket.io-client";
 import { handleRefresh } from "@/lib/auth-client";
+import { SocketContext } from "@/lib/socketContext";
 
-const ChatRooms = ({ pageProps, socket }: { pageProps?: any, socket: Socket }) => {
+const ChatRooms = ({ pageProps }: { pageProps?: any }) => {
 
 	const [username, setUsername] = useState("");
 	const [avatar, setavatarUrl] = useState(DefaultAvatar);
+	const [userData, setuserData] = useState({});
 
 	// user 정보 가져오기
 	useEffect(() => {
@@ -44,21 +45,24 @@ const ChatRooms = ({ pageProps, socket }: { pageProps?: any, socket: Socket }) =
 		getUser();
 	}, [username]);
 
+	const { socket } = useContext(SocketContext);
 	// socket.io 테스트
 	useEffect(() => {
-		// Subscribe to a specific event
-		socket.on("my-event", (data) => {
-			console.log("Received data from server:", data);
-		});
+		if (socket) {
+			// Subscribe to a specific event
+			socket.on("my-event", (data) => {
+				console.log("Received data from server:", data);
+			});
 
-		// Unsubscribe from the event when the component is unmounted
-		return () => {
-			socket.off("my-event");
-		};
+			// Unsubscribe from the event when the component is unmounted
+			return () => {
+				socket.off("my-event");
+			};
+		}
 	}, [socket]);
 
 	return (
-		<Layout pageProps={pageProps}>
+		<Layout pageProps={pageProps} userData={userData}>
 			<div className="relative flex flex-1 flex-col">
 				<div>
 					<Image
@@ -115,4 +119,4 @@ const ChatRooms = ({ pageProps, socket }: { pageProps?: any, socket: Socket }) =
 	);
 }
 
-export default withSocket(ChatRooms)
+export default ChatRooms;
