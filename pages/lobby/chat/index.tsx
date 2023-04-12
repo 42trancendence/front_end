@@ -96,6 +96,15 @@ const ChatRooms: NextPageWithLayout = () => {
 					</div>
 				</div>
 			</div>
+			<div className="z-0 mt-3 grid w-3/4 grid-cols-1 gap-3 self-center rounded bg-zinc-800 p-60 shadow-neumreverse lg:grid-cols-3">
+			</div>
+			<div className="absolute bottom-5 right-8 ...">
+				<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
+						<NormalButton className="shadow" variant="bright">
+							채팅방 생성
+						</NormalButton>
+				</div>
+			</div>
 		</div>
 	);
 };
