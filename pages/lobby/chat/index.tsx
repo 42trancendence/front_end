@@ -15,7 +15,7 @@ const ChatRooms = ({ pageProps, socket }: { pageProps?: any, socket: Socket }) =
 
 	// user 정보 가져오기
 	useEffect(() => {
-		let accessToken = localStorage.get('token');
+		let accessToken = localStorage.getItem('token');
 
 		async function getUser() {
 			try {
