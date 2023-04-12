@@ -426,7 +426,7 @@ export default function SignUpPage() {
 													{is2faNext === "after" && (
 														<div className="relative flex w-full max-w-lg">
 															<label
-																htmlFor="validation_code"
+																htmlFor="validation_code_email"
 																className="sr-only"
 															>
 																인증번호
@@ -458,7 +458,7 @@ export default function SignUpPage() {
 													</div>
 													<div className="relative flex w-full max-w-lg mt-3">
 															<label
-																htmlFor="validation_code"
+																htmlFor="validation_code_qrcode"
 																className="sr-only"
 															>
 																인증번호
