@@ -13,6 +13,9 @@ const WithSocket = (WrappedComponent) => {
       // Connect to the server
       if (socketio) {
         socketio.connect();
+        socketio.on("connect", () => {
+          console.log("Connected to the server");
+        });
       }
       // Disconnect the socket when the component is unmounted
 
