@@ -3,12 +3,12 @@ import socket from "../lib/socket";
 import { Socket } from "socket.io-client";
 
 const WithSocket = (WrappedComponent) => {
-  const [socketio, setSocketio] = useState<Socket | null>(null);
+  let socketio: Socket;
 
   const WithSocketComponent = (props) => {
     useEffect(() => {
       const token = localStorage.getItem("token");
-      setSocketio(socket(token, "http://localhost:3000/users"));
+      socketio = socket(token, "http://localhost:3000/users");
       // Connect to the server
       if (socketio) {
         socketio.connect();

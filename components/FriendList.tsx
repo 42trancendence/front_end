@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import DefaultAvatarPic from "@/public/default_avatar.svg";
+import clsx from "clsx";
 
 export default function FreindList(userData: any) {
 	return (
