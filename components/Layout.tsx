@@ -6,10 +6,12 @@ import Loading from "./ui/Loading";
 
 export default function Layout({
 	pageProps,
+	userData,
 	children,
 }: {
-	pageProps?: any;
-	children: React.ReactNode;
+	pageProps?: any,
+	userData?: any,
+	children: React.ReactNode,
 }) {
 	const router = useRouter();
 	const [loading, setLoading] = useState(true);
@@ -49,7 +51,7 @@ export default function Layout({
 				</>
 			) : (
 				<div className="flex bg-zinc-800 text-white">
-					<NavBar />
+					<NavBar userData={userData} />
 					<div className="relative flex flex-1 w-full py-6 px-8">
 						{pageProps}
 						{children}

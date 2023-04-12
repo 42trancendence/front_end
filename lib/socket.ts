@@ -1,6 +1,12 @@
 import { io } from "socket.io-client";
 
-const SOCKET_SERVER_URL = "http://localhost:3000"; // Replace with server URL
-const socket = io(SOCKET_SERVER_URL);
+const socket = (token: string | null, SOCKET_SERVER_URL: string) => {
+	const socketio = io(SOCKET_SERVER_URL, {
+		extraHeaders: {
+			Authorization: `Bearer ${token}`,
+		}
+	});
+	return socketio;
+}
 
 export default socket;

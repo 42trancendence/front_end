@@ -12,6 +12,7 @@ const OverView = ({ pageProps, socket }: { pageProps?: any, socket: Socket }) =>
 
 	const [username, setUsername] = useState("");
 	const [avatar, setavatarUrl] = useState(DefaultAvatar);
+	const [userData, setuserData] = useState({});
 
 	// user 정보 가져오기
 	useEffect(() => {
@@ -23,7 +24,7 @@ const OverView = ({ pageProps, socket }: { pageProps?: any, socket: Socket }) =>
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",
-						"Authorization": `Bearer: ${accessToken}`,
+						"Authorization": `Bearer ${accessToken}`,
 					},
 				});
 				if (res.ok) {
@@ -58,7 +59,7 @@ const OverView = ({ pageProps, socket }: { pageProps?: any, socket: Socket }) =>
 	}, [socket]);
 
 	return (
-		<Layout pageProps={pageProps}>
+		<Layout pageProps={pageProps} userData={userData}>
 			<div className="relative flex flex-1 flex-col">
 				<div>
 					<Image

@@ -23,7 +23,7 @@ const navigation = [
 	{ name: "게임", href: "/lobby/game", icon: PlayIcon, current: false },
 ];
 
-export default function NavBar() {
+export default function NavBar(userData: any) {
 	return (
 		<div className="flex flex-col w-72 h-screen sticky top-0 border-r border-zinc-700">
 			<div className="flex grow flex-col gap-y-5 overflow-y-auto bg-zinc-900 px-6">
@@ -65,7 +65,7 @@ export default function NavBar() {
 								친구
 							</div>
 							<ul role="list" className="-mx-2 mt-2 space-y-1 p-2 bg-zinc-800 rounded-md">
-								<FreindList />
+								<FreindList userData={userData} />
 							</ul>
 						</li>
 					</ul>

@@ -23,7 +23,7 @@ const ChatRooms = ({ pageProps, socket }: { pageProps?: any, socket: Socket }) =
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",
-						"Authorization": `Bearer: ${accessToken}`,
+						"Authorization": `Bearer ${accessToken}`,
 					},
 				});
 				if (res.ok) {

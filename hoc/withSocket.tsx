@@ -1,22 +1,26 @@
 import React, { useEffect, useState } from "react";
 import socket from "../lib/socket";
+import { Socket } from "socket.io-client";
 
-const withSocket = (WrappedComponent) => {
+const WithSocket = (WrappedComponent) => {
+  const [socketio, setSocketio] = useState<Socket | null>(null);
+
   const WithSocketComponent = (props) => {
     useEffect(() => {
+      const token = localStorage.getItem("token");
+      setSocketio(socket(token, "http://localhost:3000/users"));
       // Connect to the server
-      socket.connect();
-
+      if (socketio) {
+        socketio.connect();
+      }
       // Disconnect the socket when the component is unmounted
-      return () => {
-        socket.disconnect();
-      };
+
     }, []);
 
-    return <WrappedComponent {...props} socket={socket} />;
+    return <WrappedComponent {...props} socket={socketio} />;
   };
 
   return WithSocketComponent;
 };
 
-export default withSocket;
+export default WithSocket;
