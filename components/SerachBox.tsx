@@ -3,6 +3,7 @@ import { ExclamationCircleIcon, MagnifyingGlassIcon } from "@heroicons/react/20/
 import clsx from "clsx";
 import DefaultAvatarPic from "@/public/default_avatar.svg";
 import { Fragment, useEffect, useState } from "react";
+import Image from "next/image";
 
 export default function SearchBox({
 	isOpen,
@@ -12,7 +13,9 @@ export default function SearchBox({
 	setIsOpen: any;
 }) {
 	const [query, setQuery] = useState("");
+	const [selectedUser, setSelectedUser] = useState("");
 	const [items, setItems] = useState<any>([]);
+
 	useEffect(() => {
 		const fetchItems = async () => {
 			try {
@@ -37,11 +40,11 @@ export default function SearchBox({
 		fetchItems();
 	}, []);
 	const filteredItems =
-		query === ""
-			? []
-			: items.filter((item) => {
-					return item.name.toLowerCase().includes(query.toLowerCase());
-			  });
+	query === ""
+		? []
+		: items.filter((item) => {
+				return item.name.toLowerCase().includes(query.toLowerCase());
+		  });
 	return (
 		<Transition.Root
 			show={isOpen}
@@ -73,7 +76,7 @@ export default function SearchBox({
 						leaveTo="opacity-0 scale-95"
 					>
 						<Dialog.Panel className="mx-auto max-w-xl transform divide-y divide-gray-100 overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
-							<Combobox>
+							<Combobox value={selectedUser} onChange={(item)=>setSelectedUser(item.name)}>
 								<div className="relative">
 									<MagnifyingGlassIcon
 										className="pointer-events-none absolute left-4 top-3.5 h-5 w-5 text-gray-400"
@@ -95,35 +98,26 @@ export default function SearchBox({
 											<Combobox.Option
 												key={item.id}
 												value={item}
-												className={({ active }: {active: boolean}) =>
-													clsx(
-														"flex cursor-default select-none rounded-xl p-3",
-														active && "bg-gray-100"
-													)
-												}
+												className="flex items-center justify-center cursor-default select-none rounded-xl p-3"
 											>
-												{({ active }) => (
-													<>
 														<div
-															className="flex h-10 w-10 flex-none items-center justify-center rounded-full"
+															className="flex h-10 w-10 bg-zinc-800 flex-none items-center justify-center rounded-full"
 														>
-															<DefaultAvatarPic
+															<Image
+																src={item.avatar || DefaultAvatarPic}
 																className="h-6 w-6 text-white"
-																aria-hidden="true"
+																alt=""
 															/>
 														</div>
 														<div className="ml-4 flex-auto">
 															<p
 																className={clsx(
-																	"text-base font-medium",
-																	active ? "text-gray-900" : "text-gray-700"
+																	"text-base font-medium"
 																)}
 															>
 																{item.name}
 															</p>
 														</div>
-													</>
-												)}
 											</Combobox.Option>
 										))}
 									</Combobox.Options>
