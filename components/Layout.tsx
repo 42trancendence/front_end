@@ -1,4 +1,7 @@
-import { checkIsLoggedIn, isTwoFactorAuthEnabled } from "@/utils/Authentication";
+import {
+	checkIsLoggedIn,
+	isTwoFactorAuthEnabled,
+} from "@/utils/Authentication";
 import { useRouter } from "next/router";
 import { useState, useEffect, useLayoutEffect, useContext } from "react";
 import NavBar from "./NavBar";
@@ -9,12 +12,12 @@ export default function Layout({
 	pageProps,
 	children,
 }: {
-	pageProps?: any,
-	children: React.ReactNode,
+	pageProps?: any;
+	children: React.ReactNode;
 }) {
 	const router = useRouter();
 	const [loading, setLoading] = useState(true);
-	const [userData, setuserData] = useState([]);
+	const [userData, setuserData] = useState<any>([]);
 
 	useEffect(() => {
 		const checkLoginStatus = async () => {
@@ -23,8 +26,7 @@ export default function Layout({
 
 			if (!token) {
 				router.push("/");
-			}
-			else {
+			} else {
 				/*
 				const isValidated2fa = await isTwoFactorAuthEnabled(token);
 				if (isValidated2fa !== 409) {
@@ -37,27 +39,33 @@ export default function Layout({
 				*/
 				setLoading(false);
 			}
-
 		};
 
 		checkLoginStatus();
 	}, [router]);
 
+	// 소켓 연결
 	const { socket } = useContext(SocketContext);
 	useEffect(() => {
+		function changeUserStatus(data: any) {
+			let copy = [...userData];
+			copy.forEach((user) => {
+				if (user.id === data.id) {
+					user = data;
+				}
+			});
+			setuserData(copy);
+		}
+
 		if (socket) {
-			socket.on("connect", () => {
-				console.log("Connected to server");
-			});
-			socket.on("disconnect", () => {
-				console.log("Disconnected from server");
-			});
-			socket.on("freindRequest", (data) => {
-				console.log(data);
+			socket.on("freindList", (data) => {
 				setuserData(data);
 			});
+			socket.on("freindActive", (data) => {
+				changeUserStatus(data);
+			});
 		}
-	}, [socket]);
+	}, [socket, userData]);
 
 	return (
 		<>
@@ -68,7 +76,7 @@ export default function Layout({
 			) : (
 				<div className="flex bg-zinc-800 text-white">
 					<NavBar userData={userData} />
-					<div className="relative flex flex-1 w-full py-6 px-8">
+					<div className="relative flex w-full flex-1 px-8 py-6">
 						{pageProps}
 						{children}
 					</div>

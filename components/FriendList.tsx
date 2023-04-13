@@ -4,7 +4,6 @@ import DefaultAvatarPic from "@/public/default_avatar.svg";
 import clsx from "clsx";
 
 export default function FreindList({userData}: any) {
-	console.log(userData);
 	return (
 		<>
 			{userData.map((user: any, index: number) => (
