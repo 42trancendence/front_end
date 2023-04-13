@@ -48,6 +48,12 @@ const OverView: NextPageWithLayout = () => {
 		getUser();
 	}, [username]);
 
+	const { socket } = useContext(SocketContext);
+	useEffect(() => {
+		if (socket) {
+			socket.emit("updateActiveStatus", 1);
+		}
+	}, [socket]);
 	return (
 		<div className="relative flex flex-1 flex-col">
 			<div>
