@@ -20,7 +20,10 @@ export default function FreindList({ userData }: any) {
 						<span className="flex-auto truncate">{user.name}</span>
 						<span
 							className={clsx(
-								user.status === true ? "bg-green-500" : "bg-red-500",
+								user.status === 1 ? "bg-green-500" :
+								user.status === 2 ? "bg-blue-500" :
+								user.status === 3 ? "bg-yellow-500" :
+								"bg-red-500",
 								"h-2 w-2 flex-none rounded-full"
 							)}
 						></span>

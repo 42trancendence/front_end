@@ -58,10 +58,10 @@ export default function Layout({
 		}
 
 		if (socket) {
-			socket.on("freindList", (data) => {
+			socket.on("friendList", (data) => {
 				setuserData(data);
 			});
-			socket.on("freindActive", (data) => {
+			socket.on("friendActive", (data) => {
 				changeUserStatus(data);
 			});
 		}
