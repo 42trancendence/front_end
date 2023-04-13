@@ -3,10 +3,10 @@ import Image from "next/image";
 import DefaultAvatarPic from "@/public/default_avatar.svg";
 import clsx from "clsx";
 
-export default function FreindList(userData: any) {
+export default function FreindList({userData}: any) {
 	return (
 		<>
-			{Object.keys(userData).map((user: any, index: number) => (
+			{userData.map((user: any, index: number) => (
 			<li key={index}>
 				<Link
 					href="#"

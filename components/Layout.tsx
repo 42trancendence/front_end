@@ -7,15 +7,14 @@ import { SocketContext } from "@/lib/socketContext";
 
 export default function Layout({
 	pageProps,
-	userData,
 	children,
 }: {
 	pageProps?: any,
-	userData?: any,
 	children: React.ReactNode,
 }) {
 	const router = useRouter();
 	const [loading, setLoading] = useState(true);
+	const [userData, setuserData] = useState({});
 
 	useEffect(() => {
 		const checkLoginStatus = async () => {
@@ -55,6 +54,7 @@ export default function Layout({
 			});
 			socket.on("freindRequest", (data) => {
 				console.log(data);
+				setuserData(data);
 			});
 		}
 	}, [socket]);

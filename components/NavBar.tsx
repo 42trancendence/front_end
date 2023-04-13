@@ -23,7 +23,7 @@ const navigation = [
 	{ name: "게임", href: "/lobby/game", icon: PlayIcon, current: false },
 ];
 
-export default function NavBar(userData: any) {
+export default function NavBar({userData}: any) {
 	return (
 		<div className="flex flex-col w-72 h-screen sticky top-0 border-r border-zinc-700">
 			<div className="flex grow flex-col gap-y-5 overflow-y-auto bg-zinc-900 px-6">
