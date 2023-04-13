@@ -7,11 +7,20 @@ import { ReactElement, useContext, useEffect, useState } from "react";
 import { handleRefresh } from "@/lib/auth-client";
 import { SocketContext, SocketProvider } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:3000/chat-room');
+
 
 const ChatRooms: NextPageWithLayout = () => {
+	
 	const [username, setUsername] = useState("");
 	const [avatar, setavatarUrl] = useState(DefaultAvatar);
 	const [userData, setuserData] = useState({});
+	const [name, setName] = useState('');
+	const [isPrivate, setIsPrivate] = useState(false);
+	const [password, setPassword] = useState('');
+	const [showCreateRoomPopup, setShowCreateRoomPopup] = useState(false);
 
 	// user 정보 가져오기
 	useEffect(() => {
@@ -43,6 +52,19 @@ const ChatRooms: NextPageWithLayout = () => {
 		}
 		getUser();
 	}, [username]);
+
+	const createChatRoom = () => {
+		console.log(name);
+		console.log(isPrivate);
+		console.log(password);
+		socket.emit('createChatRoom', {
+		name,
+		isPrivate,
+		password
+		})
+		setShowCreateRoomPopup(false);
+		console.log("test: front");
+	  };
 
 	return (
 		<div className="relative flex flex-1 flex-col">
@@ -100,9 +122,33 @@ const ChatRooms: NextPageWithLayout = () => {
 			</div>
 			<div className="absolute bottom-5 right-8 ...">
 				<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
-						<NormalButton className="shadow" variant="bright">
-							채팅방 생성
-						</NormalButton>
+					<NormalButton  onClick={() => setShowCreateRoomPopup(true)}
+						className="shadow" variant="bright">
+						채팅방 생성
+					</NormalButton>
+					{showCreateRoomPopup && (
+						<div>
+							<input
+								type="text"
+								value={name}
+								onChange={(e) => setName(e.target.value)}
+							/>
+							<input
+								type="checkbox"
+								checked={isPrivate}
+								onChange={() => setIsPrivate(prevState => !prevState)}
+							/>
+							{isPrivate && (
+								<input
+								type="text"
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								/>
+							)}
+						<button onClick={createChatRoom}>생성</button>
+						<button onClick={() => setShowCreateRoomPopup(false)}>취소</button>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>
