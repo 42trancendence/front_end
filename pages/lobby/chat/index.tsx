@@ -5,7 +5,7 @@ import ProfileBackground from "@/public/profile_background.jpg";
 import { NormalButton } from "@/components/ui/NormalButton";
 import { ReactElement, useContext, useEffect, useState } from "react";
 import { handleRefresh } from "@/lib/auth-client";
-import { SocketContext, SocketProvider } from "@/lib/socketContext";
+import { ChatSocketProvider, SocketContext, SocketProvider } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
 
 const ChatRooms: NextPageWithLayout = () => {
@@ -103,7 +103,9 @@ const ChatRooms: NextPageWithLayout = () => {
 ChatRooms.getLayout = function getLayout(page: ReactElement) {
 	return (
 		<SocketProvider>
-			<Layout>{page}</Layout>
+			<ChatSocketProvider>
+				<Layout>{page}</Layout>
+			</ChatSocketProvider>
 		</SocketProvider>
 	);
 };
