@@ -49,7 +49,7 @@ export default function Layout({
 	useEffect(() => {
 		function changeUserStatus(data: any) {
 			let copy = [...userData];
-			copy.forEach((user) => {
+			copy.map((user) => {
 				if (user.id === data.id) {
 					user = data;
 				}
@@ -58,10 +58,10 @@ export default function Layout({
 		}
 
 		if (socket) {
-			socket.on("freindList", (data) => {
+			socket.on("friendList", (data) => {
 				setuserData(data);
 			});
-			socket.on("freindActive", (data) => {
+			socket.on("friendActive", (data) => {
 				changeUserStatus(data);
 			});
 		}
