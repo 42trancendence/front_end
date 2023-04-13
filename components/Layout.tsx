@@ -14,7 +14,7 @@ export default function Layout({
 }) {
 	const router = useRouter();
 	const [loading, setLoading] = useState(true);
-	const [userData, setuserData] = useState({});
+	const [userData, setuserData] = useState([]);
 
 	useEffect(() => {
 		const checkLoginStatus = async () => {
