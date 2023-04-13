@@ -131,17 +131,20 @@ const ChatRooms: NextPageWithLayout = () => {
 								type="text"
 								value={name}
 								onChange={(e) => setName(e.target.value)}
+								className="bg-black text-white px-3 py-2 rounded-md mb-3"
 							/>
 							<input
 								type="checkbox"
 								checked={isPrivate}
 								onChange={() => setIsPrivate(prevState => !prevState)}
+								className="mb-3"
 							/>
 							{isPrivate && (
 								<input
 								type="text"
 								value={password}
 								onChange={(e) => setPassword(e.target.value)}
+								className="bg-black text-white px-3 py-2 rounded-md mb-3"
 								/>
 							)}
 						<button onClick={createChatRoom}>생성</button>
