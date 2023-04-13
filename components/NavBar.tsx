@@ -12,6 +12,7 @@ import { useRouter } from "next/router";
 import { useContext, useEffect, useState } from "react";
 import { SocketContext } from "@/lib/socketContext";
 import { Dialog } from "@headlessui/react";
+import SearchBox from "./SerachBox";
 
 function classNames(...classes: string[]) {
 	return classes.filter(Boolean).join(" ");
@@ -58,41 +59,15 @@ function NavItem({ item }: { item: NavigationItem }) {
 	);
 }
 
-export function SearchBox({
-	isOpen,
-	setIsOpen,
-}: {
-	isOpen: boolean;
-	setIsOpen: any;
-}) {
-	return (
-		<Dialog
-			open={isOpen}
-			onClose={() => setIsOpen(false)}
-			className="relative z-50"
-		>
-			<div
-				className="fixed inset-0 bg-zinc-900 bg-opacity-90 transition-opacity"
-				aria-hidden="true"
-			>
-				<div className="fixed inset-0 z-10 overflow-y-auto">
-					<Dialog.Panel className="relative overflow-hidden rounded-lg bg-zinc-800 px-4 pb-4 pt-5 text-left shadow-xl sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
-
-					</Dialog.Panel>
-				</div>
-			</div>
-		</Dialog>
-	);
-}
-
 export default function NavBar({ userData }: any) {
-	function SearchUsers() {
-		console.log("유저 검색");
-	}
 	const [isSerchBoxOpen, setIsSerchBoxOpen] = useState(false);
+	function SearchUsers() {
+		setIsSerchBoxOpen(true);
+	}
 
 	return (
 		<>
+			<SearchBox isOpen={isSerchBoxOpen} setIsOpen={setIsSerchBoxOpen} />
 			<div className="sticky top-0 flex h-screen w-72 flex-col border-r border-zinc-700">
 				<div className="flex grow flex-col gap-y-5 overflow-y-auto bg-zinc-900 px-6">
 					<div className="flex h-16 shrink-0 items-center">
