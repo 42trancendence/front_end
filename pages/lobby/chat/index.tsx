@@ -63,7 +63,6 @@ const ChatRooms: NextPageWithLayout = () => {
 		password
 		})
 		setShowCreateRoomPopup(false);
-		console.log("test: front");
 	  };
 
 	return (
@@ -121,13 +120,13 @@ const ChatRooms: NextPageWithLayout = () => {
 			<div className="z-0 mt-3 grid w-3/4 grid-cols-1 gap-3 self-center rounded bg-zinc-800 p-60 shadow-neumreverse lg:grid-cols-3">
 			</div>
 			<div className="absolute bottom-5 right-8 ...">
-				<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
+				<div className="flex -mt-12 w-24 flex-col items-center justify-center space-y-3 text-sm">
 					<NormalButton  onClick={() => setShowCreateRoomPopup(true)}
 						className="shadow" variant="bright">
 						채팅방 생성
 					</NormalButton>
 					{showCreateRoomPopup && (
-						<div>
+						<div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 grid w-60 rounded bg-zinc-800 shadow-neumreverse">
 							<input
 								type="text"
 								value={name}
