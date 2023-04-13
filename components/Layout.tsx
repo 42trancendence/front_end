@@ -49,12 +49,14 @@ export default function Layout({
 	useEffect(() => {
 		function changeUserStatus(data: any) {
 			let copy = [...userData];
-			copy.map((user) => {
+			const alteredCopy = copy.map((user) => {
 				if (user.id === data.id) {
-					user = data;
+					return data;
+				} else {
+					return user;
 				}
 			});
-			setuserData(copy);
+			setuserData(alteredCopy);
 		}
 
 		if (socket) {
