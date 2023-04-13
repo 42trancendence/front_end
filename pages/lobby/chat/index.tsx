@@ -115,7 +115,7 @@ const ChatRooms: NextPageWithLayout = () => {
 ChatRooms.getLayout = function getLayout(page: ReactElement) {
 	return (
 		<SocketProvider>
-			<ChatSocketProvider>
+			<ChatSocketProvider isOpen={true}>
 				<Layout>{page}</Layout>
 			</ChatSocketProvider>
 		</SocketProvider>
