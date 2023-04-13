@@ -20,7 +20,8 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
 		extraHeaders: {
 			Authorization: `Bearer ${localStorage.getItem('token')}`
 		}
-	}); // Replace with your server URL
+	}); 
+    console.log(newSocket)// Replace with your server URL
     setSocket(newSocket);
 
 	return () => {
