@@ -4,27 +4,58 @@ import DefaultAvatar from "@/public/default_avatar.svg";
 import ProfileBackground from "@/public/profile_background.jpg";
 import { NormalButton } from "@/components/ui/NormalButton";
 import { useEffect, useState } from "react";
+import withSocket from "@/hoc/withSocket";
+import { Socket } from "socket.io-client";
+import { handleRefresh } from "@/lib/auth-client";
 
-export default function OverView({ pageProps }: { pageProps?: any }) {
+const OverView = ({ pageProps, socket }: { pageProps?: any, socket: Socket }) => {
 
 	const [username, setUsername] = useState("");
-	const [avatar, setavatarUrl] = useState("");
+	const [avatar, setavatarUrl] = useState(DefaultAvatar);
 
+	// user 정보 가져오기
 	useEffect(() => {
+		let accessToken = localStorage.getItem('token');
+
 		async function getUser() {
-			const res = await fetch("http://localhost:3000/users/me", {
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-					"Authorization": "Bearer " + localStorage.getItem("token"),
-				},
-			});
-			const data = await res.json();
-			setUsername(data.name);
-			setavatarUrl(data.avatar);
+			try {
+				const res = await fetch("http://localhost:3000/users/me", {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+						"Authorization": `Bearer: ${accessToken}`,
+					},
+				});
+				if (res.ok) {
+					const userData = await res.json();
+					setUsername(userData.name);
+					setavatarUrl(userData.avatar);
+					return userData;
+				} else if (res.status === 401) { // Unauthorized, try to refresh the access token
+					await handleRefresh(getUser);
+				} else {
+					return null;
+				}
+
+			} catch (error) {
+				console.log(error);
+			}
 		}
 		getUser();
 	}, [username]);
+
+	// socket.io 테스트
+	useEffect(() => {
+		// Subscribe to a specific event
+		socket.on("my-event", (data) => {
+			console.log("Received data from server:", data);
+		});
+
+		// Unsubscribe from the event when the component is unmounted
+		return () => {
+			socket.off("my-event");
+		};
+	}, [socket]);
 
 	return (
 		<Layout pageProps={pageProps}>
@@ -83,3 +114,5 @@ export default function OverView({ pageProps }: { pageProps?: any }) {
 		</Layout>
 	);
 }
+
+export default withSocket(OverView)
