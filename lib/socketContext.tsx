@@ -37,21 +37,30 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
 	);
 };
 
-const ChatSocketProvider = ({ children }: SocketProviderProps) => {
+const ChatSocketProvider = ({
+	isOpen,
+	children,
+}: {
+	isOpen: boolean;
+	children: ReactNode;
+}) => {
 	const [socket, setSocket] = useState<Socket | null>(null);
 
 	useEffect(() => {
-		const newSocket = io("http://localhost:3000/users", {
-			extraHeaders: {
-				Authorization: `Bearer ${localStorage.getItem("token")}`,
-			},
-		}); // Replace with your server URL
-		setSocket(newSocket);
+		if (isOpen === false) return;
+		else {
+			const newSocket = io("http://localhost:3000/users", {
+				extraHeaders: {
+					Authorization: `Bearer ${localStorage.getItem("token")}`,
+				},
+			}); // Replace with your server URL
+			setSocket(newSocket);
 
-		return () => {
-			newSocket.close();
-		};
-	}, []);
+			return () => {
+				newSocket.close();
+			};
+		}
+	}, [isOpen]);
 
 	return (
 		<ChatSocketContext.Provider value={{ socket }}>
