@@ -49,7 +49,7 @@ export default function Layout({
 	useEffect(() => {
 		function changeUserStatus(data: any) {
 			let copy = [...userData];
-			copy.forEach((user) => {
+			copy.map((user) => {
 				if (user.id === data.id) {
 					user = data;
 				}
