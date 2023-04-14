@@ -5,7 +5,12 @@ import ProfileBackground from "@/public/profile_background.jpg";
 import { NormalButton } from "@/components/ui/NormalButton";
 import { ReactElement, useContext, useEffect, useState } from "react";
 import { handleRefresh } from "@/lib/auth-client";
-import { ChatSocketProvider, SocketContext, SocketProvider } from "@/lib/socketContext";
+import {
+	ChatSocketContext,
+	ChatSocketProvider,
+	SocketContext,
+	SocketProvider,
+} from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
 
 const ChatRooms: NextPageWithLayout = () => {
@@ -43,6 +48,13 @@ const ChatRooms: NextPageWithLayout = () => {
 		}
 		getUser();
 	}, [username]);
+
+	const { socket } = useContext(SocketContext);
+	useEffect(() => {
+		if (socket) {
+			socket.emit("updateActiveStatus", 2);
+		}
+	}, [socket]);
 
 	return (
 		<div className="relative flex flex-1 flex-col">
@@ -103,7 +115,7 @@ const ChatRooms: NextPageWithLayout = () => {
 ChatRooms.getLayout = function getLayout(page: ReactElement) {
 	return (
 		<SocketProvider>
-			<ChatSocketProvider>
+			<ChatSocketProvider isOpen={true}>
 				<Layout>{page}</Layout>
 			</ChatSocketProvider>
 		</SocketProvider>

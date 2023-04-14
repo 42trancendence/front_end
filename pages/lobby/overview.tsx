@@ -5,7 +5,11 @@ import ProfileBackground from "@/public/profile_background.jpg";
 import { NormalButton } from "@/components/ui/NormalButton";
 import { ReactElement, useContext, useEffect, useState } from "react";
 import { handleRefresh } from "@/lib/auth-client";
-import { SocketContext, SocketProvider } from "@/lib/socketContext";
+import {
+	ChatSocketProvider,
+	SocketContext,
+	SocketProvider,
+} from "@/lib/socketContext";
 import { NextPageWithLayout } from "../_app";
 
 const OverView: NextPageWithLayout = () => {
@@ -44,6 +48,12 @@ const OverView: NextPageWithLayout = () => {
 		getUser();
 	}, [username]);
 
+	const { socket } = useContext(SocketContext);
+	useEffect(() => {
+		if (socket) {
+			socket.emit("updateActiveStatus", 1);
+		}
+	}, [socket]);
 	return (
 		<div className="relative flex flex-1 flex-col">
 			<div>
@@ -103,7 +113,9 @@ const OverView: NextPageWithLayout = () => {
 OverView.getLayout = function getLayout(page: ReactElement) {
 	return (
 		<SocketProvider>
-			<Layout>{page}</Layout>
+			<ChatSocketProvider isOpen={false}>
+				<Layout>{page}</Layout>
+			</ChatSocketProvider>
 		</SocketProvider>
 	);
 };
