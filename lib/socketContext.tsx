@@ -24,7 +24,6 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
 			},
 		}); // Replace with your server URL
 		setSocket(newSocket);
-
 		return () => {
 			newSocket.close();
 		};
@@ -41,7 +40,7 @@ const ChatSocketProvider = ({ children }: SocketProviderProps) => {
 	const [socket, setSocket] = useState<Socket | null>(null);
 
 	useEffect(() => {
-		const newSocket = io("http://localhost:3000/users", {
+		const newSocket = io("http://localhost:3000/chat-room", {
 			extraHeaders: {
 				Authorization: `Bearer ${localStorage.getItem("token")}`,
 			},

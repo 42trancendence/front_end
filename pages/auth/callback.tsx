@@ -30,7 +30,6 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 	if (token) {
 		const isValidated2fa = await isTwoFactorAuthEnabled(token as string);
 		if (isValidated2fa === 401) {
-
 			return {
 				redirect: {
 					destination: "/",

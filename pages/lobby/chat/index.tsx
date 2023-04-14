@@ -23,6 +23,8 @@ const ChatRooms: NextPageWithLayout = () => {
 	const [isPrivate, setIsPrivate] = useState(false);
 	const [password, setPassword] = useState('');
 	const [showCreateRoomPopup, setShowCreateRoomPopup] = useState(false);
+	const [chatRooms, setChatRooms] = useState([]);
+
 
 	// user 정보 가져오기
 	useEffect(() => {
@@ -62,12 +64,16 @@ const ChatRooms: NextPageWithLayout = () => {
 	const { socket } = useContext(ChatSocketContext);
 	useEffect(() => {
 		if (socket) {
-			socket.on("showChatRoomList", function(data) {
-				showChatRoomList(data);
-			});
+			console.log("socket connected!");
 		}
 	}, [socket]);
 
+
+	socket?.on("showChatRoomList", function(data) {
+		setChatRooms(data);
+		console.log("chatrooms data : ", data)
+		showChatRoomList(data);
+	})
 
 	const createChatRoom = () => {
 		socket?.emit('createChatRoom', {
@@ -75,6 +81,9 @@ const ChatRooms: NextPageWithLayout = () => {
 		isPrivate: String(isPrivate),
 		password
 		})
+		socket?.on('error', (error) => {
+			console.log(error); // 서버에서 전달된 에러 메시지 출력
+		  });
 		setShowCreateRoomPopup(false);
 	  };
 
@@ -84,23 +93,36 @@ const ChatRooms: NextPageWithLayout = () => {
 			<p className="text-4xl text-left text-[#939efb]">나의 채팅방 목록</p>
 
 
-			<div className="flex w-8/9 h-[774px] rounded-[14px] bg-[#616161]">
-				<div className="flex w-5/6 h-[40px] place-content-center grid rounded-[15px] bg-[#3a3a3a] grid-cols-1 gap-8 ">
-					<div className="flex divide-x-4	 divide-zinc-400">
+			<div className="flex grid gird-rows w-8/9 h-[774px] rounded-[14px] bg-[#616161] gap-5">
+				<div className="flex w-5/6 h-[40px] grid rounded-[15px] bg-[#3a3a3a] grid-cols-1 gap-8 ">
+					<div className="flex divide-x-4 divide-zinc-400">
 						<div className="flex w-1/4 flex-col items-center justify-center text-sm">
-							<p className="text-[#bbc2ff]">채팅방 이름</p>
+						<p className="text-[#bbc2ff]">채팅방 이름</p>
 						</div>
 						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
-							<p className="text-[#bbc2ff]">방장 닉네임</p>
+						<p className="text-[#bbc2ff]">방장 닉네임</p>
 						</div>
 						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
-							<p className="text-[#bbc2ff]">공개 채널</p>
+						<p className="text-[#bbc2ff]">공개 채널</p>
 						</div>
 						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
-							<p className="text-[#bbc2ff]">4명</p>
+						<p className="text-[#bbc2ff]">4명</p>
 						</div>
 					</div>
 				</div>
+				{chatRooms.map((room) => (
+					<div className="flex divide-x-4 divide-zinc-400">
+						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
+							<p className="text-[#bbc2ff]">{room.name}</p>
+						</div>
+						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
+							<p className="text-[#bbc2ff]">{room.owner || '---'}</p>
+						</div>
+						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
+							<p className="text-[#bbc2ff]">{room.isPrivate ? '비공개' : '공개'}</p>
+						</div>
+					</div>
+					))}
 			</div>
 			<div className="absolute bottom-5 right-8 ...">
 				<div className="flex -mt-12 w-24 flex-col items-center justify-center space-y-3 text-sm">
