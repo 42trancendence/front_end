@@ -3,6 +3,8 @@ import Image from "next/image";
 import DefaultAvatar from "@/public/default_avatar.svg";
 import ProfileBackground from "@/public/profile_background.jpg";
 import { NormalButton } from "@/components/ui/NormalButton";
+import CloseButton from "@/components/ui/CloseButton"
+import OpenButton from "@/components/ui/OpenButton"
 import { ReactElement, useContext, useEffect, useState } from "react";
 import { handleRefresh } from "@/lib/auth-client";
 import {
@@ -13,15 +15,19 @@ import {
 } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
 
+
 const ChatRooms: NextPageWithLayout = () => {
 	const [username, setUsername] = useState("");
 	const [avatar, setavatarUrl] = useState(DefaultAvatar);
 	const [userData, setuserData] = useState({});
+	const [name, setName] = useState('');
+	const [isPrivate, setIsPrivate] = useState(false);
+	const [password, setPassword] = useState('');
+	const [showCreateRoomPopup, setShowCreateRoomPopup] = useState(false);
 
 	// user 정보 가져오기
 	useEffect(() => {
 		let accessToken = localStorage.getItem("token");
-
 		async function getUser() {
 			try {
 				const res = await fetch("http://localhost:3000/users/me", {
@@ -49,68 +55,89 @@ const ChatRooms: NextPageWithLayout = () => {
 		getUser();
 	}, [username]);
 
-	const { socket } = useContext(SocketContext);
+	function showChatRoomList(data: any)
+	{
+		console.log(data);
+	}
+
+	const { socket } = useContext(ChatSocketContext);
 	useEffect(() => {
 		if (socket) {
-			socket.emit("updateActiveStatus", 2);
+			socket.on("showChatRoomList", function(data) {
+				showChatRoomList(data);
+			});
 		}
 	}, [socket]);
 
+
+	const createChatRoom = () => {
+		socket?.emit('createChatRoom', {
+		name,
+		isPrivate: String(isPrivate),
+		password
+		})
+		setShowCreateRoomPopup(false);
+	  };
+
 	return (
 		<div className="relative flex flex-1 flex-col">
-			<div>
-				<Image
-					className="h-48 w-full rounded-lg object-cover lg:h-56"
-					src={ProfileBackground}
-					alt=""
-				/>
+
+			<p className="text-4xl text-left text-[#939efb]">나의 채팅방 목록</p>
+
+
+			<div className="flex w-8/9 h-[774px] rounded-[14px] bg-[#616161]">
+				<div className="flex w-5/6 h-[40px] place-content-center grid rounded-[15px] bg-[#3a3a3a] grid-cols-1 gap-8 ">
+					<div className="flex divide-x-4	 divide-zinc-400">
+						<div className="flex w-1/4 flex-col items-center justify-center text-sm">
+							<p className="text-[#bbc2ff]">채팅방 이름</p>
+						</div>
+						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
+							<p className="text-[#bbc2ff]">방장 닉네임</p>
+						</div>
+						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
+							<p className="text-[#bbc2ff]">공개 채널</p>
+						</div>
+						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
+							<p className="text-[#bbc2ff]">4명</p>
+						</div>
+					</div>
+				</div>
 			</div>
-			<div className="-mt-12 flex space-x-5 self-center sm:-mt-36">
-				<div className="z-20 flex">
-					<Image
-						className="h-24 w-24 rounded-full bg-zinc-800 shadow ring-4 ring-zinc-800 sm:h-32 sm:w-32"
-						src={avatar}
-						alt=""
-						width={300}
-						height={300}
-					/>
-				</div>
-			</div>
-			<div className="z-10 -mt-6 grid w-3/4 grid-cols-1 gap-3 self-center rounded bg-zinc-800 p-6 shadow-neumreverse lg:grid-cols-3">
-				<div className="flex divide-x divide-zinc-400">
-					<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
-						<p className="text-zinc-400">Total games</p>
-						<p className="text-lg font-semibold">100</p>
-					</div>
-					<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
-						<p className="text-zinc-400">Win</p>
-						<p className="text-lg font-semibold">50</p>
-					</div>
-					<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
-						<p className="text-zinc-400">Lose</p>
-						<p className="text-lg font-semibold">50</p>
-					</div>
-				</div>
-				<div className="m-auto flex">
-					<div className="text-2xl font-bold">
-						<p className="text-white">{username}</p>
-					</div>
-				</div>
-				<div className="ml-auto flex divide-x divide-zinc-400">
-					<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
-						<p className="text-zinc-400">Achievement</p>
-						<p className="text-lg font-semibold">1</p>
-					</div>
-					<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
-						<NormalButton className="shadow" variant="bright">
-							Edit
-						</NormalButton>
-					</div>
+			<div className="absolute bottom-5 right-8 ...">
+				<div className="flex -mt-12 w-24 flex-col items-center justify-center space-y-3 text-sm">
+					{!showCreateRoomPopup && <OpenButton onClick={() => setShowCreateRoomPopup(true)} />}
+					{showCreateRoomPopup && <CloseButton onClick={() => setShowCreateRoomPopup(false)} />}
+					{showCreateRoomPopup && (
+						<div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 grid w-60 rounded bg-zinc-800 shadow-neumreverse">
+							<input
+								type="text"
+								value={name}
+								onChange={(e) => setName(e.target.value)}
+								className="bg-black text-white px-3 py-2 rounded-md mb-3"
+							/>
+							<input
+								type="checkbox"
+								checked={isPrivate}
+								onChange={() => setIsPrivate(prevState => !prevState)}
+								className="mb-3"
+							/>
+							{isPrivate && (
+								<input
+								type="text"
+								value={password}
+								onChange={(e) => setPassword(e.target.value)}
+								className="bg-black text-white px-3 py-2 rounded-md mb-3"
+								/>
+							)}
+						<button onClick={createChatRoom}>생성</button>
+						</div>
+					)}
 				</div>
 			</div>
 		</div>
 	);
 };
+
 
 ChatRooms.getLayout = function getLayout(page: ReactElement) {
 	return (
