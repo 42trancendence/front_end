@@ -9,6 +9,7 @@ interface SocketContextValue {
 const SocketContext = createContext<SocketContextValue>({ socket: null });
 const ChatSocketContext = createContext<SocketContextValue>({ socket: null });
 const GameSocketContext = createContext<SocketContextValue>({ socket: null });
+const FriendSocketContext = createContext<SocketContextValue>({ socket: null });
 
 interface SocketProviderProps {
 	children: ReactNode;
@@ -24,6 +25,7 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
 			},
 		}); // Replace with your server URL
 		setSocket(newSocket);
+
 		return () => {
 			newSocket.close();
 		};
@@ -36,21 +38,30 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
 	);
 };
 
-const ChatSocketProvider = ({ children }: SocketProviderProps) => {
+const ChatSocketProvider = ({
+	isOpen,
+	children,
+}: {
+	isOpen: boolean;
+	children: ReactNode;
+}) => {
 	const [socket, setSocket] = useState<Socket | null>(null);
 
 	useEffect(() => {
-		const newSocket = io("http://localhost:3000/chat-room", {
-			extraHeaders: {
-				Authorization: `Bearer ${localStorage.getItem("token")}`,
-			},
-		}); // Replace with your server URL
-		setSocket(newSocket);
+		if (isOpen === false) return;
+		else {
+			const newSocket = io("http://localhost:3000/users", {
+				extraHeaders: {
+					Authorization: `Bearer ${localStorage.getItem("token")}`,
+				},
+			}); // Replace with your server URL
+			setSocket(newSocket);
 
-		return () => {
-			newSocket.close();
-		};
-	}, []);
+			return () => {
+				newSocket.close();
+			};
+		}
+	}, [isOpen]);
 
 	return (
 		<ChatSocketContext.Provider value={{ socket }}>
@@ -82,10 +93,35 @@ const GameSocketProvider = ({ children }: SocketProviderProps) => {
 	);
 };
 
+const FriendSocketProvider = ({ children }: SocketProviderProps) => {
+	const [socket, setSocket] = useState<Socket | null>(null);
+
+	useEffect(() => {
+		const newSocket = io("http://localhost:3000/friends", {
+			extraHeaders: {
+				Authorization: `Bearer ${localStorage.getItem("token")}`,
+			},
+		}); // Replace with your server URL
+		setSocket(newSocket);
+
+		return () => {
+			newSocket.close();
+		};
+	}, []);
+
+	return (
+		<GameSocketContext.Provider value={{ socket }}>
+			{children}
+		</GameSocketContext.Provider>
+	);
+};
+
 export {
 	SocketContext,
 	SocketProvider,
 	ChatSocketContext,
+	FriendSocketProvider,
+	FriendSocketContext,
 	ChatSocketProvider,
 	GameSocketContext,
 	GameSocketProvider,

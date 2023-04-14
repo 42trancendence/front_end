@@ -113,7 +113,7 @@ const OverView: NextPageWithLayout = () => {
 OverView.getLayout = function getLayout(page: ReactElement) {
 	return (
 		<SocketProvider>
-			<ChatSocketProvider>
+			<ChatSocketProvider isOpen={false}>
 				<Layout>{page}</Layout>
 			</ChatSocketProvider>
 		</SocketProvider>
