@@ -19,7 +19,7 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
 	const [socket, setSocket] = useState<Socket | null>(null);
 
 	useEffect(() => {
-		const newSocket = io("http://localhost:3000/users", {
+		const newSocket = io("http://localhost:3000/friend", {
 			extraHeaders: {
 				Authorization: `Bearer ${localStorage.getItem("token")}`,
 			},
@@ -44,13 +44,13 @@ const ChatSocketProvider = ({
 }: {
 	isOpen: boolean;
 	children: ReactNode;
-}) => {
+}) => {	
 	const [socket, setSocket] = useState<Socket | null>(null);
 
 	useEffect(() => {
 		if (isOpen === false) return;
 		else {
-			const newSocket = io("http://localhost:3000/users", {
+			const newSocket = io("http://localhost:3000/chat-room", {
 				extraHeaders: {
 					Authorization: `Bearer ${localStorage.getItem("token")}`,
 				},
@@ -93,35 +93,10 @@ const GameSocketProvider = ({ children }: SocketProviderProps) => {
 	);
 };
 
-const FriendSocketProvider = ({ children }: SocketProviderProps) => {
-	const [socket, setSocket] = useState<Socket | null>(null);
-
-	useEffect(() => {
-		const newSocket = io("http://localhost:3000/friend", {
-			extraHeaders: {
-				Authorization: `Bearer ${localStorage.getItem("token")}`,
-			},
-		}); // Replace with your server URL
-		setSocket(newSocket);
-
-		return () => {
-			newSocket.close();
-		};
-	}, []);
-
-	return (
-		<GameSocketContext.Provider value={{ socket }}>
-			{children}
-		</GameSocketContext.Provider>
-	);
-};
-
 export {
 	SocketContext,
 	SocketProvider,
 	ChatSocketContext,
-	FriendSocketProvider,
-	FriendSocketContext,
 	ChatSocketProvider,
 	GameSocketContext,
 	GameSocketProvider,
