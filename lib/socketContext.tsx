@@ -9,6 +9,7 @@ interface SocketContextValue {
 const SocketContext = createContext<SocketContextValue>({ socket: null });
 const ChatSocketContext = createContext<SocketContextValue>({ socket: null });
 const GameSocketContext = createContext<SocketContextValue>({ socket: null });
+const FriendSocketContext = createContext<SocketContextValue>({ socket: null });
 
 interface SocketProviderProps {
 	children: ReactNode;
@@ -18,7 +19,7 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
 	const [socket, setSocket] = useState<Socket | null>(null);
 
 	useEffect(() => {
-		const newSocket = io("http://localhost:3000/users", {
+		const newSocket = io("http://localhost:3000/friend", {
 			extraHeaders: {
 				Authorization: `Bearer ${localStorage.getItem("token")}`,
 			},
@@ -43,13 +44,13 @@ const ChatSocketProvider = ({
 }: {
 	isOpen: boolean;
 	children: ReactNode;
-}) => {
+}) => {	
 	const [socket, setSocket] = useState<Socket | null>(null);
 
 	useEffect(() => {
 		if (isOpen === false) return;
 		else {
-			const newSocket = io("http://localhost:3000/users", {
+			const newSocket = io("http://localhost:3000/chat-room", {
 				extraHeaders: {
 					Authorization: `Bearer ${localStorage.getItem("token")}`,
 				},
