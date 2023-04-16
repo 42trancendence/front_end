@@ -2,8 +2,10 @@ import { Combobox, Dialog, Transition } from "@headlessui/react";
 import { ExclamationCircleIcon, MagnifyingGlassIcon } from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import DefaultAvatarPic from "@/public/default_avatar.svg";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import Image from "next/image";
+import { NormalButton } from "./ui/NormalButton";
+import { SocketContext } from "@/lib/socketContext";
 
 export default function SearchBox({
 	isOpen,
@@ -17,7 +19,7 @@ export default function SearchBox({
 	const [items, setItems] = useState<any>([]);
 
 	useEffect(() => {
-		const fetchItems = async () => {
+		const fetchUsers = async () => {
 			try {
 				const res = await fetch("http://localhost:3000/users", {
 					method: "GET",
@@ -37,14 +39,20 @@ export default function SearchBox({
 				console.log(error);
 			}
 		};
-		fetchItems();
+		fetchUsers();
 	}, []);
 	const filteredItems =
 	query === ""
 		? []
-		: items.filter((item) => {
+		: items.filter((item: any) => {
 				return item.name.toLowerCase().includes(query.toLowerCase());
 		  });
+
+	const {socket} = useContext(SocketContext);
+	const addFriend = (event: React.MouseEvent<HTMLElement>, item: any) => {
+		console.log(event);
+		socket?.emit("add-friend", {friendId: item.id});
+	}
 	return (
 		<Transition.Root
 			show={isOpen}
@@ -76,7 +84,7 @@ export default function SearchBox({
 						leaveTo="opacity-0 scale-95"
 					>
 						<Dialog.Panel className="mx-auto max-w-xl transform divide-y divide-gray-100 overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
-							<Combobox value={selectedUser} onChange={(item)=>setSelectedUser(item.name)}>
+							<Combobox value={selectedUser} onChange={(item: any)=>setSelectedUser(item.name)}>
 								<div className="relative">
 									<MagnifyingGlassIcon
 										className="pointer-events-none absolute left-4 top-3.5 h-5 w-5 text-gray-400"
@@ -94,7 +102,7 @@ export default function SearchBox({
 										static
 										className="max-h-96 scroll-py-3 overflow-y-auto p-3"
 									>
-										{filteredItems.map((item) => (
+										{filteredItems.map((item: any) => (
 											<Combobox.Option
 												key={item.id}
 												value={item}
@@ -109,7 +117,7 @@ export default function SearchBox({
 																alt=""
 															/>
 														</div>
-														<div className="ml-4 flex-auto">
+														<div className="ml-4 mr-auto flex-auto">
 															<p
 																className={clsx(
 																	"text-base font-medium"
@@ -117,6 +125,10 @@ export default function SearchBox({
 															>
 																{item.name}
 															</p>
+														</div>
+														<div>
+															<NormalButton variant="dark" className="border mr-2" onClick={(e) => addFriend(e, item)}>친구신청</NormalButton>
+															<NormalButton variant="bright" className="border" >정보</NormalButton>
 														</div>
 											</Combobox.Option>
 										))}
