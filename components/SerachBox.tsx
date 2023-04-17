@@ -18,6 +18,7 @@ export default function SearchBox({
 	const [selectedUser, setSelectedUser] = useState("");
 	const [items, setItems] = useState<any>([]);
 
+	// 모든 유저 검색
 	useEffect(() => {
 		const fetchUsers = async () => {
 			try {
@@ -41,17 +42,18 @@ export default function SearchBox({
 		};
 		fetchUsers();
 	}, []);
+	// 검색된 유저 필터링
 	const filteredItems =
 	query === ""
 		? []
 		: items.filter((item: any) => {
-				return item.name.toLowerCase().includes(query.toLowerCase());
+				return item.name.toLowerCase().startsWith(query.toLowerCase());
 		  });
 
+	// 친구 추가 소켓 이벤트
 	const {socket} = useContext(SocketContext);
 	const addFriend = (event: React.MouseEvent<HTMLElement>, item: any) => {
-		console.log(event);
-		socket?.emit("add-friend", {friendId: item.id});
+		socket?.emit("addFriend", {friendName: item.name});
 	}
 	return (
 		<Transition.Root
