@@ -73,7 +73,7 @@ const GameSocketProvider = ({ children }: SocketProviderProps) => {
 	const [socket, setSocket] = useState<Socket | null>(null);
 
 	useEffect(() => {
-		const newSocket = io("http://localhost:3000/users", {
+		const newSocket = io("http://localhost:3000/game", {
 			extraHeaders: {
 				Authorization: `Bearer ${localStorage.getItem("token")}`,
 			},
