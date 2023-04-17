@@ -61,12 +61,8 @@ export default function Layout({
 		}
 		function RenewFriend(data: any) {
 			let copy = [...userData];
-			const alteredCopy = copy.map((user) => {
-				if (user.id === data.id) {
-					return ;
-				} else {
-					return user;
-				}
+			let alteredCopy = copy.filter((user) => {
+				return user.id !== data.id;
 			});
 			if (copy.length === alteredCopy.length) {
 				alteredCopy.push(data);
