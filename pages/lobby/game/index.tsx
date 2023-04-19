@@ -5,27 +5,11 @@ import { NextPageWithLayout } from "@/pages/_app";
 import { useContext } from "react";
 import { ReactElement, useEffect } from "react";
 import { useState } from "react";
+import Canvas from "../../../components/canvas";
 
 const Game: NextPageWithLayout = () => {
 	const [gameRooms, setGameRooms] = useState([]);
-	// const gameRooms = [
-	// 	{
-	// 		name: 'game1',
-	// 		mode: '1v1',
-	// 		playerNum: 2
-	// 	},
-	// 	{
-	// 		name: 'game2',
-	// 		mode: '1v1',
-	// 		playerNum: 2
-	// 	},
-	// 	{
-	// 		name: 'game3',
-	// 		mode: '1v1',
-	// 		playerNum: 2
-	// 	},
-	// ]
-
+	const [onGame, setOnGame] = useState(false);
 	const { socket } = useContext(GameSocketContext);
 	// socketio 로 자동 매칭 요청
 	const handleMatching = () => {
@@ -36,23 +20,30 @@ const Game: NextPageWithLayout = () => {
 
 	// socketio 로 게임방 목록 요청
 	useEffect(() => {
-		console.log(socket);
+		// console.log(socket);
 		if (socket) {
 			socket.on('getGameList', (data) => {
-				console.log(data);
+				// console.log(data);
 				setGameRooms(data);
 			})
 			socket.on('getMatching', (data) => {
-				console.log(data);
+				console.log(`매칭되었습니당: ${data}`);
+				// TODO
+				// 매칭되면 게임방으로 이동
+				setOnGame(true);
 			})
 			// socket.on('gaming', (data) => {
       //   console.log(data);
       // })
-			socket.emit('postGameList', { name: 'test' });
+			// console.log('getGameList', socket)
+			socket.emit('getGameList');
 		}
 	}, [socket])
 
 	return (
+		onGame ? (
+			<Canvas></Canvas>
+		) : (
 			<div className="flex h-full w-full flex-col items-center px-8 py-6">
 				{/* 자동 매칭 버튼 */}
 				<button onClick={handleMatching} className="bg-zinc-400 w-[50%] text-black h-20 rounded-lg hover:bg-white hover:text-zinc-800" >
@@ -78,7 +69,7 @@ const Game: NextPageWithLayout = () => {
 					</div>
 				</div>
 			</div>
-	);
+	));
 }
 
 Game.getLayout = function getLayout(page: ReactElement) {

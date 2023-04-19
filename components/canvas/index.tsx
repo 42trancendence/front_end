@@ -4,8 +4,9 @@ import { GameSocketContext } from '@/lib/socketContext';
 const Canvas: React.FC = () => {
   const canvasRef: RefObject<HTMLCanvasElement> = useRef(null);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
-  const [rectY1, setRectY1] = useState(0);
-  const [rectY2, setRectY2] = useState(0);
+  const [gameData, setGameData] = useState(null);
+  const [ready, setReady] = useState(false);
+  const [startGame, setStartGame] = useState(false);
 
   // 컨텍스트 세팅
   useEffect(() => {
@@ -22,56 +23,54 @@ const Canvas: React.FC = () => {
   useEffect(() => {
     console.log(socket);
     if (socket) {
-      socket.on('gaming', (data) => {
-        console.log(data);
+      socket.on('updateGame', (data) => {
+        // console.log(data);
+        setGameData(data);
+      })
+      socket.on('startGame', () => {
+        setStartGame(true);
+        console.log('startGame')
+      })
+      socket.on('postLeaveGame', () => {
+        setStartGame(false);
+        socket.emit('postLeaveGame');
+        console.log('getLeaveGame')
       })
     }
-  }, [socket])
+  }, [socket, startGame])
 
   // 컨텍스트가 세팅되면 그림 그리기
   useEffect(() => {
-    if (ctx) {
-      ctx.fillStyle = 'white';
-      ctx.fillRect(0, 0, 500, 500);
-    };
-
-    // setInterval(() => {
-      render();
-    // }, 1000);
-  }, [ctx]);
-
-  useEffect(() => {
+    // if (ctx) {
+    //   ctx.fillStyle = 'white';
+    //   ctx.fillRect(0, 0, 500, 500);
+    // };
     render();
-  }, [rectY1]);
-  
-  // useEffect(() => {
-  //   // setRectX(rectX + 1);
-  //   render(rectX);
-  // });
+  }, [ctx, gameData]);
   
   const render = () => {
-    if (ctx) {
-      // x1 += 1;
-      // x2 -= 1;
+    if (ctx && gameData) {
       ctx.clearRect(0, 0, 500, 500);
-      drawRect(0);
-      drawRect(500-10);
-      drawCircle();
+      ctx.fillStyle = 'gray';
+      ctx.fillRect(0, 0, 500, 500);
+      drawPaddle(gameData?.paddles_[0]);
+      drawPaddle(gameData?.paddles_[1]);
+      drawBall(gameData?.ball_.x_, gameData?.ball_.y_);
       drawText();
     }
   }
   
-  const drawRect = (rectX: number) => {
+  const drawPaddle = (paddle: Object) => {
     if (ctx) {
       ctx.fillStyle = 'red';
-      ctx.fillRect(rectX, rectY1, 10, 100);
+      ctx.fillRect(paddle?.x_, paddle?.y_, paddle?.width_, paddle?.height_);
     }
   }
   
-  const drawCircle = () => {
+  const drawBall = (x: number, y:number) => {
     if (ctx) {
       ctx.beginPath();
-      ctx.arc(250, 250, 10, 0, 2 * Math.PI);
+      ctx.arc(x, y, 10, 0, 2 * Math.PI);
       ctx.fillStyle = 'blue';
       ctx.fill();
     }
@@ -81,31 +80,46 @@ const Canvas: React.FC = () => {
     if (ctx) {
       ctx.font = '30px Arial';
       ctx.fillStyle = 'white';
-      ctx.fillText('Hello World', 100, 100);
+      ctx.fillText(gameData?.score_, 100, 100);
     }
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     console.log(e.key);
     if (e.key === 'ArrowLeft') {
-      console.log(rectY1);
-      setRectY1(rectY1 - 10);
+      socket?.emit('postKey', 'up');
     } else if (e.key === 'ArrowRight') {
-      console.log(rectY1);
-      setRectY1(rectY1 + 10);
+      socket?.emit('postKey', 'down');
     } 
   }
 
+  const handleReady = () => {
+    setReady(!ready);
+    if (socket) {
+      socket.emit('postReady', !ready);
+    }
+  }
+
   return (
-    <div
-      tabIndex={0} // 키보드 포커스를 위한 tabIndex 설정
-      style={{ outline: 'none' }} // 선택시 브라우저가 테두리를 그리지 않도록 함
-      onKeyDown={handleKeyDown} // 함수 자체를 전달
-    >
-      <canvas 
-        ref={canvasRef} width={500} height={500}
-        />
-    </div>
+    startGame ? 
+      <div
+        tabIndex={0} // 키보드 포커스를 위한 tabIndex 설정
+        style={{ outline: 'none' }} // 선택시 브라우저가 테두리를 그리지 않도록 함
+        onKeyDown={handleKeyDown} // 함수 자체를 전달
+      >
+        <canvas 
+          ref={canvasRef} width={500} height={500}
+          />
+      </div>
+      :
+      <div>
+        <button 
+          onClick={() => handleReady()}
+          className={'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'}
+        >
+          {ready ? '준비완료' : '준비' }
+        </button>
+      </div>
   )
 }
 
