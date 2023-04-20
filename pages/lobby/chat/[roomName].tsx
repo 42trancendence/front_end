@@ -2,24 +2,28 @@ import Layout from "@/components/Layout";
 import { ReactElement, useContext, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import {
+	ChatSocketContext,
 	ChatSocketProvider,
+	SocketContext,
 	SocketProvider,
 } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
 import { Socket } from "socket.io-client";
+import socket from "@/lib/socket";
 
 
 
-const RoomPage: NextPageWithLayout = ({roomData, userList}) => {
+const RoomPage: NextPageWithLayout = ({roomData}) => {
   const [message, setMessage] = useState([]);
   const [selectedUser, setSelectedUser] = useState();
   const [userOffsetTop, setuserOffsetTop] = useState();
   const [userOffsetLeft, setuserOffsetLeft] = useState();
   const [showUserModal, setShowUserModal] = useState(false);
+  const [userList, setUserList] = useState([]);
+
   const inputRef = useRef(null);
   const router = useRouter();
 
-  console.log(userList);
   // useEffect(() => {
   //   const chatContainer = document.getElementById("chat-container");
   //   chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -36,9 +40,15 @@ const RoomPage: NextPageWithLayout = ({roomData, userList}) => {
   //   setChatHeight(`${chatHeight}px`);
   // }, [message]);
 
+	const { socket } = useContext(ChatSocketContext);
   if (!roomData) {
     return <div>Loading...</div>;
   }
+	useEffect(() => {
+		if (socket) {
+			console.log("socket connected!");
+		}
+	}, [socket]);
 
   const sendKickRequest = (user) => {
     // 유저에 대한 정보를 보여주는 모달을 열고,
@@ -66,16 +76,25 @@ const RoomPage: NextPageWithLayout = ({roomData, userList}) => {
     }
   };
 
+
+  socket.on('getChatRoomUsers', function(data){
+    console.log("users data", data);
+    setUserList(data);
+  });
+  
+  socket.on('getMessage', function(data) {
+    const newMessage = {
+      text: data.message,
+      user: data.user.name
+    };
+    console.log(newMessage);
+    setMessage([...message, newMessage]);
+  })
+
   const handleSendMessage = () => {
     const messageText = inputRef.current.value;
-    console.log(`Sending message: ${messageText}`);
-  
-    const newMessage = {
-      text: messageText,
-      user: "juahn"
-    };
-  
-    setMessage([...message, newMessage]);
+    socket.emit('sendMessage', messageText);
+    
     inputRef.current.value = "";
   };
 
@@ -86,19 +105,19 @@ const RoomPage: NextPageWithLayout = ({roomData, userList}) => {
         <div className="p-6 rounded-[14px] bg-[#616161] overflow-y-auto max-h-[calc(100vh-240px)] min-h-[calc(100vh-240px)]">
           <div className="flex-1 p-6">
           {message.map((msg, index) => (
+          <div
+            className={`flex justify-${msg.user === "juahn" ? "end" : "start"} items-start mb-4`}
+            key={index}
+          >
             <div
-              className={`flex justify-${msg.user === "juahn" ? "end" : "start"} items-start mb-4`}
-              key={index}
+              className={`bg-yellow-300 p-3 rounded-lg ${
+                msg.user === "juahn" ? "rounded-bl-none" : "rounded-br-none"
+              } max-w-xs`}
             >
-              <div
-                className={`bg-${msg.user === "juahn" ? "yellow" : "blue"}-300 p-3 rounded-lg ${
-                  msg.user === "juahn" ? "rounded-bl-none" : "rounded-br-none"
-                } max-w-xs`}
-              >
-                <p className="text-sm text-black leading-tight">{msg.text}</p>
-              </div>
+              <p className="text-sm text-black leading-tight">{msg.text}</p>
             </div>
-          ))}
+          </div>
+        ))}
           </div>
         </div>
         <div className="p-6 h-full rounded-[14px] bg-[#616161]">
@@ -159,13 +178,12 @@ const RoomPage: NextPageWithLayout = ({roomData, userList}) => {
 export async function getServerSideProps(context: any) {
 
     const { id } = context.query;
+    // socket.on('');
     const roomData = { "name": "room1", "passwrod": 12}
-    const userList = ["juahn", "user1", "user2", "user3", "user4"];
 
   return {
     props: {
       roomData,
-      userList,
     },
   };
 }
