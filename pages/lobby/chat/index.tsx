@@ -59,6 +59,11 @@ const ChatRooms: NextPageWithLayout = () => {
 		getUser();
 	}, [username]);
 
+	const globalSocket = useContext(SocketContext);
+	useEffect(() => {
+		globalSocket?.socket?.emit("updateActiveStatus", 2);
+	}, [globalSocket.socket]);
+
 	function showChatRoomList(data: any)
 	{
 		console.log("chatrooms data : ", data)
@@ -89,7 +94,7 @@ const ChatRooms: NextPageWithLayout = () => {
 		router.push(`/lobby/chat/${name}`);
 		setShowCreateRoomPopup(false);
 	  };
-	
+
 
 	return (
 		<div className="relative flex flex-1 flex-col gap-4">
