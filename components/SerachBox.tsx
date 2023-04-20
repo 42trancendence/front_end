@@ -145,11 +145,10 @@ export default function SearchBox({
 											className="mx-auto h-6 w-6 text-gray-400"
 										/>
 										<p className="mt-4 font-semibold text-gray-900">
-											No results found
+											유저를 찾을 수 없습니다.
 										</p>
 										<p className="mt-2 text-gray-500">
-											No components found for this search term. Please try
-											again.
+											다른 이름으로 검색해보세요.
 										</p>
 									</div>
 								)}

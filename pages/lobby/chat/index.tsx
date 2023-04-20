@@ -16,6 +16,7 @@ import {
 } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
 import { Socket } from "socket.io-client";
+import { Socket } from "socket.io-client";
 
 const ChatRooms: NextPageWithLayout = () => {
 	const [username, setUsername] = useState("");
@@ -59,6 +60,11 @@ const ChatRooms: NextPageWithLayout = () => {
 		getUser();
 	}, [username]);
 
+	const globalSocket = useContext(SocketContext);
+	useEffect(() => {
+		globalSocket?.socket?.emit("updateActiveStatus", 2);
+	}, [globalSocket.socket]);
+
 	function showChatRoomList(data: any)
 	{
 		console.log("chatrooms data : ", data)
@@ -99,6 +105,7 @@ const ChatRooms: NextPageWithLayout = () => {
 		socket?.emit('enterChatRoom', {roomName, password});
 		router.push(`/lobby/chat/${roomName}`);
 	}
+
 
 	return (
 		<div className="relative flex flex-1 flex-col gap-4">
@@ -183,11 +190,6 @@ const ChatRooms: NextPageWithLayout = () => {
 		</div>
 	);
 };
-
-// export const joinChatRoom = (roomName: string, roomSocket: Socket): any => {
-// 	roomSocket.emit('enterChatRoom', roomName);
-// 	return ();
-//   };
 
 ChatRooms.getLayout = function getLayout(page: ReactElement) {
 	return (
