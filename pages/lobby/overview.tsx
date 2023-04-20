@@ -12,11 +12,16 @@ import {
 } from "@/lib/socketContext";
 import { NextPageWithLayout } from "../_app";
 import OverviewSkeleton from "@/components/ui/OverviewSkeleton";
+import router from "next/router";
+import Seo from "@/components/Seo";
+import EditProfilePallet from "@/components/EditProfilePallet";
+
 
 const OverView: NextPageWithLayout = () => {
 	const [username, setUsername] = useState("");
 	const [avatar, setavatarUrl] = useState(DefaultAvatar);
 	const [userData, setuserData] = useState({});
+	const [isEditOpen, setisEditOpen] = useState(false);
 	const [isUserDataLoaded, setisUserDataLoaded] = useState(false);
 
 	// user 정보 가져오기
@@ -57,8 +62,13 @@ const OverView: NextPageWithLayout = () => {
 			socket.emit("updateActiveStatus", 1);
 		}
 	}, [socket]);
+
 	return (
+		<>
+		<Seo title="Overview" />
+		<EditProfilePallet isOpen={isEditOpen} setIsOpen={setisEditOpen} />
 		<div className="relative flex flex-1 flex-col">
+
 			<div>
 				<Image
 					className="h-48 w-full rounded-lg object-cover lg:h-56"
@@ -106,7 +116,7 @@ const OverView: NextPageWithLayout = () => {
 							<p className="text-lg font-semibold">1</p>
 						</div>
 						<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
-							<NormalButton className="shadow" variant="bright">
+							<NormalButton className="shadow" variant="bright" onClick={() => setisEditOpen(true)}>
 								Edit
 							</NormalButton>
 						</div>
@@ -114,6 +124,7 @@ const OverView: NextPageWithLayout = () => {
 				</div>
 			)}
 		</div>
+		</>
 	);
 };
 
