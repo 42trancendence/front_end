@@ -73,21 +73,25 @@ const ChatRooms: NextPageWithLayout = () => {
 
 
 	socket?.on("showChatRoomList", function(data) {
+		console.log(data);
 		setChatRooms(data);
+
 		showChatRoomList(data);
 	})
 
 	const createChatRoom = () => {
+
+		const roomType = isPrivate === true ? "PROTECTED" : "PUBLIC"; 
 		socket?.emit('createChatRoom', {
 		name,
-		isPrivate: String(isPrivate),
+		type: String(roomType),
 		password
 		})
 		socket?.on('error', (error) => {
 			console.log(error); // 서버에서 전달된 에러 메시지 출력
 		  });
 		// socket?.emit('enterChatRoom', {name, password});
-		router.push(`/lobby/chat/${name}`);
+		router.push(`/lobby/chat/chatRoom: ${name}`);
 		setShowCreateRoomPopup(false);
 	  };
 	
@@ -118,19 +122,21 @@ const ChatRooms: NextPageWithLayout = () => {
 				</div>
 			<div className="flex grid gird-rows w-8/9 h-screen overflow-y-auto rounded-[14px] bg-[#616161] gap-5 ">
 				{chatRooms.map((room) => (
-					<div className="flex divide-x-4 mt-4 divide-zinc-400">
-						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
-							<p className="text-[#bbc2ff]">{room.name}</p>
+					<div key={room.id}>
+						<div className="flex divide-x-4 mt-4 divide-zinc-400">
+							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
+								<p className="text-[#bbc2ff]">{room.name}</p>
+							</div>
+							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
+								<p className="text-[#bbc2ff]">{room.owner.name || '---'}</p>
+							</div>
+							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
+								<p className="text-[#bbc2ff]">{room.type === "PROTECTED" ? '비공개' : '공개'}</p>
+							</div>
+							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
+								<button onClick={() => joinChatRoom(room.name)}>입장</button>
+							</div>
 						</div>
-						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
-							<p className="text-[#bbc2ff]">{room.owner || '---'}</p>
-						</div>
-						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
-							<p className="text-[#bbc2ff]">{room.isPrivate ? '비공개' : '공개'}</p>
-						</div>
-						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
-      						<button onClick={() => joinChatRoom(room.name)}>입장</button>
-    					</div>
 					</div>
 					))}
 			</div>

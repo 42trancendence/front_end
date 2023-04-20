@@ -50,6 +50,19 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
 		}
 	}, [socket]);
 
+  function handleBeforeUnload() {
+    // 페이지를 나갈 때 실행할 함수
+    console.log("test leave");
+    socket.emit('leaveChatRoom', roomData.id);
+  }
+  useEffect(() => {
+    window.addEventListener('beforeunload', handleBeforeUnload)
+  
+      return () => {
+        window.removeEventListener('beforeunload', handleBeforeUnload)
+      }
+    }, [])
+
   const sendKickRequest = (user) => {
     // 유저에 대한 정보를 보여주는 모달을 열고,
     // 모달 내부에서 kick 또는 mute 처리를 할 수 있는 버튼을 추가하는 로직을 구현.
@@ -75,7 +88,6 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
       setShowUserModal(true);
     }
   };
-
 
   socket.on('getChatRoomUsers', function(data){
     console.log("users data", data);
@@ -176,11 +188,9 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
 
 
 export async function getServerSideProps(context: any) {
-
-    const { id } = context.query;
-    // socket.on('');
-    const roomData = { "name": "room1", "passwrod": 12}
-
+  const { roomName } = context.query;
+  const roomData = { "name": roomName, "password": 12 };
+  
   return {
     props: {
       roomData,
