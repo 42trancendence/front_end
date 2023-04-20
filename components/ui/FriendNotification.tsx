@@ -22,6 +22,10 @@ export default function FriendNotification() {
 					setShowFriendNotification(true);
 					setuserData(data[0]);
 				}
+				if (data.length === 0) {
+					setShowFriendNotification(false);
+					setuserData({});
+				}
 			});
 		}
 	}, [socket]);
