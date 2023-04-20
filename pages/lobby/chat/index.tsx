@@ -6,6 +6,7 @@ import { NormalButton } from "@/components/ui/NormalButton";
 import CloseButton from "@/components/ui/CloseButton"
 import OpenButton from "@/components/ui/OpenButton"
 import { ReactElement, useContext, useEffect, useState } from "react";
+import { useRouter } from "next/router";
 import { handleRefresh } from "@/lib/auth-client";
 import {
 	ChatSocketContext,
@@ -14,6 +15,7 @@ import {
 	SocketProvider,
 } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
+import { Socket } from "socket.io-client";
 
 const ChatRooms: NextPageWithLayout = () => {
 	const [username, setUsername] = useState("");
@@ -24,6 +26,7 @@ const ChatRooms: NextPageWithLayout = () => {
 	const [password, setPassword] = useState('');
 	const [showCreateRoomPopup, setShowCreateRoomPopup] = useState(false);
 	const [chatRooms, setChatRooms] = useState([]);
+	const router = useRouter();
 
 
 	// user 정보 가져오기
@@ -58,7 +61,7 @@ const ChatRooms: NextPageWithLayout = () => {
 
 	function showChatRoomList(data: any)
 	{
-		console.log(data);
+		console.log("chatrooms data : ", data)
 	}
 
 	const { socket } = useContext(ChatSocketContext);
@@ -71,7 +74,6 @@ const ChatRooms: NextPageWithLayout = () => {
 
 	socket?.on("showChatRoomList", function(data) {
 		setChatRooms(data);
-		console.log("chatrooms data : ", data)
 		showChatRoomList(data);
 	})
 
@@ -84,18 +86,20 @@ const ChatRooms: NextPageWithLayout = () => {
 		socket?.on('error', (error) => {
 			console.log(error); // 서버에서 전달된 에러 메시지 출력
 		  });
+		router.push(`/lobby/chat/${name}`);
 		setShowCreateRoomPopup(false);
 	  };
+	
 
 	return (
-		<div className="relative flex flex-1 flex-col">
+		<div className="relative flex flex-1 flex-col gap-4">
 
 			<p className="text-4xl text-left text-[#939efb]">나의 채팅방 목록</p>
 
 
-			<div className="flex grid gird-rows w-8/9 h-[774px] rounded-[14px] bg-[#616161] gap-5">
-				<div className="flex w-5/6 h-[40px] grid rounded-[15px] bg-[#3a3a3a] grid-cols-1 gap-8 ">
-					<div className="flex divide-x-4 divide-zinc-400">
+			<div className="flex grid gird-rows w-8/9 h-[774px] rounded-[14px] bg-[#616161] gap-5 ">
+				<div className="flex w-5/6 h-[40px] my-4 grid rounded-[15px] bg-[#3a3a3a] grid-cols-1 gap-8 justify-self-center">
+					<div className="flex divide-x-4 divide-zinc-400 content-start">
 						<div className="flex w-1/4 flex-col items-center justify-center text-sm">
 						<p className="text-[#bbc2ff]">채팅방 이름</p>
 						</div>
@@ -159,6 +163,10 @@ const ChatRooms: NextPageWithLayout = () => {
 	);
 };
 
+// export const joinChatRoom = (roomName: string, roomSocket: Socket): any => {
+// 	roomSocket.emit('enterChatRoom', roomName);
+// 	return ();
+//   };
 
 ChatRooms.getLayout = function getLayout(page: ReactElement) {
 	return (
