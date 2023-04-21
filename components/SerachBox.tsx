@@ -6,6 +6,7 @@ import { Fragment, useContext, useEffect, useState } from "react";
 import Image from "next/image";
 import { NormalButton } from "./ui/NormalButton";
 import { SocketContext } from "@/lib/socketContext";
+import { handleRefresh } from "@/lib/auth-client";
 
 export default function SearchBox({
 	isOpen,
@@ -32,6 +33,14 @@ export default function SearchBox({
 				if (res.status === 200) {
 					const data = await res.json();
 					setItems(data);
+
+				} else if (res.status === 401) {
+					// Unauthorized, try to refresh the access token
+					const newAccessToken = await handleRefresh();
+					if (!newAccessToken) {
+						setItems([]);
+					}
+					fetchUsers();
 				} else {
 					setItems([]);
 				}
@@ -44,16 +53,16 @@ export default function SearchBox({
 	}, []);
 	// 검색된 유저 필터링
 	const filteredItems =
-	query === ""
-		? []
-		: items.filter((item: any) => {
+		query === ""
+			? []
+			: items.filter((item: any) => {
 				return item.name.toLowerCase().startsWith(query.toLowerCase());
-		  });
+			});
 
 	// 친구 추가 소켓 이벤트
-	const {socket} = useContext(SocketContext);
+	const { socket } = useContext(SocketContext);
 	const addFriend = (event: React.MouseEvent<HTMLElement>, item: any) => {
-		socket?.emit("addFriend", {friendName: item.name});
+		socket?.emit("addFriend", { friendName: item.name });
 	}
 	return (
 		<Transition.Root
@@ -86,7 +95,7 @@ export default function SearchBox({
 						leaveTo="opacity-0 scale-95"
 					>
 						<Dialog.Panel className="mx-auto max-w-xl transform divide-y divide-gray-100 overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
-							<Combobox value={selectedUser} onChange={(item: any)=>setSelectedUser(item.name)}>
+							<Combobox value={selectedUser} onChange={(item: any) => setSelectedUser(item.name)}>
 								<div className="relative">
 									<MagnifyingGlassIcon
 										className="pointer-events-none absolute left-4 top-3.5 h-5 w-5 text-gray-400"
@@ -110,28 +119,28 @@ export default function SearchBox({
 												value={item}
 												className="flex items-center justify-center cursor-default select-none rounded-xl p-3"
 											>
-														<div
-															className="flex h-10 w-10 bg-zinc-800 flex-none items-center justify-center rounded-full"
-														>
-															<Image
-																src={item.avatar || DefaultAvatarPic}
-																className="h-6 w-6 text-white"
-																alt=""
-															/>
-														</div>
-														<div className="ml-4 mr-auto flex-auto">
-															<p
-																className={clsx(
-																	"text-base font-medium"
-																)}
-															>
-																{item.name}
-															</p>
-														</div>
-														<div>
-															<NormalButton variant="dark" className="border mr-2" onClick={(e) => addFriend(e, item)}>친구신청</NormalButton>
-															<NormalButton variant="bright" className="border" >정보</NormalButton>
-														</div>
+												<div
+													className="flex h-10 w-10 bg-zinc-800 flex-none items-center justify-center rounded-full"
+												>
+													<Image
+														src={item.avatar || DefaultAvatarPic}
+														className="h-6 w-6 text-white"
+														alt=""
+													/>
+												</div>
+												<div className="ml-4 mr-auto flex-auto">
+													<p
+														className={clsx(
+															"text-base font-medium"
+														)}
+													>
+														{item.name}
+													</p>
+												</div>
+												<div>
+													<NormalButton variant="dark" className="border mr-2" onClick={(e) => addFriend(e, item)}>친구신청</NormalButton>
+													<NormalButton variant="bright" className="border" >정보</NormalButton>
+												</div>
 											</Combobox.Option>
 										))}
 									</Combobox.Options>

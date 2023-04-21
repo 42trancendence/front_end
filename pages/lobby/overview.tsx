@@ -28,7 +28,7 @@ const OverView: NextPageWithLayout = () => {
 	useEffect(() => {
 		let accessToken = localStorage.getItem("token");
 
-		async function getUser() {
+		const getUser =  async () => {
 			try {
 				const res = await fetch("http://localhost:3000/users/me", {
 					method: "GET",
@@ -43,9 +43,13 @@ const OverView: NextPageWithLayout = () => {
 					setavatarUrl(userData.avatarImageUrl);
 					setisUserDataLoaded(true);
 					return userData;
-				} else if (res.status === 401) {
+				} else if (res.status === 401){
 					// Unauthorized, try to refresh the access token
-					await handleRefresh(getUser);
+					const newAccessToken = await handleRefresh();
+					if (!newAccessToken) {
+						router.push("/");
+					}
+					getUser();
 				} else {
 					return null;
 				}

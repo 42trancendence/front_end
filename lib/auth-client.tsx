@@ -1,5 +1,3 @@
-import { Cookies } from 'react-cookie';
-
 export async function refreshAccessToken() {
   try {
     const response = await fetch('http://localhost:3000/auth/refresh', {
@@ -16,27 +14,17 @@ export async function refreshAccessToken() {
 
     const data = await response.json();
     // Update the access token in the localstorage
-    console.log(data);
-    //localStorage.setItem('token', newAccessToken);
-    return data;
+    const newAccessToken = data.accessToken;
+    localStorage.setItem('token', newAccessToken);
+    return newAccessToken;
   } catch (error) {
-    console.error('Error refreshing access token:', error);
     return null;
   }
 }
 
 
 
-export async function handleRefresh(retryFunction: () => Promise<any>) {
-
-  const cookies = new Cookies();
-
-  const refreshToken = await cookies.get('refreshToken');
-  console.log(refreshToken);
-
-  if (!refreshToken) {
-    return null;
-  }
+export async function handleRefresh() {
 
   let accessToken = await refreshAccessToken();
 
@@ -45,5 +33,5 @@ export async function handleRefresh(retryFunction: () => Promise<any>) {
   }
 
   // Retry fetching data with the new access token
-  return retryFunction();
+  return accessToken;
 }

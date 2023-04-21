@@ -3,6 +3,7 @@ import { useForm } from "react-hook-form";
 import Loading from "./ui/Loading";
 import MyDialog from "./ui/Dialog";
 import { Dialog } from "@headlessui/react";
+import { handleRefresh } from "@/lib/auth-client";
 
 interface MyFormData {
 	avatar: FileList;
@@ -85,10 +86,16 @@ const EditProfilePallet = ({
 				}
 			);
 			const data = await res.json();
-			setnameLoading(false);
 			if (res.status === 200) {
 				setisNameDuplicatedPass(true);
 				openDialog("사용 가능한 이름입니다.", "success");
+			} else if (res.status === 401) {
+				const newAccessToken = await handleRefresh();
+				if (!newAccessToken) {
+					setisNameDuplicatedPass(false);
+					openDialog(data.message, "fail");
+				}
+				checkNameDuplication(name);
 			} else if (data.error) {
 				setisNameDuplicatedPass(false);
 				openDialog(data.message, "fail");
@@ -96,6 +103,7 @@ const EditProfilePallet = ({
 				setisNameDuplicatedPass(false);
 				openDialog("이름 중복 확인에 실패했습니다.", "fail");
 			}
+			setnameLoading(false);
 		} catch (error) {
 			setnameLoading(false);
 			setisNameDuplicatedPass(false);
@@ -203,7 +211,7 @@ const EditProfilePallet = ({
 										className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
 										type="submit"
 									>
-									저장하기
+										저장하기
 									</button>
 									<button
 										type="button"

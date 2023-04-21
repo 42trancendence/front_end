@@ -8,6 +8,7 @@ import NavBar from "./NavBar";
 import Loading from "./ui/Loading";
 import { SocketContext } from "@/lib/socketContext";
 import FriendNotification from "./ui/FriendNotification";
+import { handleRefresh } from "@/lib/auth-client";
 
 export default function Layout({
 	pageProps,
@@ -28,16 +29,25 @@ export default function Layout({
 			if (!token) {
 				router.push("/");
 			} else {
-				/*
-				const isValidated2fa = await isTwoFactorAuthEnabled(token);
-				if (isValidated2fa !== 409) {
-					alert("2FA 인증이 필요합니다.");
-					router.push("/");
-				}
-				else {
+				const res = await fetch("http://localhost:3000/users/me", {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
+					},
+				});
+				if (res.ok) {
 					setLoading(false);
+				} else if (res.status === 401) {
+					// Unauthorized, try to refresh the access token
+					const newAccessToken = await handleRefresh();
+					if (!newAccessToken) {
+						router.push("/");
+					}
+					router.reload();
+				} else {
+					return null;
 				}
-				*/
 				setLoading(false);
 			}
 		};
@@ -82,11 +92,6 @@ export default function Layout({
 			});
 		}
 	}, [socket, userData]);
-
-	// 친구 요청 수락
-	const acceptFriend = (event: React.MouseEvent<HTMLElement>, item: any) => {
-		socket?.emit("accept-friend", { friendId: item.id });
-	};
 
 	return (
 		<>
