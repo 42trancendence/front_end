@@ -6,7 +6,7 @@ import PrimaryButton from "@/components/ui/PrimaryButton";
 
 export default function IndexPage() {
 	return (
-		<div className="relative isolate overflow-hidden py-32 sm:py-48 lg:py-56">
+		<div className="relative h-full isolate overflow-hidden py-32 sm:py-48 lg:py-56 flex">
 			<Seo title="Home" />
 			<svg
 				className="absolute inset-0 -z-10 h-full w-full stroke-gray-200 [mask-image:radial-gradient(100%_100%_at_top_right,white,transparent)]"
@@ -31,7 +31,7 @@ export default function IndexPage() {
 					fill="url(#0787a7c5-978c-4f66-83c7-11c213f99cb7)"
 				/>
 			</svg>
-			<div className="mx-auto max-w-7xl flex flex-col items-center justify-center">
+			<div className="m-auto max-w-7xl flex flex-col items-center justify-center">
 				<div className="mx-auto max-w-4xl flex flex-col">
 					<Image className="w-20" src={logoPic} alt="42_transcendence" />
 					<h1 className="mt-10 text-4xl font-bold tracking-tight text-slate-100 sm:text-6xl">

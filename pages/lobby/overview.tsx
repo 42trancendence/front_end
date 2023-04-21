@@ -61,7 +61,7 @@ const OverView: NextPageWithLayout = () => {
 		<div className="relative flex flex-1 flex-col">
 			<div>
 				<Image
-					className="h-48 w-full rounded-lg object-cover lg:h-56"
+					className="h-48 w-full rounded-lg object-cover lg:h-56 brightness-95 drop-shadow"
 					src={ProfileBackground}
 					alt=""
 				/>

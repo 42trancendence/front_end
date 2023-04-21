@@ -2,12 +2,11 @@ import Cookies from 'js-cookie';
 
 export async function refreshAccessToken(refreshToken: string) {
   try {
-    const response = await fetch('/api/token/refresh', {
-      method: 'POST',
+    const response = await fetch('/auth/refresh', {
+      method: 'GET',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ refreshToken }),
     });
 
     if (!response.ok) {
@@ -28,7 +27,7 @@ export async function refreshAccessToken(refreshToken: string) {
 
 export async function handleRefresh(retryFunction: () => Promise<any>) {
 
-  const refreshToken = Cookies.get('refresh-token');
+  const refreshToken = Cookies.get('refreshToken');
 
   if (!refreshToken) {
     return null;
