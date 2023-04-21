@@ -16,7 +16,6 @@ import {
 } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
 import { Socket } from "socket.io-client";
-import { Socket } from "socket.io-client";
 
 const ChatRooms: NextPageWithLayout = () => {
 	const [username, setUsername] = useState("");
@@ -87,7 +86,7 @@ const ChatRooms: NextPageWithLayout = () => {
 
 	const createChatRoom = () => {
 
-		const roomType = isPrivate === true ? "PROTECTED" : "PUBLIC"; 
+		const roomType = isPrivate === true ? "PROTECTED" : "PUBLIC";
 		socket?.emit('createChatRoom', {
 		name,
 		type: String(roomType),
@@ -100,7 +99,7 @@ const ChatRooms: NextPageWithLayout = () => {
 		router.push(`/lobby/chat/chatRoom: ${name}`);
 		setShowCreateRoomPopup(false);
 	  };
-	
+
 	const joinChatRoom = (roomName) => {
 		socket?.emit('enterChatRoom', {roomName, password});
 		router.push(`/lobby/chat/${roomName}`);
@@ -170,9 +169,9 @@ const ChatRooms: NextPageWithLayout = () => {
 							{isPrivate && (
 							<p className="text-sm text-center text-[#939efb]">비밀번호 입력</p>
 							)}
-							{isPrivate && 
+							{isPrivate &&
 							(
-								
+
 								<input
 								type="text"
 								value={password}
