@@ -7,6 +7,7 @@ import Image from "next/image";
 import { NormalButton } from "./ui/NormalButton";
 import { SocketContext } from "@/lib/socketContext";
 import { handleRefresh } from "@/lib/auth-client";
+import { NotifyContext } from "@/lib/notifyContext";
 
 export default function SearchBox({
 	isOpen,
@@ -60,9 +61,15 @@ export default function SearchBox({
 			});
 
 	// 친구 추가 소켓 이벤트
+	const { successed } = useContext(NotifyContext);
+	function onSuccessed() {
+		successed({ header: '친구요청', message: '친구요청을 성공적으로 보냈습니다.' });
+	}
+
 	const { socket } = useContext(SocketContext);
 	const addFriend = (event: React.MouseEvent<HTMLElement>, item: any) => {
 		socket?.emit("addFriend", { friendName: item.name });
+		onSuccessed();
 	}
 	return (
 		<Transition.Root

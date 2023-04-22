@@ -2,6 +2,8 @@ import "@/styles/globals.css";
 import type { AppProps } from "next/app";
 import type { ReactElement, ReactNode } from 'react'
 import type { NextPage } from 'next'
+import { NotifyProvider } from "@/lib/notifyContext";
+import GlobalNotification from "@/components/ui/GlobalNotification";
 
 export type NextPageWithLayout<P = {}, IP = P> = NextPage<P, IP> & {
   getLayout?: (page: ReactElement) => ReactNode
@@ -16,6 +18,9 @@ export default function MyApp({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => page)
 
   return getLayout(
+    <NotifyProvider>
+       <GlobalNotification />
        <Component {...pageProps} />
+    </NotifyProvider>
  )
 }
