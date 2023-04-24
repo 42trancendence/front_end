@@ -148,7 +148,7 @@ export default function SearchBox({
 												</div>
 												<div>
 													<NormalButton variant="dark" className="border mr-2" onClick={(e) => addFriend(e, item)}>친구신청</NormalButton>
-													<NormalButton variant="bright" className="border" onClick={() => router.push(`/lobby/users/${item.id}`)}>정보</NormalButton>
+													<NormalButton variant="bright" className="border" onClick={() => {router.push(`/lobby/users/${item.id}`); setIsOpen(false)}}>정보</NormalButton>
 												</div>
 											</Combobox.Option>
 										))}
