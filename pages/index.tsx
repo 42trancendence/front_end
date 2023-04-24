@@ -10,23 +10,7 @@ import Loading from "@/components/ui/Loading";
 
 export default function IndexPage() {
 	const router = useRouter();
-	const [loading, setLoading] = useState(true);
-
-	useEffect(() => {
-		const checkLoginStatus = async () => {
-			// 로그인 상태 확인하는 비동기 함수
-			const token = await checkIsLoggedIn();
-
-			if (token) {
-				router.push("/lobby/overview");
-			}
-			else {
-				setLoading(false);
-			}
-		};
-		checkLoginStatus();
-	}, [router]);
-
+	const [loading, setLoading] = useState(false);
 	return (
 		<>
 			{loading ? <Loading /> : (

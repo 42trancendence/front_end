@@ -6,6 +6,7 @@ import {
 	IdentificationIcon,
 	UsersIcon,
 	MagnifyingGlassIcon,
+	ArrowLeftOnRectangleIcon
 } from "@heroicons/react/24/outline";
 import logoPic from "@/public/42_Logo.svg";
 import { useRouter } from "next/router";
@@ -61,10 +62,15 @@ function NavItem({ item }: { item: NavigationItem }) {
 
 export default function NavBar({ userData }: any) {
 	const [isSerchBoxOpen, setIsSerchBoxOpen] = useState(false);
+	const router = useRouter();
 	function SearchUsers() {
 		setIsSerchBoxOpen(true);
 	}
 
+	const logout = () => {
+		localStorage.removeItem("token");
+		router.push("/");
+	};
 	return (
 		<>
 			<SearchBox isOpen={isSerchBoxOpen} setIsOpen={setIsSerchBoxOpen} />
@@ -104,6 +110,12 @@ export default function NavBar({ userData }: any) {
 								>
 									<FreindList userData={userData} />
 								</ul>
+							</li>
+							<li className="mt-auto mb-4">
+								<button type="button" className="text-md flex items-center justify-center font-bold text-zinc-400 hover:text-zinc-200" onClick={logout}>
+									<ArrowLeftOnRectangleIcon className="h-6 w-6" />
+									<span className="ml-2">로그아웃</span>
+								</button>
 							</li>
 						</ul>
 					</nav>

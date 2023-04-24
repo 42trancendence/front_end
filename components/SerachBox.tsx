@@ -8,6 +8,7 @@ import { NormalButton } from "./ui/NormalButton";
 import { SocketContext } from "@/lib/socketContext";
 import { handleRefresh } from "@/lib/auth-client";
 import { NotifyContext } from "@/lib/notifyContext";
+import { useRouter } from "next/router";
 
 export default function SearchBox({
 	isOpen,
@@ -19,7 +20,7 @@ export default function SearchBox({
 	const [query, setQuery] = useState("");
 	const [selectedUser, setSelectedUser] = useState("");
 	const [items, setItems] = useState<any>([]);
-
+	const router = useRouter();
 	// 모든 유저 검색
 	useEffect(() => {
 		const fetchUsers = async () => {
@@ -71,6 +72,7 @@ export default function SearchBox({
 		socket?.emit("addFriend", { friendName: item.name });
 		onSuccessed();
 	}
+
 	return (
 		<Transition.Root
 			show={isOpen}
@@ -146,7 +148,7 @@ export default function SearchBox({
 												</div>
 												<div>
 													<NormalButton variant="dark" className="border mr-2" onClick={(e) => addFriend(e, item)}>친구신청</NormalButton>
-													<NormalButton variant="bright" className="border" >정보</NormalButton>
+													<NormalButton variant="bright" className="border" onClick={() => router.push(`/lobby/users/${item.id}`)}>정보</NormalButton>
 												</div>
 											</Combobox.Option>
 										))}

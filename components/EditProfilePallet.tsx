@@ -6,7 +6,7 @@ import { Dialog } from "@headlessui/react";
 import { handleRefresh } from "@/lib/auth-client";
 
 interface MyFormData {
-	avatar: FileList;
+	avatarImageUrl: FileList;
 	name: string;
 }
 
@@ -119,19 +119,17 @@ const EditProfilePallet = ({
 				openDialog(text, "fail");
 				return;
 			}
-			const formData = new FormData();
-			formData.append("name", data.name);
-			//formData.append("avatar", data.avatar[0]);
 			const res = await fetch("http://localhost:3000/users/me", {
+				method: "PUT",
 				headers: {
 					"Content-Type": "application/json",
 					"Authorization": `Bearer ${localStorage.getItem("token")}`,
 				},
-				method: "PUT",
-				body: formData,
+				body: JSON.stringify(data),
 			});
-			if (res.status === 201) {
-				setIsOpen(false);
+			console.log(res);
+			if (res.status === 200) {
+				openDialog("프로필 업데이트에 성공했습니다!", "success");
 			} else {
 				const errorData = await res.json();
 				openDialog(errorData.message, "fail");
@@ -175,7 +173,7 @@ const EditProfilePallet = ({
 											이미지 업로드
 										</span>
 										<input
-											{...register("avatar")}
+											{...register("avatarImageUrl")}
 											type="file"
 											id="avatar"
 											className="sr-only"
