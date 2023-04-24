@@ -9,6 +9,8 @@ import Loading from "./ui/Loading";
 import { SocketContext } from "@/lib/socketContext";
 import FriendNotification from "./ui/FriendNotification";
 import { handleRefresh } from "@/lib/auth-client";
+import { NotifyProvider } from "@/lib/notifyContext";
+import GlobalNotification from "@/components/ui/GlobalNotification";
 
 export default function Layout({
 	pageProps,
@@ -100,14 +102,17 @@ export default function Layout({
 					<Loading />
 				</>
 			) : (
-				<div className="flex bg-zinc-800 text-white">
-					<FriendNotification />
-					<NavBar userData={userData} />
-					<div className="relative flex w-full flex-1 px-8 py-6">
-						{pageProps}
-						{children}
+				<NotifyProvider>
+					<GlobalNotification />
+					<div className="flex bg-zinc-800 text-white">
+						<FriendNotification />
+						<NavBar userData={userData} />
+						<div className="relative flex w-full flex-1 px-8 py-6">
+							{pageProps}
+							{children}
+						</div>
 					</div>
-				</div>
+				</NotifyProvider>
 			)}
 		</>
 	);
