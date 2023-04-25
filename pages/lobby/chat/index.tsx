@@ -16,7 +16,6 @@ import {
 } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
 import { Socket } from "socket.io-client";
-import { Socket } from "socket.io-client";
 
 const ChatRooms: NextPageWithLayout = () => {
 	const [username, setUsername] = useState("");
@@ -77,7 +76,6 @@ const ChatRooms: NextPageWithLayout = () => {
 		}
 	}, [socket]);
 
-
 	socket?.on("showChatRoomList", function(data) {
 		console.log(data);
 		setChatRooms(data);
@@ -101,7 +99,7 @@ const ChatRooms: NextPageWithLayout = () => {
 		setShowCreateRoomPopup(false);
 	  };
 	
-	const joinChatRoom = (roomName) => {
+	const joinChatRoom = (roomName: string) => {
 		socket?.emit('enterChatRoom', {roomName, password});
 		router.push(`/lobby/chat/${roomName}`);
 	}
@@ -113,34 +111,34 @@ const ChatRooms: NextPageWithLayout = () => {
 			<p className="text-4xl text-left text-[#939efb]">나의 채팅방 목록</p>
 			<div className="flex w-full -my-2 h-[40px] my-4 grid rounded-[15px] bg-[#3a3a3a] grid-cols-1 gap-8 justify-self-center">
 					<div className="flex divide-x-4 divide-zinc-400 content-start">
-						<div className="flex w-1/4 flex-col items-center justify-center text-sm">
+						<div className="flex w-1/4 flex-col items-center justify-center text-base">
 						<p className="text-[#bbc2ff]">채팅방 이름</p>
 						</div>
-						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
+						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
 						<p className="text-[#bbc2ff]">방장 닉네임</p>
 						</div>
-						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
+						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
 						<p className="text-[#bbc2ff]">공개 채널</p>
 						</div>
-						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
+						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
 						<p className="text-[#bbc2ff]">인원</p>
 						</div>
 					</div>
 				</div>
-			<div className="flex grid gird-rows w-8/9 h-screen overflow-y-auto rounded-[14px] bg-[#616161] gap-5 ">
-				{chatRooms.map((room) => (
+			<div className="flex-row w-8/9 h-full overflow-y-auto rounded-[14px] bg-[#616161] ">
+				{chatRooms.map((room: any) => (
 					<div key={room.id}>
-						<div className="flex divide-x-4 mt-4 divide-zinc-400">
-							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
+						<div className="flex divide-x-4 mt-5 divide-zinc-400">
+							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
 								<p className="text-[#bbc2ff]">{room.name}</p>
 							</div>
-							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
+							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
 								<p className="text-[#bbc2ff]">{room.owner.name || '---'}</p>
 							</div>
-							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
+							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
 								<p className="text-[#bbc2ff]">{room.type === "PROTECTED" ? '비공개' : '공개'}</p>
 							</div>
-							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-sm">
+							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
 								<button onClick={() => joinChatRoom(room.name)}>입장</button>
 							</div>
 						</div>

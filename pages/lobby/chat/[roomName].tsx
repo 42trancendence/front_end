@@ -8,6 +8,7 @@ import {
 	SocketProvider,
 } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
+import { handleRefresh } from "@/lib/auth-client";
 import { Socket } from "socket.io-client";
 import socket from "@/lib/socket";
 
@@ -20,25 +21,64 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
   const [userOffsetLeft, setuserOffsetLeft] = useState();
   const [showUserModal, setShowUserModal] = useState(false);
   const [userList, setUserList] = useState([]);
+	const [username, setUsername] = useState("");
 
+  const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const router = useRouter();
 
-  // useEffect(() => {
-  //   const chatContainer = document.getElementById("chat-container");
-  //   chatContainer.scrollTop = chatContainer.scrollHeight;
-  // }, [message]);
+	useEffect(() => {
+		let accessToken = localStorage.getItem("token");
+		async function getUser() {
+			try {
+				const res = await fetch("http://localhost:3000/users/me", {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${accessToken}`,
+					},
+				});
+				if (res.ok) {
+					const userData = await res.json();
+					setUsername(userData.name);
+					return userData;
+				} else if (res.status === 401) {
+					// Unauthorized, try to refresh the access token
+					await handleRefresh(getUser);
+				} else {
+					return null;
+				}
+			} catch (error) {
+				console.log(error);
+			}
+		}
+		getUser();
+	}, [username]);
 
+  useEffect(() => {
+    scrollToBottom();
+  }, [message]);
 
-  // useEffect(() => {
-  //   // 채팅 내용이 갱신될 때마다 chatHeight 상태를 업데이트합니다.
-  //   const chatContainer = chatContainerRef.current;
-  //   const chatContainerHeight = chatContainer.scrollHeight;
-  //   const windowHeight = window.innerHeight;
-  //   const inputBoxHeight = 80;
-  //   const chatHeight = windowHeight - inputBoxHeight - (chatContainerHeight - windowHeight);
-  //   setChatHeight(`${chatHeight}px`);
-  // }, [message]);
+  const scrollToBottom = () => {
+    if (messagesEndRef.current) {
+      messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+  }
+  };
+
+  // 페이지를 떠날 때 실행되는 이벤트 등록 후 콜백함수 호출
+  useEffect(() => {
+    const handleRouteChangeStart = (url) => {
+      socket?.emit('leaveChatRoom');
+      console.log('페이지를 떠납니다.');
+    };
+
+    router.events.on('routeChangeStart', handleRouteChangeStart);
+
+    return () => {
+      router.events.off('routeChangeStart', handleRouteChangeStart);
+    };
+  }, [router]);
+
 
 	const { socket } = useContext(ChatSocketContext);
   if (!roomData) {
@@ -49,19 +89,6 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
 			console.log("socket connected!");
 		}
 	}, [socket]);
-
-  function handleBeforeUnload() {
-    // 페이지를 나갈 때 실행할 함수
-    console.log("test leave");
-    socket.emit('leaveChatRoom', roomData.id);
-  }
-  useEffect(() => {
-    window.addEventListener('beforeunload', handleBeforeUnload)
-  
-      return () => {
-        window.removeEventListener('beforeunload', handleBeforeUnload)
-      }
-    }, [])
 
   const sendKickRequest = (user) => {
     // 유저에 대한 정보를 보여주는 모달을 열고,
@@ -89,12 +116,12 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
     }
   };
 
-  socket.on('getChatRoomUsers', function(data){
+  socket?.on('getChatRoomUsers', function(data){
     console.log("users data", data);
     setUserList(data);
   });
   
-  socket.on('getMessage', function(data) {
+  socket?.on('getMessage', function(data) {
     const newMessage = {
       text: data.message,
       user: data.user.name
@@ -116,20 +143,22 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
       <div className="grid grid-cols-[1fr,200px] gap-4">
         <div className="p-6 rounded-[14px] bg-[#616161] overflow-y-auto max-h-[calc(100vh-240px)] min-h-[calc(100vh-240px)]">
           <div className="flex-1 p-6">
-          {message.map((msg, index) => (
-          <div
-            className={`flex justify-${msg.user === "juahn" ? "end" : "start"} items-start mb-4`}
-            key={index}
-          >
+            {message.map((msg: any, index: number) => (
             <div
-              className={`bg-yellow-300 p-3 rounded-lg ${
-                msg.user === "juahn" ? "rounded-bl-none" : "rounded-br-none"
-              } max-w-xs`}
+              className={`flex justify-${msg.user === username ? "end" : "start"} items-start mb-4`}
+              key={index}
             >
-              <p className="text-sm text-black leading-tight">{msg.text}</p>
+              <div
+                className={`${msg.user === username ? "bg-blue-300" : "bg-yellow-300"}
+                p-3 rounded-lg
+                ${msg.user === username ? "rounded-bl-none" : "rounded-br-none"}
+                max-w-xs`}
+              >
+                <p className={`${msg.user === username ? "text-black" : " text-black"} text-sm leading-tight`}>{msg.text}</p>
+              </div>
+            <div ref={messagesEndRef} />
             </div>
-          </div>
-        ))}
+            ))}
           </div>
         </div>
         <div className="p-6 h-full rounded-[14px] bg-[#616161]">
@@ -172,6 +201,11 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
           className="w-full border border-gray-300 p-2 rounded-lg focus:outline-none text-black"
           placeholder="메시지를 입력하세요."
           ref={inputRef}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              handleSendMessage();
+            }
+          }}
         />
         <button
           className="bg-blue-500 w-20 text-white py-2 px-4 rounded-lg ml-2"
