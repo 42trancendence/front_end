@@ -15,6 +15,9 @@ module.exports = {
       fontFamily: {
         'noto': ['Noto Sans KR', 'sans-serif']
       },
+      zIndex: {
+        '100': '100',
+      },
     },
   },
   plugins: [
