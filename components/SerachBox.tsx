@@ -1,5 +1,8 @@
 import { Combobox, Dialog, Transition } from "@headlessui/react";
-import { ExclamationCircleIcon, MagnifyingGlassIcon } from "@heroicons/react/20/solid";
+import {
+	ExclamationCircleIcon,
+	MagnifyingGlassIcon,
+} from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import DefaultAvatarPic from "@/public/default_avatar.svg";
 import { Fragment, useContext, useEffect, useState } from "react";
@@ -35,7 +38,6 @@ export default function SearchBox({
 				if (res.status === 200) {
 					const data = await res.json();
 					setItems(data);
-
 				} else if (res.status === 401) {
 					// Unauthorized, try to refresh the access token
 					const newAccessToken = await handleRefresh();
@@ -51,27 +53,32 @@ export default function SearchBox({
 				console.log(error);
 			}
 		};
-		fetchUsers();
-	}, []);
+		if (isOpen) {
+			fetchUsers();
+		}
+	}, [isOpen]);
 	// 검색된 유저 필터링
 	const filteredItems =
 		query === ""
 			? []
 			: items.filter((item: any) => {
-				return item.name.toLowerCase().startsWith(query.toLowerCase());
-			});
+					return item.name.toLowerCase().startsWith(query.toLowerCase());
+			  });
 
 	// 친구 추가 소켓 이벤트
 	const { successed } = useContext(NotifyContext);
 	function onSuccessed() {
-		successed({ header: '친구요청', message: '친구요청을 성공적으로 보냈습니다.' });
+		successed({
+			header: "친구요청",
+			message: "친구요청을 성공적으로 보냈습니다.",
+		});
 	}
 
 	const { socket } = useContext(SocketContext);
 	const addFriend = (event: React.MouseEvent<HTMLElement>, item: any) => {
 		socket?.emit("addFriend", { friendName: item.name });
 		onSuccessed();
-	}
+	};
 
 	return (
 		<Transition.Root
@@ -104,7 +111,10 @@ export default function SearchBox({
 						leaveTo="opacity-0 scale-95"
 					>
 						<Dialog.Panel className="mx-auto max-w-xl transform divide-y divide-gray-100 overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
-							<Combobox value={selectedUser} onChange={(item: any) => setSelectedUser(item.name)}>
+							<Combobox
+								value={selectedUser}
+								onChange={(item: any) => setSelectedUser(item.name)}
+							>
 								<div className="relative">
 									<MagnifyingGlassIcon
 										className="pointer-events-none absolute left-4 top-3.5 h-5 w-5 text-gray-400"
@@ -126,11 +136,9 @@ export default function SearchBox({
 											<Combobox.Option
 												key={item.id}
 												value={item}
-												className="flex items-center justify-center cursor-default select-none rounded-xl p-3"
+												className="flex cursor-default select-none items-center justify-center rounded-xl p-3"
 											>
-												<div
-													className="flex h-10 w-10 bg-zinc-800 flex-none items-center justify-center rounded-full"
-												>
+												<div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-zinc-800">
 													<Image
 														src={item.avatar || DefaultAvatarPic}
 														className="h-6 w-6 text-white"
@@ -138,17 +146,28 @@ export default function SearchBox({
 													/>
 												</div>
 												<div className="ml-4 mr-auto flex-auto">
-													<p
-														className={clsx(
-															"text-base font-medium"
-														)}
-													>
+													<p className={clsx("text-base font-medium")}>
 														{item.name}
 													</p>
 												</div>
 												<div>
-													<NormalButton variant="dark" className="border mr-2" onClick={(e) => addFriend(e, item)}>친구신청</NormalButton>
-													<NormalButton variant="bright" className="border" onClick={() => {router.push(`/lobby/users/${item.id}`); setIsOpen(false)}}>정보</NormalButton>
+													<NormalButton
+														variant="dark"
+														className="mr-2 border"
+														onClick={(e) => addFriend(e, item)}
+													>
+														친구신청
+													</NormalButton>
+													<NormalButton
+														variant="bright"
+														className="border"
+														onClick={() => {
+															router.push(`/lobby/users/${item.id}`);
+															setIsOpen(false);
+														}}
+													>
+														정보
+													</NormalButton>
 												</div>
 											</Combobox.Option>
 										))}

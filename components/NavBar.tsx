@@ -77,7 +77,7 @@ export default function NavBar({ userData }: any) {
 			<div className="sticky top-0 flex h-screen w-72 flex-col border-r border-zinc-700">
 				<div className="flex grow flex-col gap-y-5 overflow-y-auto bg-zinc-900 px-6">
 					<div className="flex h-16 shrink-0 items-center">
-						<Image className="h-8 w-auto" src={logoPic} alt="Your Company" />
+						<Link href="/lobby/overview" className="text-xl font-orbitron font-bold text-zinc-200">TRANS-PONG</Link>
 					</div>
 					<nav className="flex flex-1 flex-col">
 						<ul role="list" className="flex flex-1 flex-col gap-y-7">

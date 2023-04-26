@@ -13,7 +13,8 @@ module.exports = {
         'neumreverse': 'inset 6px 6px 12px #1d1d1f, inset -6px -6px 12px #313135'
       },
       fontFamily: {
-        'noto': ['Noto Sans KR', 'sans-serif']
+        'noto': ['Noto Sans KR', 'sans-serif'],
+        'orbitron': ['Orbitron', 'sans-serif'],
       },
       zIndex: {
         '100': '100',

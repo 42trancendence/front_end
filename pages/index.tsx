@@ -4,13 +4,24 @@ import logoPic from "@/public/42_Logo.svg";
 import Seo from "@/components/Seo";
 import PrimaryButton from "@/components/ui/PrimaryButton";
 import { useEffect, useState } from "react";
-import { checkIsLoggedIn } from "@/utils/Authentication";
+import { checkIsLoggedIn, isTwoFactorAuthEnabled } from "@/utils/Authentication";
 import { useRouter } from "next/router";
 import Loading from "@/components/ui/Loading";
 
 export default function IndexPage() {
 	const router = useRouter();
-	const [loading, setLoading] = useState(false);
+	const [loading, setLoading] = useState(true);
+	useEffect(() => {
+		const checkLoginStatus = async () => {
+			const token = await checkIsLoggedIn();
+			if (token) {
+				router.replace(process.env.NEXT_PUBLIC_AUTH_URL || "#");
+			} else {
+				setLoading(false);
+			}
+		};
+		checkLoginStatus();
+	}, [router]);
 	return (
 		<>
 			{loading ? <Loading /> : (
