@@ -94,29 +94,29 @@ const OverView: NextPageWithLayout = () => {
 			{!isUserDataLoaded ? (
 				<OverviewSkeleton /> // 로딩중일때
 			) : (
-				<div className="z-10 -mt-6 grid w-3/4 grid-cols-1 gap-3 self-center rounded bg-zinc-800 p-6 shadow-neumreverse lg:grid-cols-3">
+				<div className="z-10 text-center -mt-6 grid w-3/4 grid-cols-1 gap-3 self-center rounded bg-zinc-800 p-6 shadow-neumreverse lg:grid-cols-3">
 					<div className="flex divide-x divide-zinc-400">
-						<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
-							<p className="text-zinc-400">Total games</p>
+						<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm font-orbitron">
+							<p className="text-zinc-200">Total</p>
 							<p className="text-lg font-semibold">100</p>
 						</div>
-						<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
-							<p className="text-zinc-400">Win</p>
+						<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm font-orbitron">
+							<p className="text-zinc-200">Win</p>
 							<p className="text-lg font-semibold">50</p>
 						</div>
-						<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
-							<p className="text-zinc-400">Lose</p>
+						<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm font-orbitron">
+							<p className="text-zinc-200">Lose</p>
 							<p className="text-lg font-semibold">50</p>
 						</div>
 					</div>
 					<div className="m-auto flex">
 						<div className="text-2xl font-bold">
-							<p className="text-white">{username}</p>
+							<p className="text-white font-orbitron">{username}</p>
 						</div>
 					</div>
 					<div className="ml-auto flex divide-x divide-zinc-400">
-						<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
-							<p className="text-zinc-400">Achievement</p>
+						<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm font-orbitron">
+							<p className="text-zinc-200 text-xs">Achievement</p>
 							<p className="text-lg font-semibold">1</p>
 						</div>
 						<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
