@@ -1,5 +1,5 @@
 import Layout from "@/components/Layout";
-import { ChatSocketProvider, GameSocketContext } from "@/lib/socketContext";
+import { ChatSocketProvider, GameSocketContext, SocketContext } from "@/lib/socketContext";
 import { GameSocketProvider, SocketProvider } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
 import { useContext } from "react";
@@ -72,6 +72,11 @@ const Game: NextPageWithLayout = () => {
 			}
 		}
 
+		const globalSocket = useContext(SocketContext);
+		useEffect(() => {
+			globalSocket?.socket?.emit("updateActiveStatus", 3);
+		}, [globalSocket.socket]);
+
 		return (
 			onGame ? (
 			<Canvas></Canvas>
@@ -111,7 +116,7 @@ const Game: NextPageWithLayout = () => {
 									</div>
 									{/* <span>{room.wa} players</span> */}
 									<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-									<button 
+									<button
 										onClick={hadleWatching}
 										className="rounded-lg bg-zinc-400 p-3 hover:bg-zinc-700 transition-colors cursor-pointer">
 										관전하기
