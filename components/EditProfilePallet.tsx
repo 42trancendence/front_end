@@ -129,7 +129,6 @@ const EditProfilePallet = ({
 				},
 				body: JSON.stringify(data),
 			});
-			console.log(res);
 			if (res.status === 200) {
 				openDialog("프로필 업데이트에 성공했습니다!", "success");
 				setIsOpen(false);
