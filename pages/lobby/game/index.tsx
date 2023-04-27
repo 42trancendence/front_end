@@ -78,15 +78,15 @@ const Game: NextPageWithLayout = () => {
 			) : (
 				<div className="flex h-full w-full flex-col items-center px-8 py-6">
 				{/* 자동 매칭 버튼 */}
-				<button onClick={handleMatching} className="bg-zinc-400 w-[50%] text-black h-20 rounded-lg hover:bg-white hover:text-zinc-800" >
+				<button onClick={handleMatching} className="bg-zinc-600 w-[50%] font-bold text-xl text-indigo-400 h-20 rounded-lg hover:bg-zinc-400 hover:text-zinc-800" >
 					{match}
 				</button>
 				{/* 게임방 목록 */}
 				<div className="container mx-auto py-6">
-					<div className="text-2xl font-bold mb-4">
+					<div className="text-2xl font-extrabold text-indigo-400 mb-4">
 						게임방 목록
 					</div>
-					<div className="grid grid-cols-1 gap-4 rounded-lg bg-zinc-400 p-5">
+					<div className="grid grid-cols-1 gap-4 rounded-lg bg-zinc-600 p-5">
 						{/* Replace this array with actual game room data */}
 						{gameRooms.map((room, index) => (
 							<div key={index} className="bg-zinc-800 text-white p-4 rounded-lg shadow">
@@ -96,8 +96,7 @@ const Game: NextPageWithLayout = () => {
 									{/* <span>{room.wa} players</span> */}
 									<button 
 										onClick={hadleWatching}
-										className="rounded-lg bg-zinc-400 p-3 hover:bg-zinc-700 transition-colors cursor-pointer"
-									>
+										className="rounded-lg bg-zinc-400 p-3 hover:bg-zinc-700 transition-colors cursor-pointer">
 										관전하기
 									</button>
 								</div>
