@@ -25,19 +25,26 @@ export default function MyDialog({
 	dialogText,
 	isOpen,
 	setIsOpen,
+	closeCallback,
 }: {
 	type: string,
 	dialogTitle: string,
 	dialogText: string;
 	isOpen: boolean;
 	setIsOpen: any;
+	closeCallback?: any;
 }) {
 	const Icon = alertStyles[type].icon;
 	return (
 		<Dialog
 			open={isOpen}
-			onClose={() => setIsOpen(false)}
-			className="relative z-50"
+			onClose={() => {
+				setIsOpen(false);
+				if (closeCallback) {
+					closeCallback();
+				}
+			}}
+			className="relative z-100"
 		>
 			{/* The backdrop, rendered as a fixed sibling to the panel container */}
 			<div
@@ -70,7 +77,12 @@ export default function MyDialog({
 						<div className="mt-5 sm:mt-4 sm:flex sm:flex-row-reverse">
 							<button
 								className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-								onClick={() => setIsOpen(false)}
+								onClick={() => {
+									setIsOpen(false);
+									if (closeCallback) {
+										closeCallback();
+									}
+								}}
 							>
 								Close
 							</button>

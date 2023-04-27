@@ -23,6 +23,7 @@ const OverView: NextPageWithLayout = () => {
 	const [avatar, setavatarUrl] = useState(DefaultAvatar);
 	const [userData, setuserData] = useState({});
 	const [isEditOpen, setisEditOpen] = useState(false);
+	const [isProfileChanged, setisProfileChanged] = useState(false);
 	const [isUserDataLoaded, setisUserDataLoaded] = useState(false);
 
 	// user 정보 가져오기
@@ -59,7 +60,7 @@ const OverView: NextPageWithLayout = () => {
 			}
 		};
 		getUser();
-	}, [username]);
+	}, [username, isProfileChanged]);
 
 	const { socket } = useContext(SocketContext);
 	useEffect(() => {
@@ -71,7 +72,7 @@ const OverView: NextPageWithLayout = () => {
 	return (
 		<>
 			<Seo title="Overview" />
-			<EditProfilePallet isOpen={isEditOpen} setIsOpen={setisEditOpen} />
+			<EditProfilePallet isOpen={isEditOpen} setIsOpen={setisEditOpen} setisProfileChanged={setisProfileChanged} />
 			<div className="relative flex flex-1 flex-col">
 				<div>
 					<Image
