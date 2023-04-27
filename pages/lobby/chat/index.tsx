@@ -125,7 +125,7 @@ const ChatRooms: NextPageWithLayout = () => {
 						</div>
 					</div>
 				</div>
-			<div className="flex-row w-8/9 h-full overflow-y-auto rounded-[14px] bg-[#616161] ">
+			<div className="flex-row w-8/9 h-full overflow-y-auto rounded-[14px] bg-[#616161] -mt-5">
 				{chatRooms.map((room: any) => (
 					<div key={room.id}>
 						<div className="flex divide-x-4 mt-5 divide-zinc-400">
