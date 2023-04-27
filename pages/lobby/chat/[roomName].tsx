@@ -9,9 +9,7 @@ import {
 } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
 import { handleRefresh } from "@/lib/auth-client";
-import { Socket } from "socket.io-client";
-import socket from "@/lib/socket";
-import ChatModal from "../../../components/Chatmodal";
+import ChatModal from "@/components/ChatModal";
 
 
 
@@ -125,7 +123,7 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
     console.log("users data", data);
     setUserList(data);
   });
-  
+
   socket?.on('getMessage', function(data) {
     const newMessage = {
       text: data.message,
@@ -138,7 +136,7 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
   const handleSendMessage = () => {
     const messageText = inputRef.current.value;
     socket.emit('sendMessage', messageText);
-    
+
     inputRef.current.value = "";
   };
 
@@ -201,7 +199,7 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
       </div>
     </div>
   );
-  
+
 }
 
 
@@ -209,7 +207,7 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
 export async function getServerSideProps(context: any) {
   const { roomName } = context.query;
   const roomData = { "name": roomName, "password": 12 };
-  
+
   return {
     props: {
       roomData,
