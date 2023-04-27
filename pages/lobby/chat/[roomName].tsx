@@ -11,21 +11,26 @@ import { NextPageWithLayout } from "@/pages/_app";
 import { handleRefresh } from "@/lib/auth-client";
 import { Socket } from "socket.io-client";
 import socket from "@/lib/socket";
+import ChatModal from "../../../components/Chatmodal";
 
 
 
 const RoomPage: NextPageWithLayout = ({roomData}) => {
   const [message, setMessage] = useState([]);
-  const [selectedUser, setSelectedUser] = useState();
-  const [userOffsetTop, setuserOffsetTop] = useState();
-  const [userOffsetLeft, setuserOffsetLeft] = useState();
+  const [selectedUser, setSelectedUser] = useState("");
+  const [userOffsetTop, setUserOffsetTop] = useState(0);
+  const [userOffsetLeft, setUserOffsetLeft] = useState(0);
   const [showUserModal, setShowUserModal] = useState(false);
-  const [userList, setUserList] = useState([]);
+  const [userList, setUserList] = useState([""]);
 	const [username, setUsername] = useState("");
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
   const router = useRouter();
+
+  useEffect(() => {
+    console.log("선택된 유저", selectedUser.length);
+  }, [selectedUser]);
 
 	useEffect(() => {
 		let accessToken = localStorage.getItem("token");
@@ -94,28 +99,28 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
     // 유저에 대한 정보를 보여주는 모달을 열고,
     // 모달 내부에서 kick 또는 mute 처리를 할 수 있는 버튼을 추가하는 로직을 구현.
   }
-  const userElements = {};
+  const userElements: { [key: string]: HTMLLIElement | null } = {};
 
   const handleCloseUserModal = () => {
-    setSelectedUser(null);
+    setSelectedUser("");
     setShowUserModal(false);
   };
 
-  const handleOpenUserModal = (user) => {
+  const handleOpenUserModal = (user: string) => {
     console.log("user", user);
     const userElement = userElements[user];
     if (userElement) {
       setSelectedUser(user);
+      console.log("sele", selectedUser);
       console.log("select", selectedUser);
       const { top, left } = userElement.getBoundingClientRect();
       console.log("TOP", top);
       console.log("LEFT", left);
-      setuserOffsetTop(top);
-      setuserOffsetLeft(left);
+      setUserOffsetTop(top);
+      setUserOffsetLeft(left);
       setShowUserModal(true);
     }
   };
-
   socket?.on('getChatRoomUsers', function(data){
     console.log("users data", data);
     setUserList(data);
@@ -164,32 +169,12 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
         <div className="p-6 h-full rounded-[14px] bg-[#616161]">
           <p className="text-xl text-[#939efb]">유저 목록</p>
           <ul className="mt-4">
-            {userList.map((user, index) => (
-            <li
-              key={index}
-              className="text-white mb-2"
-              onClick={() => handleOpenUserModal(user)}
-              ref={(el) => (userElements[user] = el)}
-            >
-              {user}
-            </li>
-            ))}
-          {showUserModal && (
+          <ChatModal userData={userList} />
+          {showUserModal && selectedUser.length > 0 && (
             <div
               className="fixed z-50 top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex items-center justify-center"
               onClick={handleCloseUserModal}
             >
-              <div
-                  className="bg-black p-6 rounded-lg absolute"
-                  style={{
-                    top: `calc(${userOffsetTop}px + 20px)`,
-                    left: `calc(${userOffsetLeft}px + 20px)`,
-                    maxHeight: `calc(100vh - ${userOffsetTop}px - 20px)`,
-                  }}
-              >
-                {/* 모달 내용 */}
-                <button onClick={handleCloseUserModal}>Kick</button>
-              </div>
             </div>
           )}
           </ul>
