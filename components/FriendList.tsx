@@ -6,6 +6,7 @@ import { Fragment, useContext } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { SocketContext } from "@/lib/socketContext";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
+import {useRouter} from "next/router";
 
 export default function FreindList({ userData }: any) {
 	const { socket } = useContext(SocketContext);
@@ -13,6 +14,7 @@ export default function FreindList({ userData }: any) {
 		event.preventDefault();
 		socket?.emit("deleteFriend", { friendName: item.name });
 	}
+	const router = useRouter();
 	return (
 		<>
 			{userData.length > 0 ? (
@@ -56,6 +58,7 @@ export default function FreindList({ userData }: any) {
 													active ? "bg-gray-100 text-gray-700" : "text-white",
 													"block w-full rounded-t px-4 py-2 text-sm"
 												)}
+												onClick={() => router.push(`/lobby/users/${user.id}`)}
 											>
 												유저 정보
 											</button>
