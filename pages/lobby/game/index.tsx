@@ -78,27 +78,45 @@ const Game: NextPageWithLayout = () => {
 			) : (
 				<div className="flex h-full w-full flex-col items-center px-8 py-6">
 				{/* 자동 매칭 버튼 */}
-				<button onClick={handleMatching} className="bg-zinc-600 w-[50%] font-bold text-xl text-indigo-400 h-20 rounded-lg hover:bg-zinc-400 hover:text-zinc-800" >
+				<button onClick={handleMatching} className="bg-zinc-600 w-[50%] font-bold text-xl text-indigo-300 h-20 rounded-lg hover:bg-zinc-400 hover:text-zinc-800" >
 					{match}
 				</button>
 				{/* 게임방 목록 */}
 				<div className="container mx-auto py-6">
-					<div className="text-2xl font-extrabold text-indigo-400 mb-4">
+					<div className="text-3xl font-bold text-indigo-400 mb-4">
 						게임방 목록
 					</div>
-					<div className="grid grid-cols-1 gap-4 rounded-lg bg-zinc-600 p-5">
+					<div className="grid grid-cols-1 gap-3 rounded-lg bg-zinc-600 p-5">
+						<div className="flex divide-x-4 divide-zinc-400 content-start">
+							<div className="flex w-1/3 flex-col items-center justify-center text-base">
+							<p className="text-[#bbc2ff]">게임방 이름</p>
+							</div>
+							<div className="flex w-1/3 flex-col items-center justify-center space-y-3 text-base">
+							<p className="text-[#bbc2ff]">상태</p>
+							</div>
+							<div className="flex w-1/3 flex-col items-center justify-center space-y-3 text-base">
+							<p className="text-[#bbc2ff]">관전하기</p>
+							</div>
+						</div>
+
 						{/* Replace this array with actual game room data */}
 						{gameRooms.map((room, index) => (
 							<div key={index} className="bg-zinc-800 text-white p-4 rounded-lg shadow">
 								<div className="flex justify-between items-center px-10">
-									<span className="font-bold">{room.title}</span>
-									<span>{room.status}</span>
+									<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
+									<p className="font-bold">{room.title}</p>
+									</div>
+									<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
+									<p className="font-bold">{room.status}</p>
+									</div>
 									{/* <span>{room.wa} players</span> */}
-									<button
+									<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
+									<button 
 										onClick={hadleWatching}
 										className="rounded-lg bg-zinc-400 p-3 hover:bg-zinc-700 transition-colors cursor-pointer">
 										관전하기
 									</button>
+									</div>
 								</div>
 							</div>
 						))}
