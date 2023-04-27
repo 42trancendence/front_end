@@ -99,9 +99,14 @@ const ChatRooms: NextPageWithLayout = () => {
 		setShowCreateRoomPopup(false);
 	  };
    
-	const joinChatRoom = (roomName: string) => {
-		socket?.emit('enterChatRoom', {roomName, password});
-		router.push(`/lobby/chat/${roomName}`);
+	const joinChatRoom = (room: any) => {
+		if (room.type === "PROTECTED") {
+			const inputPassword = prompt("비밀번호를 입력하세요");
+			socket?.emit('enterChatRoom', {roomName: room.name, password: inputPassword});
+			return ;
+		  }
+		socket?.emit('enterChatRoom', {roomName: room.name, password});
+		router.push(`/lobby/chat/${room.name}`);
 	}
 
 
@@ -115,13 +120,13 @@ const ChatRooms: NextPageWithLayout = () => {
 						<p className="text-[#bbc2ff]">채팅방 이름</p>
 						</div>
 						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-						<p className="text-[#bbc2ff]">방장 닉네임</p>
+						<p className="text-[#bbc2ff]">인원</p>
 						</div>
 						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
 						<p className="text-[#bbc2ff]">공개 채널</p>
 						</div>
 						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-						<p className="text-[#bbc2ff]">인원</p>
+						<p className="text-[#bbc2ff]">입장</p>
 						</div>
 					</div>
 				</div>
@@ -133,13 +138,13 @@ const ChatRooms: NextPageWithLayout = () => {
 								<p className="text-[#bbc2ff]">{room.name}</p>
 							</div>
 							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-								<p className="text-[#bbc2ff]">{room.owner.name || '---'}</p>
+								<p className="text-[#bbc2ff]">{room.users.length || '---'}</p>
 							</div>
 							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
 								<p className="text-[#bbc2ff]">{room.type === "PROTECTED" ? '비공개' : '공개'}</p>
 							</div>
 							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-								<button onClick={() => joinChatRoom(room.name)}>입장</button>
+								<button onClick={() => joinChatRoom(room)}>입장</button>
 							</div>
 						</div>
 					</div>
@@ -178,7 +183,6 @@ const ChatRooms: NextPageWithLayout = () => {
 								className="bg-black text-white px-3 py-2 rounded-md mb-3"
 								/>
 							)
-
 							}
 						<button onClick={createChatRoom}>생성</button>
 						</div>

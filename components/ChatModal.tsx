@@ -12,16 +12,19 @@ export default function ChatModal({ userData }: any) {
 	
 	function KickUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
+		socket?.emit("kickUser", item.name);
 	}
 
 
 	function BanUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
+		socket?.emit("toggleBanUser", item.name);
 	}
 
 
 	function MuteUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
+		socket?.emit("setMuteUser", item.name);
 	}
 
 	return (
@@ -80,6 +83,7 @@ export default function ChatModal({ userData }: any) {
 												active ? "bg-gray-100 text-gray-700" : "text-white",
 												"block w-full px-4 py-2 text-sm"
 											)}
+											onClick={(e) =>MuteUser(e, user)}
 										>
 											게임 초대
 										</button>
@@ -92,8 +96,23 @@ export default function ChatModal({ userData }: any) {
 											active ? "bg-gray-100 text-gray-700" : "text-white",
 											"block w-full px-4 py-2 text-sm"
 										)}
+										onClick={(e) => KickUser(e, user)}
 										>
 											KICK
+										</button>
+									)}
+									
+								</Menu.Item>
+								<Menu.Item>
+									{({ active }) => (
+										<button
+										className={clsx(
+											active ? "bg-gray-100 text-gray-700" : "text-white",
+											"block w-full px-4 py-2 text-sm"
+										)}
+										onClick={(e) => MuteUser(e, user)}
+										>
+											MUTE
 										</button>
 									)}
 									
@@ -112,7 +131,6 @@ export default function ChatModal({ userData }: any) {
 										</button>
 									)}
 								</Menu.Item>
-
 							</div>
 						</Menu.Items>
 					</Transition>
