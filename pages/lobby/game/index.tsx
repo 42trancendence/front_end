@@ -7,6 +7,7 @@ import { ReactElement, useEffect } from "react";
 import { useState } from "react";
 import Canvas from "@/components/canvas/canvas";
 import usePersistentState from "@/components/canvas/usePersistentState";
+import ResultDialog from "@/components/ui/ResultDialog";
 
 const Game: NextPageWithLayout = () => {
 	const [gameRooms, setGameRooms] = useState([]);
@@ -78,8 +79,12 @@ const Game: NextPageWithLayout = () => {
 		}, [globalSocket.socket]);
 
 		return (
-			onGame ? (
-			<Canvas></Canvas>
+			<>
+			{onGame ? (
+				<div className="fixed bg-zinc-900 inset-0 flex items-center justify-center">
+					<Canvas></Canvas>
+				</div>
+
 			) : (
 				<div className="flex h-full w-full flex-col items-center px-8 py-6">
 				{/* 자동 매칭 버튼 */}
@@ -128,7 +133,9 @@ const Game: NextPageWithLayout = () => {
 					</div>
 				</div>
 			</div>
-	));
+	)}
+	</>);
+
 }
 
 Game.getLayout = function getLayout(page: ReactElement) {

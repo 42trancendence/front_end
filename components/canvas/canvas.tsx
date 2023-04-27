@@ -30,13 +30,13 @@ const Canvas: React.FC = () => {
         setGameData(data);
       })
       socket.on('setStartGame', (data) => {
+        console.log(`setStartGame: ${data}`);
         if (data == 'start') {
           setStartGame(true);
         } else {
           setStartGame(false);
           alert(data);
         }
-        console.log(`setStartGame: ${data}`);
       })
       socket.on('getWatcher', (data) => {
         console.log('getWatcher', data);
@@ -123,6 +123,7 @@ const Canvas: React.FC = () => {
         tabIndex={0} // 키보드 포커스를 위한 tabIndex 설정
         style={{ outline: 'none' }} // 선택시 브라우저가 테두리를 그리지 않도록 함
         onKeyDown={handleKeyDown} // 함수 자체를 전달
+        className='flex flex-col justify-center items-center w-full'
       >
         <canvas
           ref={canvasRef} width={500} height={500}
