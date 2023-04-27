@@ -44,7 +44,7 @@ const ChatSocketProvider = ({
 }: {
 	isOpen: boolean;
 	children: ReactNode;
-}) => {	
+}) => {
 	const [socket, setSocket] = useState<Socket | null>(null);
 
 	useEffect(() => {
@@ -70,21 +70,30 @@ const ChatSocketProvider = ({
 	);
 };
 
-const GameSocketProvider = ({ children }: SocketProviderProps) => {
+const GameSocketProvider = ({
+	isOpen,
+	children,
+}: {
+	isOpen: boolean;
+	children: ReactNode;
+}) => {
 	const [socket, setSocket] = useState<Socket | null>(null);
 
 	useEffect(() => {
-		const newSocket = io("http://localhost:3000/game", {
-			extraHeaders: {
-				Authorization: `Bearer ${localStorage.getItem("token")}`,
-			},
-		}); // Replace with your server URL
-		setSocket(newSocket);
+		if (isOpen === false) return;
+		else {
+			const newSocket = io("http://localhost:3000/game", {
+				extraHeaders: {
+					Authorization: `Bearer ${localStorage.getItem("token")}`,
+				},
+			}); // Replace with your server URL
+			setSocket(newSocket);
 
-		return () => {
-			newSocket.close();
-		};
-	}, []);
+			return () => {
+				newSocket.close();
+			};
+		}
+	}, [isOpen]);
 
 	return (
 		<GameSocketContext.Provider value={{ socket }}>

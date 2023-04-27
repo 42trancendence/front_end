@@ -7,6 +7,7 @@ import { ReactElement, useContext, useEffect, useState } from "react";
 import { handleRefresh } from "@/lib/auth-client";
 import {
 	ChatSocketProvider,
+	GameSocketProvider,
 	SocketContext,
 	SocketProvider,
 } from "@/lib/socketContext";
@@ -147,7 +148,9 @@ UserInfo.getLayout = function getLayout(page: ReactElement) {
 	return (
 		<SocketProvider>
 			<ChatSocketProvider isOpen={false}>
-				<Layout>{page}</Layout>
+				<GameSocketProvider isOpen={false}>
+					<Layout>{page}</Layout>
+				</GameSocketProvider>
 			</ChatSocketProvider>
 		</SocketProvider>
 	);

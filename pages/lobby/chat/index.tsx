@@ -11,6 +11,7 @@ import { handleRefresh } from "@/lib/auth-client";
 import {
 	ChatSocketContext,
 	ChatSocketProvider,
+	GameSocketProvider,
 	SocketContext,
 	SocketProvider,
 } from "@/lib/socketContext";
@@ -98,7 +99,7 @@ const ChatRooms: NextPageWithLayout = () => {
 		router.push(`/lobby/chat/chatRoom: ${name}`);
 		setShowCreateRoomPopup(false);
 	  };
-   
+
 	const joinChatRoom = (room: any) => {
 		if (room.type === "PROTECTED") {
 			const inputPassword = prompt("비밀번호를 입력하세요");
@@ -197,7 +198,9 @@ ChatRooms.getLayout = function getLayout(page: ReactElement) {
 	return (
 		<SocketProvider>
 			<ChatSocketProvider isOpen={true}>
-				<Layout>{page}</Layout>
+				<GameSocketProvider isOpen={false}>
+					<Layout>{page}</Layout>
+				</GameSocketProvider>
 			</ChatSocketProvider>
 		</SocketProvider>
 	);

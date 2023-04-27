@@ -1,5 +1,5 @@
 import Layout from "@/components/Layout";
-import { GameSocketContext } from "@/lib/socketContext";
+import { ChatSocketProvider, GameSocketContext } from "@/lib/socketContext";
 import { GameSocketProvider, SocketProvider } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
 import { useContext } from "react";
@@ -129,9 +129,11 @@ const Game: NextPageWithLayout = () => {
 Game.getLayout = function getLayout(page: ReactElement) {
 	return (
 		<SocketProvider>
-			<GameSocketProvider>
-				<Layout>{page}</Layout>
-			</GameSocketProvider>
+			<ChatSocketProvider isOpen={false}>
+				<GameSocketProvider isOpen={true}>
+					<Layout>{page}</Layout>
+				</GameSocketProvider>
+			</ChatSocketProvider>
 		</SocketProvider>
 	);
 };
