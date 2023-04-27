@@ -15,7 +15,7 @@ const Canvas: React.FC = () => {
     if (canvasRef?.current) {
       const canvas = canvasRef.current;
       const context = canvas.getContext('2d');
-      
+
       setCtx(context);
     }
   }, []);
@@ -60,14 +60,14 @@ const Canvas: React.FC = () => {
       drawText();
     }
   }
-  
+
   const drawPaddle = (paddle: Object) => {
     if (ctx) {
       ctx.fillStyle = 'red';
       ctx.fillRect(paddle?.x_, paddle?.y_, paddle?.width_, paddle?.height_);
     }
   }
-  
+
   const drawBall = (x: number, y:number) => {
     if (ctx) {
       ctx.beginPath();
@@ -76,7 +76,7 @@ const Canvas: React.FC = () => {
       ctx.fill();
     }
   }
-  
+
   const drawText = () => {
     if (ctx) {
       ctx.font = '30px Arial';
@@ -91,7 +91,7 @@ const Canvas: React.FC = () => {
       socket?.emit('postKey', 'up');
     } else if (e.key === 'ArrowRight') {
       socket?.emit('postKey', 'down');
-    } 
+    }
   }
 
   const handleReadyGame = () => {
@@ -118,21 +118,23 @@ const Canvas: React.FC = () => {
 
   return (
     <>
+    <div className='relative w-full'>
       <div
         tabIndex={0} // 키보드 포커스를 위한 tabIndex 설정
         style={{ outline: 'none' }} // 선택시 브라우저가 테두리를 그리지 않도록 함
         onKeyDown={handleKeyDown} // 함수 자체를 전달
       >
-        <canvas 
+        <canvas
           ref={canvasRef} width={500} height={500}
         />
       </div>
-      {startGame ? 
+      {startGame ?
         <div>
           게임 시작
         </div>
         :
         // 가운데 정렬
+        <div className="absolute w-full flex items-center justify-center m-auto inset-0">
         <div className='mx-auto my-auto space-y-4'>
           <div>
             <div className='text-center mb-2'>
@@ -165,7 +167,9 @@ const Canvas: React.FC = () => {
             </button>
           </div>
         </div>
+        </div>
     }
+    </div>
     </>
   )
 }
