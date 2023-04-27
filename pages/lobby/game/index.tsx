@@ -1,5 +1,5 @@
 import Layout from "@/components/Layout";
-import { GameSocketContext } from "@/lib/socketContext";
+import { ChatSocketProvider, GameSocketContext } from "@/lib/socketContext";
 import { GameSocketProvider, SocketProvider } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
 import { useContext } from "react";
@@ -94,7 +94,7 @@ const Game: NextPageWithLayout = () => {
 									<span className="font-bold">{room.title}</span>
 									<span>{room.status}</span>
 									{/* <span>{room.wa} players</span> */}
-									<button 
+									<button
 										onClick={hadleWatching}
 										className="rounded-lg bg-zinc-400 p-3 hover:bg-zinc-700 transition-colors cursor-pointer">
 										관전하기
@@ -111,9 +111,11 @@ const Game: NextPageWithLayout = () => {
 Game.getLayout = function getLayout(page: ReactElement) {
 	return (
 		<SocketProvider>
-			<GameSocketProvider>
-				<Layout>{page}</Layout>
-			</GameSocketProvider>
+			<ChatSocketProvider isOpen={false}>
+				<GameSocketProvider isOpen={true}>
+					<Layout>{page}</Layout>
+				</GameSocketProvider>
+			</ChatSocketProvider>
 		</SocketProvider>
 	);
 };

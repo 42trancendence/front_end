@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import {
 	ChatSocketContext,
 	ChatSocketProvider,
+	GameSocketProvider,
 	SocketContext,
 	SocketProvider,
 } from "@/lib/socketContext";
@@ -219,7 +220,9 @@ RoomPage.getLayout = function getLayout(page: ReactElement) {
 	return (
 		<SocketProvider>
 			<ChatSocketProvider isOpen={true}>
-				<Layout>{page}</Layout>
+				<GameSocketProvider isOpen={false}>
+					<Layout>{page}</Layout>
+				</GameSocketProvider>
 			</ChatSocketProvider>
 		</SocketProvider>
 	);
