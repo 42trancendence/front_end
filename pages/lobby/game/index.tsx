@@ -9,7 +9,7 @@ import Canvas from "@/components/canvas/canvas";
 import usePersistentState from "@/components/canvas/usePersistentState";
 
 const Game: NextPageWithLayout = () => {
-	const [gameRooms, setGameRooms] = useState([]);
+	const [gameList, setGameList] = useState([]);
 	const [onGame, setOnGame] = usePersistentState('onGame', false);
 	const { socket } = useContext(GameSocketContext);
 	const [match, setMatch] = useState('자동 매칭');
@@ -20,7 +20,7 @@ const Game: NextPageWithLayout = () => {
 		if (socket) {
 			socket.on('getGameList', (data) => {
 				// console.log(data);
-				setGameRooms(data);
+				setGameList(data);
 			})
 			socket.on('getMatching', (data) => {
 				console.log(`매칭되었습니당: ${data}`);
@@ -28,10 +28,6 @@ const Game: NextPageWithLayout = () => {
 				// TODO
 				// 매칭되면 게임방으로 이동
 				setOnGame(true);
-			})
-			socket.on('getCancelMatching', (data) => {
-				console.log(`매칭 취소되었습니당: ${data}`);
-				setMatch('자동 매칭');
 			})
 			socket.on('postLeaveGame', (data) => {
         console.log('getLeaveGame: ', data);
@@ -65,9 +61,9 @@ const Game: NextPageWithLayout = () => {
 			}
 		}
 
-		const hadleWatching = () => {
+		const hadleWatching = (roomId: string) => {
 			if (socket) {
-				socket.emit('postWatching');
+				socket.emit('postWatching', roomId);
 				setOnGame(true);
 			}
 		}
@@ -88,14 +84,14 @@ const Game: NextPageWithLayout = () => {
 					</div>
 					<div className="grid grid-cols-1 gap-4 rounded-lg bg-zinc-600 p-5">
 						{/* Replace this array with actual game room data */}
-						{gameRooms.map((room, index) => (
+						{gameList.map((room, index) => (
 							<div key={index} className="bg-zinc-800 text-white p-4 rounded-lg shadow">
 								<div className="flex justify-between items-center px-10">
 									<span className="font-bold">{room.title}</span>
 									<span>{room.status}</span>
 									{/* <span>{room.wa} players</span> */}
 									<button 
-										onClick={hadleWatching}
+										onClick={() => hadleWatching(room.roomId)}
 										className="rounded-lg bg-zinc-400 p-3 hover:bg-zinc-700 transition-colors cursor-pointer">
 										관전하기
 									</button>

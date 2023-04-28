@@ -101,16 +101,14 @@ const Canvas: React.FC = () => {
     }
   }
 
-  const hadleDifficulty = () => {
+  const handleDifficulty = () => {
     if (socket) {
-      if (difficulty) {
-        socket.emit('postDifficulty', difficulty ? 'normal' : 'hard');
-      }
+      socket.emit('postDifficulty', difficulty ? 'normal' : 'hard');
       setDifficulty(!difficulty);
     }
   }
 
-  const hadleLeaveGame = () => {
+  const handleLeaveGame = () => {
     if (socket) {
       socket.emit('postLeaveGame');
     }
@@ -140,7 +138,7 @@ const Canvas: React.FC = () => {
             </div>
             <div className='text-center'>
               <button
-                onClick={() => hadleDifficulty()}
+                onClick={() => handleDifficulty()}
                 className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
               >
                 {difficulty ? 'hard' : 'normal' }
@@ -158,7 +156,7 @@ const Canvas: React.FC = () => {
               {ready ? '준비완료' : '준비' }
             </button>
             <button
-              onClick={() => hadleLeaveGame()}
+              onClick={() => handleLeaveGame()}
               className={'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'}
             >
               나가기
