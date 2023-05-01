@@ -9,7 +9,7 @@ import Loading from "./ui/Loading";
 import { SocketContext } from "@/lib/socketContext";
 import FriendNotification from "./ui/FriendNotification";
 import { handleRefresh } from "@/lib/auth-client";
-import { NotifyProvider } from "@/lib/notifyContext";
+import { NotifyContext, NotifyProvider } from "@/lib/notifyContext";
 import GlobalNotification from "@/components/ui/GlobalNotification";
 
 export default function Layout({
@@ -94,6 +94,17 @@ export default function Layout({
 			});
 		}
 	}, [socket, userData]);
+
+	const { successed } = useContext(NotifyContext);
+	function onSuccessed(name: string, message: string) {
+		successed({
+			header: name,
+			message,
+		});
+	}
+	socket?.on("newDirectMessage", (data) => {
+		onSuccessed(data.name, data.message);
+	});
 
 	return (
 		<>
