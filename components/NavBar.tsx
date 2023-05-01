@@ -10,9 +10,11 @@ import {
 	Bars3Icon,
 } from "@heroicons/react/24/outline";
 import { useRouter } from "next/router";
-import { Fragment, useState } from "react";
+import { Fragment, useContext, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import SearchBox from "./SerachBox";
+import { NotifyContext } from "@/lib/notifyContext";
+import { SocketContext } from "@/lib/socketContext";
 
 function classNames(...classes: string[]) {
 	return classes.filter(Boolean).join(" ");
@@ -72,6 +74,18 @@ export default function NavBar({ userData }: any) {
 		localStorage.removeItem("token");
 		router.push("/");
 	};
+
+	const { friendSocket } = useContext(SocketContext);
+	const { successed } = useContext(NotifyContext);
+	function onSuccessed(name: string, message: string) {
+		successed({
+			header: name,
+			message: message,
+		});
+	}
+	friendSocket?.on("newDirectMessage", (data) => {
+		onSuccessed(data.name, data.message);
+	});
 	return (
 		<>
 			<SearchBox isOpen={isSerchBoxOpen} setIsOpen={setIsSerchBoxOpen} />

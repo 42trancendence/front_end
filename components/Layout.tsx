@@ -94,18 +94,6 @@ export default function Layout({
 			});
 		}
 	}, [socket, userData]);
-
-	const { successed } = useContext(NotifyContext);
-	function onSuccessed(name: string, message: string) {
-		successed({
-			header: name,
-			message,
-		});
-	}
-	socket?.on("newDirectMessage", (data) => {
-		onSuccessed(data.name, data.message);
-	});
-
 	return (
 		<>
 			{loading ? (
