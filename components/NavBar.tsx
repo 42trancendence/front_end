@@ -87,7 +87,7 @@ export default function NavBar({ userData }: any) {
 				</button>
 				<Link
 					href="/lobby/overview"
-					className="font-orbitron text-lg m-auto font-bold text-zinc-200"
+					className="m-auto font-orbitron text-lg font-bold text-zinc-200"
 				>
 					TRANS-PONG
 				</Link>
@@ -133,7 +133,9 @@ export default function NavBar({ userData }: any) {
 									role="list"
 									className="-mx-2 mt-2 space-y-1 rounded-md bg-zinc-800 p-2"
 								>
-									<FreindList userData={userData} />
+									<FreindList
+										userData={userData}
+									/>
 								</ul>
 							</li>
 							<li className="mb-4 mt-auto">
@@ -243,7 +245,9 @@ export default function NavBar({ userData }: any) {
 													role="list"
 													className="-mx-2 mt-2 space-y-1 rounded-md bg-zinc-800 p-2"
 												>
-													<FreindList userData={userData} setSidebarOpen={setSidebarOpen(false)} />
+													<FreindList
+														userData={userData}
+													/>
 												</ul>
 											</li>
 											<li className="mb-4 mt-auto">
