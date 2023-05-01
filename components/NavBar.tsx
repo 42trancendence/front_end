@@ -243,7 +243,7 @@ export default function NavBar({ userData }: any) {
 													role="list"
 													className="-mx-2 mt-2 space-y-1 rounded-md bg-zinc-800 p-2"
 												>
-													<FreindList userData={userData} />
+													<FreindList userData={userData} setSidebarOpen={setSidebarOpen} />
 												</ul>
 											</li>
 											<li className="mb-4 mt-auto">

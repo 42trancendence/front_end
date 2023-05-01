@@ -8,7 +8,7 @@ import { SocketContext } from "@/lib/socketContext";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/router";
 
-export default function FreindList({ userData }: any) {
+export default function FreindList({ userData }: any, setSidebarOpen: any) {
 	const { friendSocket: socket, chatSocket } = useContext(SocketContext);
 	function deleteFriend(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
@@ -24,6 +24,7 @@ export default function FreindList({ userData }: any) {
 			console.log(error); // 서버에서 전달된 에러 메시지 출력
 		});
 		router.push(`/lobby/chat/dm/dm: ${name}`);
+		setSidebarOpen(false);
 	};
 	return (
 		<>

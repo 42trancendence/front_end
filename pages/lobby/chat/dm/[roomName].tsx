@@ -7,7 +7,7 @@ import {
 } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
 import { handleRefresh } from "@/lib/auth-client";
-import ChatModal from "@/components/ChatModal";
+import DirectChatModal from "@/components/DirectChatModal";
 
 
 
@@ -165,7 +165,7 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
         <div className="p-6 h-full rounded-[14px] bg-[#616161]">
           <p className="text-xl text-[#939efb]">유저 목록</p>
           <ul className="mt-4">
-          <ChatModal userData={userList} />
+          <DirectChatModal userData={userList} />
           {showUserModal && selectedUser.length > 0 && (
             <div
               className="fixed z-50 top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex items-center justify-center"
