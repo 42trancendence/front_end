@@ -4,12 +4,12 @@ import DefaultAvatarPic from "@/public/default_avatar.svg";
 import clsx from "clsx";
 import { Fragment, useContext } from "react";
 import { Menu, Transition } from "@headlessui/react";
-import { ChatSocketContext } from "@/lib/socketContext";
+import { SocketContext } from "@/lib/socketContext";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 
 export default function ChatModal({ userData }: any) {
-	const { socket } = useContext(ChatSocketContext);
-	
+	const { chatSocket: socket } = useContext(SocketContext);
+
 	function KickUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
 		socket?.emit("kickUser", item.name);
@@ -101,7 +101,7 @@ export default function ChatModal({ userData }: any) {
 											KICK
 										</button>
 									)}
-									
+
 								</Menu.Item>
 								<Menu.Item>
 									{({ active }) => (
@@ -115,7 +115,7 @@ export default function ChatModal({ userData }: any) {
 											MUTE
 										</button>
 									)}
-									
+
 								</Menu.Item>
 								<Menu.Item>
 									{({ active }) => (

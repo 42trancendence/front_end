@@ -2,9 +2,6 @@ import Layout from "@/components/Layout";
 import { ReactElement, useContext, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import {
-	ChatSocketContext,
-	ChatSocketProvider,
-	GameSocketProvider,
 	SocketContext,
 	SocketProvider,
 } from "@/lib/socketContext";
@@ -48,7 +45,7 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
 					return userData;
 				} else if (res.status === 401) {
 					// Unauthorized, try to refresh the access token
-					await handleRefresh(getUser);
+					await handleRefresh();
 				} else {
 					return null;
 				}
@@ -84,7 +81,7 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
   }, [router]);
 
 
-	const { socket } = useContext(ChatSocketContext);
+	const { chatSocket: socket } = useContext(SocketContext);
   if (!roomData) {
     return <div>Loading...</div>;
   }
@@ -136,7 +133,7 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
 
   const handleSendMessage = () => {
     const messageText = inputRef.current.value;
-    socket.emit('sendMessage', messageText);
+    socket?.emit('sendMessage', messageText);
 
     inputRef.current.value = "";
   };
@@ -219,11 +216,7 @@ export async function getServerSideProps(context: any) {
 RoomPage.getLayout = function getLayout(page: ReactElement) {
 	return (
 		<SocketProvider>
-			<ChatSocketProvider isOpen={true}>
-				<GameSocketProvider isOpen={false}>
 					<Layout>{page}</Layout>
-				</GameSocketProvider>
-			</ChatSocketProvider>
 		</SocketProvider>
 	);
 };

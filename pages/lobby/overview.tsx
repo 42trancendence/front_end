@@ -6,8 +6,6 @@ import { NormalButton } from "@/components/ui/NormalButton";
 import { ReactElement, useContext, useEffect, useState } from "react";
 import { handleRefresh } from "@/lib/auth-client";
 import {
-	ChatSocketProvider,
-	GameSocketProvider,
 	SocketContext,
 	SocketProvider,
 } from "@/lib/socketContext";
@@ -62,12 +60,12 @@ const OverView: NextPageWithLayout = () => {
 		getUser();
 	}, [username, isProfileChanged]);
 
-	const { socket } = useContext(SocketContext);
+	const { notifySocket } = useContext(SocketContext);
 	useEffect(() => {
-		if (socket) {
-			socket.emit("updateActiveStatus", 1);
+		if (notifySocket) {
+			notifySocket.emit("updateActiveStatus", 1);
 		}
-	}, [socket]);
+	}, [notifySocket]);
 
 	return (
 		<>
@@ -153,11 +151,7 @@ const OverView: NextPageWithLayout = () => {
 OverView.getLayout = function getLayout(page: ReactElement) {
 	return (
 		<SocketProvider>
-			<ChatSocketProvider isOpen={false}>
-				<GameSocketProvider isOpen={false}>
 					<Layout>{page}</Layout>
-				</GameSocketProvider>
-			</ChatSocketProvider>
 		</SocketProvider>
 	);
 };

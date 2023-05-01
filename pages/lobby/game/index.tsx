@@ -1,6 +1,6 @@
 import Layout from "@/components/Layout";
-import { ChatSocketProvider, GameSocketContext, SocketContext } from "@/lib/socketContext";
-import { GameSocketProvider, SocketProvider } from "@/lib/socketContext";
+import { SocketContext } from "@/lib/socketContext";
+import { SocketProvider } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
 import { useContext } from "react";
 import { ReactElement, useEffect } from "react";
@@ -12,7 +12,7 @@ import ResultDialog from "@/components/ui/ResultDialog";
 const Game: NextPageWithLayout = () => {
 	const [gameRooms, setGameRooms] = useState([]);
 	const [onGame, setOnGame] = usePersistentState('onGame', false);
-	const { socket } = useContext(GameSocketContext);
+	const { gameSocket:socket } = useContext(SocketContext);
 	const [match, setMatch] = useState('자동 매칭');
 
 	// socketio 로 게임방 목록 요청
@@ -73,10 +73,10 @@ const Game: NextPageWithLayout = () => {
 			}
 		}
 
-		const globalSocket = useContext(SocketContext);
+		const {notifySocket: globalSocket} = useContext(SocketContext);
 		useEffect(() => {
-			globalSocket?.socket?.emit("updateActiveStatus", 3);
-		}, [globalSocket.socket]);
+			globalSocket?.emit("updateActiveStatus", 3);
+		}, [globalSocket]);
 
 		return (
 			<>
@@ -110,7 +110,7 @@ const Game: NextPageWithLayout = () => {
 						</div>
 
 						{/* Replace this array with actual game room data */}
-						{gameRooms.map((room, index) => (
+						{gameRooms.map((room: any, index) => (
 							<div key={index} className="bg-zinc-800 text-white p-4 rounded-lg shadow">
 								<div className="flex justify-between items-center px-10">
 									<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
@@ -141,11 +141,7 @@ const Game: NextPageWithLayout = () => {
 Game.getLayout = function getLayout(page: ReactElement) {
 	return (
 		<SocketProvider>
-			<ChatSocketProvider isOpen={false}>
-				<GameSocketProvider isOpen={true}>
 					<Layout>{page}</Layout>
-				</GameSocketProvider>
-			</ChatSocketProvider>
 		</SocketProvider>
 	);
 };

@@ -1,65 +1,109 @@
 // socketContext.tsx
-import { createContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useEffect, useState, ReactNode, Dispatch } from "react";
 import { Socket, io } from "socket.io-client";
 import { handleRefresh } from "./auth-client";
 import router from "next/router";
 
 interface SocketContextValue {
-	socket: Socket | null;
+	friendSocket: Socket | null;
+	chatSocket: Socket | null;
+	gameSocket: Socket | null;
+	notifySocket: Socket | null;
 }
 
-const SocketContext = createContext<SocketContextValue>({ socket: null });
-const ChatSocketContext = createContext<SocketContextValue>({ socket: null });
-const GameSocketContext = createContext<SocketContextValue>({ socket: null });
-const FriendSocketContext = createContext<SocketContextValue>({ socket: null });
+const SocketContext = createContext<SocketContextValue>({
+	friendSocket: null,
+	chatSocket: null,
+	gameSocket: null,
+	notifySocket: null,
+});
+//const ChatSocketContext = createContext<SocketContextValue>({ socket: null });
+//const GameSocketContext = createContext<SocketContextValue>({ socket: null });
+//const FriendSocketContext = createContext<SocketContextValue>({ socket: null });
 
 interface SocketProviderProps {
 	children: ReactNode;
 }
 
+const reconnectSocket = async (socketApi: string, socketSetter: any) => {
+	const newAccessToken = await handleRefresh();
+	if (!newAccessToken) {
+		router.push("/");
+	} else {
+		const newSocket = io(socketApi, {
+			extraHeaders: {
+				Authorization: `Bearer ${localStorage.getItem("token")}`,
+			},
+		});
+		socketSetter(newSocket);
+	}
+};
+
 const SocketProvider = ({ children }: SocketProviderProps) => {
-	const [socket, setSocket] = useState<Socket | null>(null);
+	const [friendSocket, setFriendSocket] = useState<Socket | null>(null);
+	const [chatSocket, setChatSocket] = useState<Socket | null>(null);
+	const [gameSocket, setGameSocket] = useState<Socket | null>(null);
+	const [notifySocket, setNotifySocket] = useState<Socket | null>(null);
 
 	useEffect(() => {
-		const newSocket = io("http://localhost:3000/friend", {
+		const newFriendSocket = io("http://localhost:3000/friend", {
+			extraHeaders: {
+				Authorization: `Bearer ${localStorage.getItem("token")}`,
+			},
+		});
+		const newChatSocket = io("http://localhost:3000/chat-room", {
+			extraHeaders: {
+				Authorization: `Bearer ${localStorage.getItem("token")}`,
+			},
+		});
+		const newGameSocket = io("http://localhost:3000/game", {
+			extraHeaders: {
+				Authorization: `Bearer ${localStorage.getItem("token")}`,
+			},
+		});
+		const newNotifySocket = io("http://localhost:3000/notify", {
 			extraHeaders: {
 				Authorization: `Bearer ${localStorage.getItem("token")}`,
 			},
 		});
 
 		// 토큰 만료시 재발급
-		newSocket.on("tokenError", () => {
-			const reconnectSocket = async() => {
-				const newAccessToken = await handleRefresh();
-				if (!newAccessToken) {
-					router.push("/");
-				}
-				else {
-					const newSocket = io("http://localhost:3000/friend", {
-						extraHeaders: {
-							Authorization: `Bearer ${localStorage.getItem("token")}`,
-						},
-					});
-					setSocket(newSocket);
-				}
-			}
-			reconnectSocket();
+		newFriendSocket.on("tokenError", () => {
+			reconnectSocket("http://localhost:3000/friend", setFriendSocket);
+		});
+		newChatSocket.on("tokenError", () => {
+			reconnectSocket("http://localhost:3000/chat-room", setChatSocket);
+		});
+		newGameSocket.on("tokenError", () => {
+			reconnectSocket("http://localhost:3000/game", setGameSocket);
+		});
+		newNotifySocket.on("tokenError", () => {
+			reconnectSocket("http://localhost:3000/notify", setNotifySocket);
 		});
 
-		setSocket(newSocket);
+		setFriendSocket(newFriendSocket);
+		setChatSocket(newChatSocket);
+		setGameSocket(newGameSocket);
+		setNotifySocket(newNotifySocket);
 
 		return () => {
-			newSocket.close();
+			newFriendSocket.close();
+			newChatSocket.close();
+			newGameSocket.close();
+			newNotifySocket.close();
 		};
 	}, []);
 
 	return (
-		<SocketContext.Provider value={{ socket }}>
+		<SocketContext.Provider
+			value={{ friendSocket, chatSocket, gameSocket, notifySocket }}
+		>
 			{children}
 		</SocketContext.Provider>
 	);
 };
 
+/*
 const ChatSocketProvider = ({
 	isOpen,
 	children,
@@ -163,12 +207,14 @@ const GameSocketProvider = ({
 		</GameSocketContext.Provider>
 	);
 };
-
+*/
 export {
 	SocketContext,
 	SocketProvider,
+	/*
 	ChatSocketContext,
 	ChatSocketProvider,
 	GameSocketContext,
 	GameSocketProvider,
+	*/
 };

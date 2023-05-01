@@ -6,8 +6,6 @@ import { NormalButton } from "@/components/ui/NormalButton";
 import { ReactElement, useContext, useEffect, useState } from "react";
 import { handleRefresh } from "@/lib/auth-client";
 import {
-	ChatSocketProvider,
-	GameSocketProvider,
 	SocketContext,
 	SocketProvider,
 } from "@/lib/socketContext";
@@ -64,7 +62,7 @@ const UserInfo: NextPageWithLayout = () => {
 		getUser();
 	}, [username, router, id]);
 
-	const { socket } = useContext(SocketContext);
+	const { notifySocket: socket } = useContext(SocketContext);
 	useEffect(() => {
 		if (socket) {
 			socket.emit("updateActiveStatus", 1);
@@ -74,7 +72,6 @@ const UserInfo: NextPageWithLayout = () => {
 	return (
 		<>
 			<Seo title="UserInfo" />
-			<EditProfilePallet isOpen={isEditOpen} setIsOpen={setisEditOpen} />
 			<div className="relative flex flex-1 flex-col">
 				<div>
 					<Image
@@ -147,11 +144,7 @@ const UserInfo: NextPageWithLayout = () => {
 UserInfo.getLayout = function getLayout(page: ReactElement) {
 	return (
 		<SocketProvider>
-			<ChatSocketProvider isOpen={false}>
-				<GameSocketProvider isOpen={false}>
-					<Layout>{page}</Layout>
-				</GameSocketProvider>
-			</ChatSocketProvider>
+			<Layout>{page}</Layout>
 		</SocketProvider>
 	);
 };

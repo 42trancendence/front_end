@@ -1,5 +1,5 @@
 import React, { RefObject, useEffect, useRef, useState, useContext } from 'react'
-import { GameSocketContext } from '@/lib/socketContext';
+import { SocketContext } from '@/lib/socketContext';
 import usePersistentState from "@/components/canvas/usePersistentState";
 
 const Canvas: React.FC = () => {
@@ -21,7 +21,7 @@ const Canvas: React.FC = () => {
   }, []);
 
   // 소켓 연결(컨텍스트 세팅, socket.id 가 초기화 되는지 확인 필요)
-	const { socket } = useContext(GameSocketContext);
+	const { gameSocket: socket } = useContext(SocketContext);
   useEffect(() => {
     // console.log(socket);
     if (socket) {

@@ -9,14 +9,10 @@ import { ReactElement, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { handleRefresh } from "@/lib/auth-client";
 import {
-	ChatSocketContext,
-	ChatSocketProvider,
-	GameSocketProvider,
 	SocketContext,
 	SocketProvider,
 } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
-import { Socket } from "socket.io-client";
 
 const ChatRooms: NextPageWithLayout = () => {
 	const [username, setUsername] = useState("");
@@ -49,7 +45,7 @@ const ChatRooms: NextPageWithLayout = () => {
 					return userData;
 				} else if (res.status === 401) {
 					// Unauthorized, try to refresh the access token
-					await handleRefresh(getUser);
+					await handleRefresh();
 				} else {
 					return null;
 				}
@@ -60,24 +56,24 @@ const ChatRooms: NextPageWithLayout = () => {
 		getUser();
 	}, [username]);
 
-	const globalSocket = useContext(SocketContext);
+	const { notifySocket } = useContext(SocketContext);
 	useEffect(() => {
-		globalSocket?.socket?.emit("updateActiveStatus", 2);
-	}, [globalSocket.socket]);
+		notifySocket?.emit("updateActiveStatus", 2);
+	}, [notifySocket]);
 
 	function showChatRoomList(data: any)
 	{
 		console.log("chatrooms data : ", data)
 	}
 
-	const { socket } = useContext(ChatSocketContext);
+	const { chatSocket } = useContext(SocketContext);
 	useEffect(() => {
-		if (socket) {
+		if (chatSocket) {
 			console.log("socket connected!");
 		}
-	}, [socket]);
+	}, [chatSocket]);
 
-	socket?.on("showChatRoomList", function(data) {
+	chatSocket?.on("showChatRoomList", function(data) {
 		console.log(data);
 		setChatRooms(data);
 
@@ -87,12 +83,12 @@ const ChatRooms: NextPageWithLayout = () => {
 	const createChatRoom = () => {
 
 		const roomType = isPrivate === true ? "PROTECTED" : "PUBLIC";
-		socket?.emit('createChatRoom', {
+		chatSocket?.emit('createChatRoom', {
 		name,
 		type: String(roomType),
 		password
 		})
-		socket?.on('error', (error) => {
+		chatSocket?.on('error', (error) => {
 			console.log(error); // 서버에서 전달된 에러 메시지 출력
 		  });
 		// socket?.emit('enterChatRoom', {name, password});
@@ -103,10 +99,10 @@ const ChatRooms: NextPageWithLayout = () => {
 	const joinChatRoom = (room: any) => {
 		if (room.type === "PROTECTED") {
 			const inputPassword = prompt("비밀번호를 입력하세요");
-			socket?.emit('enterChatRoom', {roomName: room.name, password: inputPassword});
+			chatSocket?.emit('enterChatRoom', {roomName: room.name, password: inputPassword});
 			return ;
 		  }
-		socket?.emit('enterChatRoom', {roomName: room.name, password});
+		  chatSocket?.emit('enterChatRoom', {roomName: room.name, password});
 		router.push(`/lobby/chat/${room.name}`);
 	}
 
@@ -239,11 +235,7 @@ const ChatRooms: NextPageWithLayout = () => {
 ChatRooms.getLayout = function getLayout(page: ReactElement) {
 	return (
 		<SocketProvider>
-			<ChatSocketProvider isOpen={true}>
-				<GameSocketProvider isOpen={false}>
-					<Layout>{page}</Layout>
-				</GameSocketProvider>
-			</ChatSocketProvider>
+			<Layout>{page}</Layout>
 		</SocketProvider>
 	);
 };

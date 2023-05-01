@@ -58,7 +58,7 @@ export default function Layout({
 	}, [router]);
 
 	// 소켓 연결
-	const { socket } = useContext(SocketContext);
+	const { friendSocket: socket } = useContext(SocketContext);
 	useEffect(() => {
 		function changeUserStatus(data: any) {
 			let copy = [...userData];

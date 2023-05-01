@@ -14,7 +14,7 @@ export default function FriendNotification() {
 	const [showFriendNotification, setShowFriendNotification] = useState(false);
 	const [userData, setuserData] = useState<any>({});
 	// 소켓 연결
-	const { socket } = useContext(SocketContext);
+	const { friendSocket: socket } = useContext(SocketContext);
 	useEffect(() => {
 		if (socket) {
 			socket.on("friendRequest", (data) => {

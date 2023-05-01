@@ -9,7 +9,7 @@ import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import {useRouter} from "next/router";
 
 export default function FreindList({ userData }: any) {
-	const { socket } = useContext(SocketContext);
+	const { friendSocket: socket } = useContext(SocketContext);
 	function deleteFriend(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
 		socket?.emit("deleteFriend", { friendName: item.name });
