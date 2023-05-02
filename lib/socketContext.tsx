@@ -25,16 +25,12 @@ interface SocketProviderProps {
 	children: ReactNode;
 }
 
-const reconnectSocket = async (socketApi: string, socketSetter: any) => {
+const reconnectSocket = async (socketApi: string, manager:any, socketSetter: any) => {
 	const newAccessToken = await handleRefresh();
 	if (!newAccessToken) {
 		router.push("/");
 	} else {
-		const newSocket = io(socketApi, {
-			extraHeaders: {
-				Authorization: `Bearer ${localStorage.getItem("token")}`,
-			},
-		});
+		const newSocket = manager.socket(socketApi);
 		socketSetter(newSocket);
 	}
 };
@@ -61,16 +57,16 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
 
 		// 토큰 만료시 재발급
 		newFriendSocket.on("tokenError", () => {
-			reconnectSocket("http://localhost:3000/friend", setFriendSocket);
+			reconnectSocket("/friend", manager, setFriendSocket);
 		});
 		newChatSocket.on("tokenError", () => {
-			reconnectSocket("http://localhost:3000/chat-room", setChatSocket);
+			reconnectSocket("/chat-room", manager, setChatSocket);
 		});
 		newGameSocket.on("tokenError", () => {
-			reconnectSocket("http://localhost:3000/game", setGameSocket);
+			reconnectSocket("/game", manager, setGameSocket);
 		});
 		newNotifySocket.on("tokenError", () => {
-			reconnectSocket("http://localhost:3000/notify", setNotifySocket);
+			reconnectSocket("/notify", manager, setNotifySocket);
 		});
 
 		setFriendSocket(newFriendSocket);
