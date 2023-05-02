@@ -1,6 +1,6 @@
 // socketContext.tsx
 import { createContext, useEffect, useState, ReactNode, Dispatch } from "react";
-import { Manager, Socket, io } from "socket.io-client";
+import { Socket, io } from "socket.io-client";
 import { handleRefresh } from "./auth-client";
 import router from "next/router";
 
@@ -25,12 +25,16 @@ interface SocketProviderProps {
 	children: ReactNode;
 }
 
-const reconnectSocket = async (socketApi: string, manager:any, socketSetter: any) => {
+const reconnectSocket = async (socketApi: string, socketSetter: any) => {
 	const newAccessToken = await handleRefresh();
 	if (!newAccessToken) {
 		router.push("/");
 	} else {
-		const newSocket = manager.socket(socketApi);
+		const newSocket = io(socketApi, {
+			extraHeaders: {
+				Authorization: `Bearer ${localStorage.getItem("token")}`,
+			},
+		});
 		socketSetter(newSocket);
 	}
 };
@@ -41,32 +45,40 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
 	const [gameSocket, setGameSocket] = useState<Socket | null>(null);
 	const [notifySocket, setNotifySocket] = useState<Socket | null>(null);
 
-
-
 	useEffect(() => {
-		const manager = new Manager("http://localhost:3000", {
+		const newFriendSocket = io("http://localhost:3000/friend", {
 			extraHeaders: {
 				Authorization: `Bearer ${localStorage.getItem("token")}`,
 			}
 		});
-
-		const newFriendSocket = manager.socket("/friend");
-		const newChatSocket = manager.socket("/chat-room");
-		const newGameSocket = manager.socket("/game");
-		const newNotifySocket = manager.socket("/notify");
+		const newChatSocket = io("http://localhost:3000/chat-room", {
+			extraHeaders: {
+				Authorization: `Bearer ${localStorage.getItem("token")}`,
+			}
+		});
+		const newGameSocket = io("http://localhost:3000/game", {
+			extraHeaders: {
+				Authorization: `Bearer ${localStorage.getItem("token")}`,
+			}
+		});
+		const newNotifySocket = io("http://localhost:3000/notify", {
+			extraHeaders: {
+				Authorization: `Bearer ${localStorage.getItem("token")}`,
+			},
+		});
 
 		// 토큰 만료시 재발급
 		newFriendSocket.on("tokenError", () => {
-			reconnectSocket("/friend", manager, setFriendSocket);
+			reconnectSocket("http://localhost:3000/friend", setFriendSocket);
 		});
 		newChatSocket.on("tokenError", () => {
-			reconnectSocket("/chat-room", manager, setChatSocket);
+			reconnectSocket("http://localhost:3000/chat-room", setChatSocket);
 		});
 		newGameSocket.on("tokenError", () => {
-			reconnectSocket("/game", manager, setGameSocket);
+			reconnectSocket("http://localhost:3000/game", setGameSocket);
 		});
 		newNotifySocket.on("tokenError", () => {
-			reconnectSocket("/notify", manager, setNotifySocket);
+			reconnectSocket("http://localhost:3000/notify", setNotifySocket);
 		});
 
 		setFriendSocket(newFriendSocket);
