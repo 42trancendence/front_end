@@ -1,6 +1,6 @@
 // socketContext.tsx
 import { createContext, useEffect, useState, ReactNode, Dispatch } from "react";
-import { Socket, io } from "socket.io-client";
+import { Manager, Socket, io } from "socket.io-client";
 import { handleRefresh } from "./auth-client";
 import router from "next/router";
 
@@ -45,27 +45,19 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
 	const [gameSocket, setGameSocket] = useState<Socket | null>(null);
 	const [notifySocket, setNotifySocket] = useState<Socket | null>(null);
 
+
+
 	useEffect(() => {
-		const newFriendSocket = io("http://localhost:3000/friend", {
+		const manager = new Manager("http://localhost:3000", {
 			extraHeaders: {
 				Authorization: `Bearer ${localStorage.getItem("token")}`,
-			},
+			}
 		});
-		const newChatSocket = io("http://localhost:3000/chat-room", {
-			extraHeaders: {
-				Authorization: `Bearer ${localStorage.getItem("token")}`,
-			},
-		});
-		const newGameSocket = io("http://localhost:3000/game", {
-			extraHeaders: {
-				Authorization: `Bearer ${localStorage.getItem("token")}`,
-			},
-		});
-		const newNotifySocket = io("http://localhost:3000/notify", {
-			extraHeaders: {
-				Authorization: `Bearer ${localStorage.getItem("token")}`,
-			},
-		});
+
+		const newFriendSocket = manager.socket("/friend");
+		const newChatSocket = manager.socket("/chat-room");
+		const newGameSocket = manager.socket("/game");
+		const newNotifySocket = manager.socket("/notify");
 
 		// 토큰 만료시 재발급
 		newFriendSocket.on("tokenError", () => {
