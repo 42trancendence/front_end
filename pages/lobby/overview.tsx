@@ -113,7 +113,7 @@ const OverView: NextPageWithLayout = () => {
 								<p className="font-orbitron text-white">{username}</p>
 							</div>
 						</div>
-						<div className="ml-auto flex divide-x divide-zinc-400">
+						<div className="ml-auto gap-2 flex divide-x divide-zinc-400">
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
 								<p className="text-xs text-zinc-200">Achievement</p>
 								<p className="text-lg font-semibold">1</p>
