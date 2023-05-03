@@ -8,8 +8,6 @@ import { handleRefresh } from "@/lib/auth-client";
 import {
 	SocketContext,
 	SocketProvider,
-	GameSocketProvider,
-	GameSocketContext
 } from "@/lib/socketContext";
 import { NextPageWithLayout } from "../_app";
 import OverviewSkeleton from "@/components/ui/OverviewSkeleton";
@@ -105,14 +103,13 @@ const OverView: NextPageWithLayout = () => {
 		getGameHistory();
 	}, [username]);
 
-	const { friendSocket } = useContext(SocketContext);
+	const { friendSocket, gameSocket } = useContext(SocketContext);
 	useEffect(() => {
 		if (friendSocket) {
 			friendSocket.emit("updateActiveStatus", 1);
 		}
 	}, [friendSocket]);
 
-	const { gameSocket } = useContext(GameSocketContext);
 	// socketio 로 게임방 목록 요청
 	useEffect(() => {
 
