@@ -8,9 +8,12 @@ import { SocketContext } from "@/lib/socketContext";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCertificate, faCrown } from "@fortawesome/free-solid-svg-icons";
+import {useRouter} from "next/router";
 
-export default function ChatModal({ userData }: any) {
+export default function ChatModal({ userData }: any, userMe: any) {
+	console.log(userMe);
 	const { chatSocket: socket } = useContext(SocketContext);
+	const router = useRouter();
 
 	function KickUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
@@ -65,10 +68,12 @@ export default function ChatModal({ userData }: any) {
 						<Menu.Item>
 							{({ active }) => (
 								<button
+									type="button"
 									className={clsx(
 										active ? "bg-gray-100 text-gray-700" : "text-white",
 										"block w-full rounded-t px-4 py-2 text-sm"
 									)}
+									onClick={() => router.push(`/lobby/users/${user.user.id}`)}
 								>
 									유저 정보
 								</button>

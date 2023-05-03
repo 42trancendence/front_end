@@ -18,7 +18,8 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
   const [userOffsetLeft, setUserOffsetLeft] = useState(0);
   const [showUserModal, setShowUserModal] = useState(false);
   const [userList, setUserList] = useState([]);
-	const [username, setUsername] = useState("");
+  const [username, setUsername] = useState("");
+	const [userMe, setUserMe] = useState([]);
 
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -68,6 +69,13 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
 
   const { chatSocket: socket } = useContext(SocketContext);
 
+  useEffect(() => {
+    // 채팅방 페이지에 들어왔을 때, 채팅방에 입장하는 이벤트를 서버에 전달
+    if (username) {
+    socket?.emit('enterChatRoom', {roomName: roomData.name, password: ""});
+    }
+  }, [socket, roomData.name, username]);
+
   // 페이지를 떠날 때 실행되는 이벤트 등록 후 콜백함수 호출
   useEffect(() => {
     const handleRouteChangeStart = (url: string) => {
@@ -77,16 +85,26 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
 			}
     };
 
-    router.events.on('routeChangeStart', handleRouteChangeStart);
-    socket?.emit('enterChatRoom', {roomName: roomData.name, password: ""});
+    // 채팅방에 입장한 유저들의 정보를 서버로부터 받아옴
     socket?.on('getChatRoomUsers', function(data){
       console.log("users data", data);
       setUserList(data);
+      const me = data.filter((user: any) => {
+        console.log("user", username);
+        user.user.name === username;
+      });
+      setUserMe(data.filter((user: any) => {
+        user.user.name === username;
+      }));
+      console.log("userMe", me)
     });
+
+    // 채팅방 페이지를 떠날 때, 채팅방에서 나가는 이벤트를 서버에 전달
+    router.events.on('routeChangeStart', handleRouteChangeStart);
     return () => {
       router.events.off('routeChangeStart', handleRouteChangeStart);
     };
-  }, [router, socket]);
+  }, [router, socket, username]);
 
 
 
@@ -164,7 +182,7 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
         <div className="p-6 h-full rounded-[14px] bg-[#616161]">
           <p className="text-xl text-[#939efb]">유저 목록</p>
           <ul className="mt-4">
-          <ChatModal userData={userList} />
+          <ChatModal userData={userList} userMe={userMe} />
           {showUserModal && selectedUser.length > 0 && (
             <div
               className="fixed z-50 top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex items-center justify-center"
