@@ -1,9 +1,17 @@
 import { Combobox, Dialog, Transition } from "@headlessui/react";
-import { ExclamationCircleIcon, MagnifyingGlassIcon } from "@heroicons/react/20/solid";
+import {
+	ExclamationCircleIcon,
+	MagnifyingGlassIcon,
+} from "@heroicons/react/20/solid";
 import clsx from "clsx";
 import DefaultAvatarPic from "@/public/default_avatar.svg";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import Image from "next/image";
+import { NormalButton } from "./ui/NormalButton";
+import { SocketContext } from "@/lib/socketContext";
+import { handleRefresh } from "@/lib/auth-client";
+import { NotifyContext } from "@/lib/notifyContext";
+import { useRouter } from "next/router";
 
 export default function SearchBox({
 	isOpen,
@@ -15,9 +23,10 @@ export default function SearchBox({
 	const [query, setQuery] = useState("");
 	const [selectedUser, setSelectedUser] = useState("");
 	const [items, setItems] = useState<any>([]);
-
+	const router = useRouter();
+	// 모든 유저 검색
 	useEffect(() => {
-		const fetchItems = async () => {
+		const fetchUsers = async () => {
 			try {
 				const res = await fetch("http://localhost:3000/users", {
 					method: "GET",
@@ -29,6 +38,13 @@ export default function SearchBox({
 				if (res.status === 200) {
 					const data = await res.json();
 					setItems(data);
+				} else if (res.status === 401) {
+					// Unauthorized, try to refresh the access token
+					const newAccessToken = await handleRefresh();
+					if (!newAccessToken) {
+						setItems([]);
+					}
+					fetchUsers();
 				} else {
 					setItems([]);
 				}
@@ -37,14 +53,33 @@ export default function SearchBox({
 				console.log(error);
 			}
 		};
-		fetchItems();
-	}, []);
+		if (isOpen) {
+			fetchUsers();
+		}
+	}, [isOpen]);
+	// 검색된 유저 필터링
 	const filteredItems =
-	query === ""
-		? []
-		: items.filter((item) => {
-				return item.name.toLowerCase().includes(query.toLowerCase());
-		  });
+		query === ""
+			? []
+			: items.filter((item: any) => {
+					return item.name.toLowerCase().startsWith(query.toLowerCase());
+			  });
+
+	// 친구 추가 소켓 이벤트
+	const { successed } = useContext(NotifyContext);
+	function onSuccessed() {
+		successed({
+			header: "친구요청",
+			message: "친구요청을 성공적으로 보냈습니다.",
+		});
+	}
+
+	const { friendSocket: socket } = useContext(SocketContext);
+	const addFriend = (event: React.MouseEvent<HTMLElement>, item: any) => {
+		socket?.emit("addFriend", { friendName: item.name });
+		onSuccessed();
+	};
+
 	return (
 		<Transition.Root
 			show={isOpen}
@@ -76,7 +111,10 @@ export default function SearchBox({
 						leaveTo="opacity-0 scale-95"
 					>
 						<Dialog.Panel className="mx-auto max-w-xl transform divide-y divide-gray-100 overflow-hidden rounded-xl bg-white shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
-							<Combobox value={selectedUser} onChange={(item)=>setSelectedUser(item.name)}>
+							<Combobox
+								value={selectedUser}
+								onChange={(item: any) => setSelectedUser(item.name)}
+							>
 								<div className="relative">
 									<MagnifyingGlassIcon
 										className="pointer-events-none absolute left-4 top-3.5 h-5 w-5 text-gray-400"
@@ -94,30 +132,43 @@ export default function SearchBox({
 										static
 										className="max-h-96 scroll-py-3 overflow-y-auto p-3"
 									>
-										{filteredItems.map((item) => (
+										{filteredItems.map((item: any) => (
 											<Combobox.Option
 												key={item.id}
 												value={item}
-												className="flex items-center justify-center cursor-default select-none rounded-xl p-3"
+												className="flex cursor-default select-none items-center justify-center rounded-xl p-3"
 											>
-														<div
-															className="flex h-10 w-10 bg-zinc-800 flex-none items-center justify-center rounded-full"
-														>
-															<Image
-																src={item.avatar || DefaultAvatarPic}
-																className="h-6 w-6 text-white"
-																alt=""
-															/>
-														</div>
-														<div className="ml-4 flex-auto">
-															<p
-																className={clsx(
-																	"text-base font-medium"
-																)}
-															>
-																{item.name}
-															</p>
-														</div>
+												<div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-zinc-800">
+													<Image
+														src={item.avatar || DefaultAvatarPic}
+														className="h-6 w-6 text-white"
+														alt=""
+													/>
+												</div>
+												<div className="ml-4 mr-auto flex-auto">
+													<p className={clsx("text-base font-medium")}>
+														{item.name}
+													</p>
+												</div>
+												<div>
+													<NormalButton
+														variant="dark"
+														className="mr-2 border"
+														onClick={(e) => addFriend(e, item)}
+													>
+														친구신청
+													</NormalButton>
+													<NormalButton
+														variant="bright"
+														className="border"
+														onClick={() => {
+															router.push(`/lobby/users/${item.id}`);
+															setIsOpen(false);
+														}}
+													>
+														정보
+													</NormalButton>
+												</div>
 											</Combobox.Option>
 										))}
 									</Combobox.Options>
@@ -131,11 +182,10 @@ export default function SearchBox({
 											className="mx-auto h-6 w-6 text-gray-400"
 										/>
 										<p className="mt-4 font-semibold text-gray-900">
-											No results found
+											유저를 찾을 수 없습니다.
 										</p>
 										<p className="mt-2 text-gray-500">
-											No components found for this search term. Please try
-											again.
+											다른 이름으로 검색해보세요.
 										</p>
 									</div>
 								)}

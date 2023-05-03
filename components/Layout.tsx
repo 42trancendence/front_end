@@ -7,6 +7,21 @@ import { useState, useEffect, useLayoutEffect, useContext } from "react";
 import NavBar from "./NavBar";
 import Loading from "./ui/Loading";
 import { SocketContext } from "@/lib/socketContext";
+import FriendNotification from "./ui/FriendNotification";
+import { handleRefresh } from "@/lib/auth-client";
+import { NotifyContext, NotifyProvider } from "@/lib/notifyContext";
+import GlobalNotification from "@/components/ui/GlobalNotification";
+import ChatNotification from "./ui/ChatNotification";
+
+export const Notifications = () => {
+	return (
+		<>
+			<GlobalNotification />
+			<ChatNotification />
+			<FriendNotification />
+		</>
+	)
+}
 
 export default function Layout({
 	pageProps,
@@ -27,16 +42,25 @@ export default function Layout({
 			if (!token) {
 				router.push("/");
 			} else {
-				/*
-				const isValidated2fa = await isTwoFactorAuthEnabled(token);
-				if (isValidated2fa !== 409) {
-					alert("2FA 인증이 필요합니다.");
-					router.push("/");
-				}
-				else {
+				const res = await fetch("http://localhost:3000/users/me", {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${token}`,
+					},
+				});
+				if (res.ok) {
 					setLoading(false);
+				} else if (res.status === 401) {
+					// Unauthorized, try to refresh the access token
+					const newAccessToken = await handleRefresh();
+					if (!newAccessToken) {
+						router.push("/");
+					}
+					router.reload();
+				} else {
+					return null;
 				}
-				*/
 				setLoading(false);
 			}
 		};
@@ -45,7 +69,7 @@ export default function Layout({
 	}, [router]);
 
 	// 소켓 연결
-	const { socket } = useContext(SocketContext);
+	const { friendSocket: socket } = useContext(SocketContext);
 	useEffect(() => {
 		function changeUserStatus(data: any) {
 			let copy = [...userData];
@@ -58,6 +82,16 @@ export default function Layout({
 			});
 			setuserData(alteredCopy);
 		}
+		function RenewFriend(data: any) {
+			let copy = [...userData];
+			let alteredCopy = copy.filter((user) => {
+				return user.id !== data.id;
+			});
+			if (copy.length === alteredCopy.length) {
+				alteredCopy.push(data);
+			}
+			setuserData(alteredCopy);
+		}
 
 		if (socket) {
 			socket.on("friendList", (data) => {
@@ -66,9 +100,11 @@ export default function Layout({
 			socket.on("friendActive", (data) => {
 				changeUserStatus(data);
 			});
+			socket.on("friendRenew", (data) => {
+				RenewFriend(data);
+			});
 		}
 	}, [socket, userData]);
-
 	return (
 		<>
 			{loading ? (
@@ -76,13 +112,17 @@ export default function Layout({
 					<Loading />
 				</>
 			) : (
-				<div className="flex bg-zinc-800 text-white">
-					<NavBar userData={userData} />
-					<div className="relative flex w-full flex-1 px-8 py-6">
-						{pageProps}
-						{children}
+				<NotifyProvider>
+					<Notifications />
+					<div className="lg:flex bg-zinc-800 text-white">
+
+						<NavBar userData={userData} />
+						<div className="relative flex w-full flex-1 px-8 py-6">
+							{pageProps}
+							{children}
+						</div>
 					</div>
-				</div>
+				</NotifyProvider>
 			)}
 		</>
 	);

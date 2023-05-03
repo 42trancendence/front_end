@@ -1,45 +1,37 @@
-import Cookies from 'js-cookie';
-
-export async function refreshAccessToken(refreshToken: string) {
+export async function refreshAccessToken() {
   try {
-    const response = await fetch('/api/token/refresh', {
-      method: 'POST',
+    const response = await fetch('http://localhost:3000/auth/refresh', {
+      method: 'GET',
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": 'application/json',
       },
-      body: JSON.stringify({ refreshToken }),
+      credentials: "include",
     });
 
     if (!response.ok) {
       return null;
     }
 
-    const { token: newAccessToken } = await response.json();
+    const data = await response.json();
     // Update the access token in the localstorage
+    const newAccessToken = data.accessToken;
     localStorage.setItem('token', newAccessToken);
     return newAccessToken;
   } catch (error) {
-    console.error('Error refreshing access token:', error);
     return null;
   }
 }
 
 
 
-export async function handleRefresh(retryFunction: () => Promise<any>) {
+export async function handleRefresh() {
 
-  const refreshToken = Cookies.get('refresh-token');
-
-  if (!refreshToken) {
-    return null;
-  }
-
-  let accessToken = await refreshAccessToken(refreshToken);
+  let accessToken = await refreshAccessToken();
 
   if (!accessToken) {
     return null;
   }
 
   // Retry fetching data with the new access token
-  return retryFunction();
+  return accessToken;
 }

@@ -1,18 +1,20 @@
 import Link from "next/link";
-import Image from "next/image";
 import FreindList from "./FriendList";
 import {
 	PlayIcon,
 	IdentificationIcon,
 	UsersIcon,
 	MagnifyingGlassIcon,
+	ArrowLeftOnRectangleIcon,
+	XMarkIcon,
+	Bars3Icon,
 } from "@heroicons/react/24/outline";
-import logoPic from "@/public/42_Logo.svg";
 import { useRouter } from "next/router";
-import { useContext, useEffect, useState } from "react";
-import { SocketContext } from "@/lib/socketContext";
-import { Dialog } from "@headlessui/react";
+import { Fragment, useContext, useState } from "react";
+import { Dialog, Transition } from "@headlessui/react";
 import SearchBox from "./SerachBox";
+import { NotifyContext } from "@/lib/notifyContext";
+import { SocketContext } from "@/lib/socketContext";
 
 function classNames(...classes: string[]) {
 	return classes.filter(Boolean).join(" ");
@@ -26,12 +28,11 @@ interface NavigationItem {
 
 const navigation = [
 	{
-		name: "내 정보",
+		name: "로비",
 		href: "/lobby/overview",
 		icon: IdentificationIcon,
 	},
 	{ name: "채팅", href: "/lobby/chat", icon: UsersIcon },
-	{ name: "게임", href: "/lobby/game", icon: PlayIcon },
 ];
 
 function NavItem({ item }: { item: NavigationItem }) {
@@ -61,17 +62,59 @@ function NavItem({ item }: { item: NavigationItem }) {
 
 export default function NavBar({ userData }: any) {
 	const [isSerchBoxOpen, setIsSerchBoxOpen] = useState(false);
+	const [sidebarOpen, setSidebarOpen] = useState(false);
+	const router = useRouter();
+
 	function SearchUsers() {
 		setIsSerchBoxOpen(true);
 	}
 
+	const logout = () => {
+		localStorage.removeItem("token");
+		router.push("/");
+	};
+
+	const { friendSocket, chatSocket } = useContext(SocketContext);
+	const { successed } = useContext(NotifyContext);
+	function onSuccessed(name: string, message: string, id: string) {
+		successed({
+			header: name,
+			message: message,
+			id: id
+		});
+	}
+	chatSocket?.on("newDirectMessage", (data) => {
+		onSuccessed(data.name, data.message, data.id);
+	});
 	return (
 		<>
 			<SearchBox isOpen={isSerchBoxOpen} setIsOpen={setIsSerchBoxOpen} />
-			<div className="sticky top-0 flex h-screen w-72 flex-col border-r border-zinc-700">
+			{/* Desktop */}
+			<div className="sticky top-0 z-40 flex items-center gap-x-6 bg-zinc-900 px-4 py-4 shadow-sm sm:px-6 lg:hidden">
+				<button
+					type="button"
+					className="-m-2.5 p-2.5 text-gray-400 lg:hidden"
+					onClick={() => setSidebarOpen(true)}
+				>
+					<span className="sr-only">Open sidebar</span>
+					<Bars3Icon className="h-6 w-6" aria-hidden="true" />
+				</button>
+				<Link
+					href="/lobby/overview"
+					className="m-auto font-orbitron text-lg font-bold text-zinc-200"
+				>
+					TRANS-PONG
+				</Link>
+			</div>
+			<div className="hidden lg:sticky lg:top-0 lg:flex lg:h-screen lg:w-72 lg:flex-col lg:border-r lg:border-zinc-700">
 				<div className="flex grow flex-col gap-y-5 overflow-y-auto bg-zinc-900 px-6">
 					<div className="flex h-16 shrink-0 items-center">
-						<Image className="h-8 w-auto" src={logoPic} alt="Your Company" />
+						<Link
+							href="/lobby/overview"
+							className="font-orbitron text-xl font-bold text-zinc-200"
+						>
+							TRANS-PONG
+						</Link>
 					</div>
 					<nav className="flex flex-1 flex-col">
 						<ul role="list" className="flex flex-1 flex-col gap-y-7">
@@ -85,14 +128,16 @@ export default function NavBar({ userData }: any) {
 								</ul>
 							</li>
 							<li>
-								<button
-									type="button"
-									className="-mx-2 flex w-full cursor-pointer flex-row items-center rounded-md bg-zinc-800 py-2 pl-2 pr-3 text-center text-sm leading-6 text-slate-300"
-									onClick={SearchUsers}
-								>
-									<MagnifyingGlassIcon className="mr-3 h-5 w-5" />
-									<p>유저 검색...</p>
-								</button>
+								<div className="-mx-2">
+									<button
+										type="button"
+										className="flex w-full cursor-pointer flex-row items-center gap-3 rounded-md bg-zinc-800 p-2 text-sm leading-6 text-slate-300"
+										onClick={SearchUsers}
+									>
+										<MagnifyingGlassIcon className="h-5 w-5 shrink-0" />
+										<p>유저 검색...</p>
+									</button>
+								</div>
 							</li>
 							<li>
 								<div className="text-xs font-semibold leading-6 text-indigo-200">
@@ -102,13 +147,141 @@ export default function NavBar({ userData }: any) {
 									role="list"
 									className="-mx-2 mt-2 space-y-1 rounded-md bg-zinc-800 p-2"
 								>
-									<FreindList userData={userData} />
+									<FreindList
+										userData={userData}
+									/>
 								</ul>
+							</li>
+							<li className="mb-4 mt-auto">
+								<button
+									type="button"
+									className="text-md flex items-center justify-center font-bold text-zinc-400 hover:text-zinc-200"
+									onClick={logout}
+								>
+									<ArrowLeftOnRectangleIcon className="h-6 w-6" />
+									<span className="ml-2">로그아웃</span>
+								</button>
 							</li>
 						</ul>
 					</nav>
 				</div>
 			</div>
+
+			{/* Mobile */}
+			<Transition.Root show={sidebarOpen} as={Fragment}>
+				<Dialog
+					as="div"
+					className="relative z-50 lg:hidden"
+					onClose={setSidebarOpen}
+				>
+					<Transition.Child
+						as={Fragment}
+						enter="transition-opacity ease-linear duration-300"
+						enterFrom="opacity-0"
+						enterTo="opacity-100"
+						leave="transition-opacity ease-linear duration-300"
+						leaveFrom="opacity-100"
+						leaveTo="opacity-0"
+					>
+						<div className="fixed inset-0 bg-gray-900/80" />
+					</Transition.Child>
+					<div className="fixed inset-0 flex">
+						<Transition.Child
+							as={Fragment}
+							enter="transition ease-in-out duration-300 transform"
+							enterFrom="-translate-x-full"
+							enterTo="translate-x-0"
+							leave="transition ease-in-out duration-300 transform"
+							leaveFrom="translate-x-0"
+							leaveTo="-translate-x-full"
+						>
+							<Dialog.Panel className="relative mr-16 flex w-full max-w-xs border-r border-zinc-700">
+								<Transition.Child
+									as={Fragment}
+									enter="transition ease-in-out duration-300 transform"
+									enterFrom="-translate-x-full"
+									enterTo="translate-x-0"
+									leave="transition ease-in-out duration-300 transform"
+									leaveFrom="translate-x-0"
+									leaveTo="-translate-x-full"
+								>
+									<div className="absolute left-full top-0 flex w-16 justify-center pt-5">
+										<button
+											type="button"
+											className="-m-2.5 p-2.5"
+											onClick={() => setSidebarOpen(false)}
+										>
+											<span className="sr-only">Close sidebar</span>
+											<XMarkIcon
+												className="h-6 w-6 text-white"
+												aria-hidden="true"
+											/>
+										</button>
+									</div>
+								</Transition.Child>
+								<div className="flex grow flex-col gap-y-5 overflow-y-auto bg-zinc-900 px-6">
+									<div className="flex h-16 shrink-0 items-center">
+										<Link
+											href="/lobby/overview"
+											className="font-orbitron text-xl font-bold text-zinc-200"
+										>
+											TRANS-PONG
+										</Link>
+									</div>
+									<nav className="flex flex-1 flex-col">
+										<ul role="list" className="flex flex-1 flex-col gap-y-7">
+											<li>
+												<ul role="list" className="-mx-2 space-y-1">
+													{navigation.map((item) => (
+														<li key={item.name}>
+															<NavItem item={item} />
+														</li>
+													))}
+												</ul>
+											</li>
+											<li>
+												<div className="-mx-2">
+													<button
+														type="button"
+														className="flex w-full cursor-pointer flex-row items-center gap-3 rounded-md bg-zinc-800 p-2 text-sm leading-6 text-slate-300"
+														onClick={SearchUsers}
+													>
+														<MagnifyingGlassIcon className="h-5 w-5 shrink-0" />
+														<p>유저 검색...</p>
+													</button>
+												</div>
+											</li>
+											<li>
+												<div className="text-xs font-semibold leading-6 text-indigo-200">
+													친구
+												</div>
+												<ul
+													role="list"
+													className="-mx-2 mt-2 space-y-1 rounded-md bg-zinc-800 p-2"
+												>
+													<FreindList
+														userData={userData}
+													/>
+												</ul>
+											</li>
+											<li className="mb-4 mt-auto">
+												<button
+													type="button"
+													className="text-md flex items-center justify-center font-bold text-zinc-400 hover:text-zinc-200"
+													onClick={logout}
+												>
+													<ArrowLeftOnRectangleIcon className="h-6 w-6" />
+													<span className="ml-2">로그아웃</span>
+												</button>
+											</li>
+										</ul>
+									</nav>
+								</div>
+							</Dialog.Panel>
+						</Transition.Child>
+					</div>
+				</Dialog>
+			</Transition.Root>
 		</>
 	);
 }

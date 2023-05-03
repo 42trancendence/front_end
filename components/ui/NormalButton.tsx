@@ -22,7 +22,7 @@ export function NormalButton({
 }: {
   children: React.ReactNode,
 	variant: string,
-	className: string,
+	className?: string,
 	href?: string,
   onClick?: React.MouseEventHandler<HTMLButtonElement>
 }) {
