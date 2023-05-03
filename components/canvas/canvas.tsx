@@ -20,16 +20,16 @@ const Canvas: React.FC = () => {
     }
   }, []);
 
-  // 소켓 연결(컨텍스트 세팅, socket.id 가 초기화 되는지 확인 필요)
-	const { socket } = useContext(GameSocketContext);
+  // 소켓 연결(컨텍스트 세팅, gameSocket.id 가 초기화 되는지 확인 필요)
+	const { gameSocket } = useContext(GameSocketContext);
   useEffect(() => {
-    // console.log(socket);
-    if (socket) {
-      socket.on('updateGame', (data) => {
+    // console.log(gameSocket);
+    if (gameSocket) {
+      gameSocket.on('updateGame', (data) => {
 
         setGameData(data);
       })
-      socket.on('setStartGame', (data) => {
+      gameSocket.on('setStartGame', (data) => {
         if (data == 'start') {
           setStartGame(true);
         } else {
@@ -38,11 +38,11 @@ const Canvas: React.FC = () => {
         }
         console.log(`setStartGame: ${data}`);
       })
-      socket.on('getWatcher', (data) => {
+      gameSocket.on('getWatcher', (data) => {
         console.log('getWatcher', data);
       })
     }
-  }, [socket, setStartGame, setReady])
+  }, [gameSocket, setStartGame, setReady])
 
   // 컨텍스트가 세팅되면 그림 그리기
   useEffect(() => {
@@ -88,29 +88,29 @@ const Canvas: React.FC = () => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     console.log(e.key);
     if (e.key === 'ArrowLeft') {
-      socket?.emit('postKey', 'up');
+      gameSocket?.emit('postKey', 'up');
     } else if (e.key === 'ArrowRight') {
-      socket?.emit('postKey', 'down');
+      gameSocket?.emit('postKey', 'down');
     } 
   }
 
   const handleReadyGame = () => {
     setReady(!ready);
-    if (socket) {
-      socket.emit('postReadyGame');
+    if (gameSocket) {
+      gameSocket.emit('postReadyGame');
     }
   }
 
   const handleDifficulty = () => {
-    if (socket) {
-      socket.emit('postDifficulty', difficulty ? 'normal' : 'hard');
+    if (gameSocket) {
+      gameSocket.emit('postDifficulty', difficulty ? 'normal' : 'hard');
       setDifficulty(!difficulty);
     }
   }
 
   const handleLeaveGame = () => {
-    if (socket) {
-      socket.emit('postLeaveGame');
+    if (gameSocket) {
+      gameSocket.emit('postLeaveGame');
     }
   }
 

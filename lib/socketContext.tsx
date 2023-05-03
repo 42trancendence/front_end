@@ -3,12 +3,16 @@ import { createContext, useEffect, useState, ReactNode } from "react";
 import { Socket, io } from "socket.io-client";
 
 interface SocketContextValue {
-	socket: Socket | null;
+	socket: Socket | null,
+}
+
+interface GameSocketContextValue {
+	gameSocket: Socket | null,
 }
 
 const SocketContext = createContext<SocketContextValue>({ socket: null });
 const ChatSocketContext = createContext<SocketContextValue>({ socket: null });
-const GameSocketContext = createContext<SocketContextValue>({ socket: null });
+const GameSocketContext = createContext<GameSocketContextValue>({ gameSocket: null });
 const FriendSocketContext = createContext<SocketContextValue>({ socket: null });
 
 interface SocketProviderProps {
@@ -19,7 +23,8 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
 	const [socket, setSocket] = useState<Socket | null>(null);
 
 	useEffect(() => {
-		const newSocket = io("http://localhost:3000/friend", {
+
+		const newSocket = io('http://localhost:3000/friend', {
 			extraHeaders: {
 				Authorization: `Bearer ${localStorage.getItem("token")}`,
 			},
@@ -71,15 +76,19 @@ const ChatSocketProvider = ({
 };
 
 const GameSocketProvider = ({ children }: SocketProviderProps) => {
-	const [socket, setSocket] = useState<Socket | null>(null);
+	const [gameSocket, setGameSocket] = useState<Socket | null>(null);
 
 	useEffect(() => {
 		const newSocket = io("http://localhost:3000/game", {
 			extraHeaders: {
 				Authorization: `Bearer ${localStorage.getItem("token")}`,
 			},
+			reconnection: true,
+			reconnectionAttempts: Infinity,
+			reconnectionDelay: 1000,
+			reconnectionDelayMax: 5000,
 		}); // Replace with your server URL
-		setSocket(newSocket);
+		setGameSocket(newSocket);
 
 		return () => {
 			newSocket.close();
@@ -87,7 +96,7 @@ const GameSocketProvider = ({ children }: SocketProviderProps) => {
 	}, []);
 
 	return (
-		<GameSocketContext.Provider value={{ socket }}>
+		<GameSocketContext.Provider value={{ gameSocket }}>
 			{children}
 		</GameSocketContext.Provider>
 	);

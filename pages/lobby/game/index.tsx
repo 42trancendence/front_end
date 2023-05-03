@@ -13,21 +13,33 @@ const Game: NextPageWithLayout = () => {
 	const [onGame, setOnGame] = usePersistentState('onGame', false);
 	const { socket } = useContext(GameSocketContext);
 	const [match, setMatch] = useState('자동 매칭');
-
+	
 	// socketio 로 게임방 목록 요청
 	useEffect(() => {
 		// console.log(socket);
+		
 		if (socket) {
+			socket.on('connect', () => {
+				if (socket.recovered) {
+					console.log('연결이 복구되었습니다.');
+				} else {
+					console.log('새로운 연결이 생성되었습니다.');
+				}
+			})
 			socket.on('getGameList', (data) => {
 				// console.log(data);
 				setGameList(data);
 			})
-			socket.on('getMatching', (data) => {
-				console.log(`매칭되었습니당: ${data}`);
-				setMatch('자동 매칭');
-				// TODO
-				// 매칭되면 게임방으로 이동
-				setOnGame(true);
+			socket.on('getMatching', (data1, data2) => {
+				console.log(`getMatching: ${data1}`);
+				if (data1 == 'matching')	{
+					console.log(data2);
+					setOnGame(true);
+					setMatch('자동 매칭');
+				}	else {
+					alert('매칭 실패');
+					setMatch('자동 매칭');
+				}
 			})
 			socket.on('postLeaveGame', (data) => {
         console.log('getLeaveGame: ', data);
@@ -35,18 +47,15 @@ const Game: NextPageWithLayout = () => {
 					socket.emit('postLeaveGame');
         } else if (data == 'leave') {
 					setOnGame(false);
+					socket.emit('getGameList');
         }
       })
 			socket.on('finishGame', () => {
 				setOnGame(false);
 			})
-			// socket.on('gaming', (data) => {
-				//   console.log(data);
-				// })
-				// console.log('getGameList', socket)
-				socket.emit('getGameList'); // 이거 삭제 해야 하나?
+			socket.emit('getGameList'); // 이거 삭제 해야 하나?
 			}
-		}, [socket])
+		}, [socket, setOnGame])
 
 		// socketio 로 자동 매칭 요청
 		const handleMatching = () => {
@@ -60,14 +69,7 @@ const Game: NextPageWithLayout = () => {
 				}
 			}
 		}
-
-		const hadleWatching = (roomId: string) => {
-			if (socket) {
-				socket.emit('postWatching', roomId);
-				setOnGame(true);
-			}
-		}
-
+		
 		return (
 			onGame ? (
 			<Canvas></Canvas>
@@ -90,11 +92,6 @@ const Game: NextPageWithLayout = () => {
 									<span className="font-bold">{room.title}</span>
 									<span>{room.status}</span>
 									{/* <span>{room.wa} players</span> */}
-									<button 
-										onClick={() => hadleWatching(room.roomId)}
-										className="rounded-lg bg-zinc-400 p-3 hover:bg-zinc-700 transition-colors cursor-pointer">
-										관전하기
-									</button>
 								</div>
 							</div>
 						))}
