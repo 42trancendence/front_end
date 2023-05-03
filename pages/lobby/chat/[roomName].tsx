@@ -76,6 +76,7 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
     };
 
     router.events.on('routeChangeStart', handleRouteChangeStart);
+    socket?.emit('enterChatRoom', {roomName: roomData.name, password: ""});
     socket?.on('getChatRoomUsers', function(data){
       console.log("users data", data);
       setUserList(data);

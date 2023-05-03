@@ -92,17 +92,17 @@ const ChatRooms: NextPageWithLayout = () => {
 			console.log(error); // 서버에서 전달된 에러 메시지 출력
 		  });
 		// socket?.emit('enterChatRoom', {name, password});
-		router.push(`/lobby/chat/chatRoom: ${name}`);
+		router.push(`/lobby/chat/${name}`);
 		setShowCreateRoomPopup(false);
 	  };
 
 	const joinChatRoom = (room: any) => {
 		if (room.type === "PROTECTED") {
 			const inputPassword = prompt("비밀번호를 입력하세요");
-			chatSocket?.emit('enterChatRoom', {roomName: room.name, password: inputPassword});
+			//chatSocket?.emit('enterChatRoom', {roomName: room.name, password: inputPassword});
 			return ;
 		  }
-		  chatSocket?.emit('enterChatRoom', {roomName: room.name, password});
+		  //chatSocket?.emit('enterChatRoom', {roomName: room.name, password});
 		router.push(`/lobby/chat/${room.name}`);
 	}
 
