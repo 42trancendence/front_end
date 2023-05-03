@@ -93,7 +93,7 @@ const OverView: NextPageWithLayout = () => {
 				{!isUserDataLoaded ? (
 					<OverviewSkeleton /> // 로딩중일때
 				) : (
-					<div className="z-10 -mt-6 grid w-3/4 grid-cols-1 gap-3 self-center rounded bg-zinc-800 p-6 text-center shadow-neumreverse lg:grid-cols-3">
+					<div className="z-10 -mt-6 grid w-full sm:w-3/4 grid-cols-1 gap-3 self-center rounded bg-zinc-800 p-6 text-center shadow-neumreverse lg:grid-cols-3">
 						<div className="flex divide-x divide-zinc-400">
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
 								<p className="text-zinc-200">Total</p>
