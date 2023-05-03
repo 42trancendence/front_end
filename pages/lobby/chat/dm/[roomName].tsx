@@ -66,10 +66,12 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
   }
   };
 
+  const { chatSocket: socket } = useContext(SocketContext);
+
   // 페이지를 떠날 때 실행되는 이벤트 등록 후 콜백함수 호출
   useEffect(() => {
     const handleRouteChangeStart = (url) => {
-      socket?.emit('leaveChatRoom');
+      socket?.emit('leaveChatPage');
       console.log('페이지를 떠납니다.');
     };
 
@@ -78,10 +80,10 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
     return () => {
       router.events.off('routeChangeStart', handleRouteChangeStart);
     };
-  }, [router]);
+  }, [router, socket]);
 
 
-	const { chatSocket: socket } = useContext(SocketContext);
+
   if (!roomData) {
     return <div>Loading...</div>;
   }

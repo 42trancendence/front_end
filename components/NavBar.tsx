@@ -75,7 +75,7 @@ export default function NavBar({ userData }: any) {
 		router.push("/");
 	};
 
-	const { friendSocket } = useContext(SocketContext);
+	const { friendSocket, chatSocket } = useContext(SocketContext);
 	const { successed } = useContext(NotifyContext);
 	function onSuccessed(name: string, message: string) {
 		successed({
@@ -83,7 +83,7 @@ export default function NavBar({ userData }: any) {
 			message: message,
 		});
 	}
-	friendSocket?.on("newDirectMessage", (data) => {
+	chatSocket?.on("newDirectMessage", (data) => {
 		onSuccessed(data.name, data.message);
 	});
 	return (

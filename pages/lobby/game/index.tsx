@@ -73,10 +73,10 @@ const Game: NextPageWithLayout = () => {
 			}
 		}
 
-		const {notifySocket: globalSocket} = useContext(SocketContext);
+		const {friendSocket} = useContext(SocketContext);
 		useEffect(() => {
-			globalSocket?.emit("updateActiveStatus", 3);
-		}, [globalSocket]);
+			friendSocket?.emit("updateActiveStatus", 3);
+		}, [friendSocket]);
 
 		return (
 			<>

@@ -56,20 +56,20 @@ const ChatRooms: NextPageWithLayout = () => {
 		getUser();
 	}, [username]);
 
-	const { notifySocket } = useContext(SocketContext);
+	// socket 연결
+	const { friendSocket, chatSocket } = useContext(SocketContext);
 	useEffect(() => {
-		notifySocket?.emit("updateActiveStatus", 2);
-	}, [notifySocket]);
+		friendSocket?.emit("updateActiveStatus", 2);
+	}, [friendSocket]);
 
 	function showChatRoomList(data: any)
 	{
 		console.log("chatrooms data : ", data)
 	}
 
-	const { chatSocket } = useContext(SocketContext);
 	useEffect(() => {
 		if (chatSocket) {
-			console.log("socket connected!");
+			chatSocket.emit("enterChatLooby");
 		}
 	}, [chatSocket]);
 

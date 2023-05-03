@@ -23,7 +23,7 @@ const OverView: NextPageWithLayout = () => {
 	const [isEditOpen, setisEditOpen] = useState(false);
 	const [isProfileChanged, setisProfileChanged] = useState(false);
 	const [isUserDataLoaded, setisUserDataLoaded] = useState(false);
-
+	const [match, setMatch] = useState('게임 매칭');
 	// user 정보 가져오기
 	useEffect(() => {
 		let accessToken = localStorage.getItem("token");
@@ -60,12 +60,12 @@ const OverView: NextPageWithLayout = () => {
 		getUser();
 	}, [username, isProfileChanged]);
 
-	const { notifySocket } = useContext(SocketContext);
+	const { friendSocket } = useContext(SocketContext);
 	useEffect(() => {
-		if (notifySocket) {
-			notifySocket.emit("updateActiveStatus", 1);
+		if (friendSocket) {
+			friendSocket.emit("updateActiveStatus", 1);
 		}
-	}, [notifySocket]);
+	}, [friendSocket]);
 
 	return (
 		<>
@@ -130,6 +130,9 @@ const OverView: NextPageWithLayout = () => {
 						</div>
 					</div>
 				)}
+				<button type="button" className="flex flex-col items-center justify-center w-full bg-zinc-900 hover:bg-zinc-700 shadow rounded-lg py-6 mt-8 text-xl font-bold">
+					{match}
+				</button>
 				<div className="mt-8 flex flex-grow flex-col items-center justify-center rounded-lg border border-zinc-500 px-6 py-14 text-center text-sm sm:px-14">
 					<ExclamationCircleIcon
 						type="outline"

@@ -62,12 +62,12 @@ const UserInfo: NextPageWithLayout = () => {
 		getUser();
 	}, [username, router, id]);
 
-	const { notifySocket: socket } = useContext(SocketContext);
+	const { friendSocket } = useContext(SocketContext);
 	useEffect(() => {
-		if (socket) {
-			socket.emit("updateActiveStatus", 1);
+		if (friendSocket) {
+			friendSocket.emit("updateActiveStatus", 1);
 		}
-	}, [socket]);
+	}, [friendSocket]);
 
 	return (
 		<>
