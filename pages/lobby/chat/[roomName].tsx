@@ -70,9 +70,11 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
 
   // 페이지를 떠날 때 실행되는 이벤트 등록 후 콜백함수 호출
   useEffect(() => {
-    const handleRouteChangeStart = (url) => {
-      socket?.emit('leaveChatPage');
-      console.log('페이지를 떠납니다.');
+    const handleRouteChangeStart = (url: string) => {
+      if (!url.match(/^\/lobby\/chat(?:\/)?(?:\/.*)?$/)) {
+				socket?.emit('leaveChatPage');
+				console.log('페이지를 떠납니다.');
+			}
     };
 
     router.events.on('routeChangeStart', handleRouteChangeStart);

@@ -37,10 +37,18 @@ const ChatRooms: NextPageWithLayout = () => {
 	}
 
 	useEffect(() => {
-		if (chatSocket) {
-			chatSocket.emit("enterChatLobby");
-		}
-	}, [chatSocket]);
+		const handleRouteChangeStart = (url: string) => {
+			if (!url.match(/^\/lobby\/chat(?:\/)?(?:\/.*)?$/)) {
+					chatSocket?.emit('leaveChatPage');
+					console.log('페이지를 떠납니다.');
+				  }
+		  };
+		chatSocket?.emit("enterChatLobby");
+		router.events.on('routeChangeStart', handleRouteChangeStart);
+		return () => {
+			router.events.off('routeChangeStart', handleRouteChangeStart);
+		  };
+	}, [chatSocket, router]);
 
 	chatSocket?.on("showChatRoomList", function(data) {
 		console.log(data);
