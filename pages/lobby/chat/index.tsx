@@ -69,7 +69,7 @@ const ChatRooms: NextPageWithLayout = () => {
 
 	useEffect(() => {
 		if (chatSocket) {
-			chatSocket.emit("enterChatLooby");
+			chatSocket.emit("enterChatLobby");
 		}
 	}, [chatSocket]);
 
