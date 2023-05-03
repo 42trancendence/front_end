@@ -28,12 +28,11 @@ interface NavigationItem {
 
 const navigation = [
 	{
-		name: "내 정보",
+		name: "로비",
 		href: "/lobby/overview",
 		icon: IdentificationIcon,
 	},
 	{ name: "채팅", href: "/lobby/chat", icon: UsersIcon },
-	{ name: "게임", href: "/lobby/game", icon: PlayIcon },
 ];
 
 function NavItem({ item }: { item: NavigationItem }) {
