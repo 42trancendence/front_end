@@ -103,7 +103,7 @@ const OverView: NextPageWithLayout = () => {
 		}
 		getUser();
 		getGameHistory();
-	}, [username]);
+	}, [username, onGame]);
 
 	const { socket } = useContext(SocketContext);
 	useEffect(() => {
@@ -154,7 +154,7 @@ const OverView: NextPageWithLayout = () => {
 			})
 			// gameSocket.emit('getGameHistory'); // 이거 삭제 해야 하나?
 			}
-		}, [gameSocket, setOnGame])
+		}, [gameSocket])
 
 		// socketio 로 자동 매칭 요청
 		const handleMatching = () => {
