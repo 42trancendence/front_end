@@ -11,6 +11,17 @@ import FriendNotification from "./ui/FriendNotification";
 import { handleRefresh } from "@/lib/auth-client";
 import { NotifyContext, NotifyProvider } from "@/lib/notifyContext";
 import GlobalNotification from "@/components/ui/GlobalNotification";
+import ChatNotification from "./ui/ChatNotification";
+
+export const Notifications = () => {
+	return (
+		<>
+			<GlobalNotification />
+			<ChatNotification />
+			<FriendNotification />
+		</>
+	)
+}
 
 export default function Layout({
 	pageProps,
@@ -102,9 +113,9 @@ export default function Layout({
 				</>
 			) : (
 				<NotifyProvider>
-					<GlobalNotification />
+					<Notifications />
 					<div className="lg:flex bg-zinc-800 text-white">
-						<FriendNotification />
+
 						<NavBar userData={userData} />
 						<div className="relative flex w-full flex-1 px-8 py-6">
 							{pageProps}
