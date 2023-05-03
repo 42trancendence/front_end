@@ -25,37 +25,6 @@ const ChatRooms: NextPageWithLayout = () => {
 	const [chatRooms, setChatRooms] = useState([]);
 	const router = useRouter();
 
-
-	// user 정보 가져오기
-	useEffect(() => {
-		let accessToken = localStorage.getItem("token");
-		async function getUser() {
-			try {
-				const res = await fetch("http://localhost:3000/users/me", {
-					method: "GET",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${accessToken}`,
-					},
-				});
-				if (res.ok) {
-					const userData = await res.json();
-					setUsername(userData.name);
-					setavatarUrl(userData.avatar);
-					return userData;
-				} else if (res.status === 401) {
-					// Unauthorized, try to refresh the access token
-					await handleRefresh();
-				} else {
-					return null;
-				}
-			} catch (error) {
-				console.log(error);
-			}
-		}
-		getUser();
-	}, [username]);
-
 	// socket 연결
 	const { friendSocket, chatSocket } = useContext(SocketContext);
 	useEffect(() => {
