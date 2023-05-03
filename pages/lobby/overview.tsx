@@ -47,7 +47,7 @@ const OverView: NextPageWithLayout = () => {
 				if (res.ok) {
 					const userData = await res.json();
 
-					console.log(userData);
+					// console.log(userData);
 
 					setUsername(userData.name);
 					setavatarUrl(userData.avatarImageUrl);
@@ -81,7 +81,7 @@ const OverView: NextPageWithLayout = () => {
 				if (res.ok) {
 					const historyData = await res.json();
 
-					console.log(historyData);
+					// console.log(historyData);
 
 					setGameHistory(historyData);
 
