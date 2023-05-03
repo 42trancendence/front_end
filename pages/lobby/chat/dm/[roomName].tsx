@@ -17,7 +17,7 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
   const [userOffsetTop, setUserOffsetTop] = useState(0);
   const [userOffsetLeft, setUserOffsetLeft] = useState(0);
   const [showUserModal, setShowUserModal] = useState(false);
-  const [userList, setUserList] = useState([""]);
+  const [userList, setUserList] = useState([]);
 	const [username, setUsername] = useState("");
 
   const messagesEndRef = useRef(null);

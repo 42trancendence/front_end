@@ -39,7 +39,7 @@ export default function DirectChatModal({ userData }: any) {
 							src={DefaultAvatarPic}
 							alt=""
 						/>
-						<span className="mr-auto">{user}</span>
+						<span className="mr-auto">{user.user.name}</span>
 					</Menu.Button>
 					<Transition
 						as={Fragment}
@@ -71,7 +71,7 @@ export default function DirectChatModal({ userData }: any) {
 												active ? "bg-gray-100 text-gray-700" : "text-white",
 												"block w-full px-4 py-2 text-sm"
 											)}
-											onClick={(e) =>MuteUser(e, user)}
+											onClick={(e) =>MuteUser(e, user.user)}
 										>
 											게임 초대
 										</button>
