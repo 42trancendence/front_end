@@ -29,6 +29,7 @@ const OverView: NextPageWithLayout = () => {
 	const [isUserDataLoaded, setisUserDataLoaded] = useState(false);
 	const [gameHistory, setGameHistory] = useState([]);
 	const [onGame, setOnGame] = usePersistentState('onGame', false);
+	const [startGame, setStartGame] = usePersistentState('startGame', false);
 	const [match, setMatch] = useState('자동 매칭');
 
 	// user 정보 가져오기
@@ -124,10 +125,10 @@ const OverView: NextPageWithLayout = () => {
 					console.log('새로운 연결이 생성되었습니다.');
 				}
 			})
-			// gameSocket.on('getGameHistory', (data: []) => {
-			// 	console.log(data);
-			// 	setGameHistory(data);
-			// })
+			gameSocket.on('getGameHistory', () => {
+				setOnGame(false);
+				setStartGame(false);
+			})
 			gameSocket.on('getMatching', (data1: string, data2: object) => {
 				console.log(`getMatching: ${data1}`);
 				if (data1 == 'matching')	{
@@ -145,13 +146,13 @@ const OverView: NextPageWithLayout = () => {
 					gameSocket.emit('postLeaveGame');
         } else if (data == 'leave') {
 					setOnGame(false);
-					gameSocket.emit('getGameHistory');
+					// gameSocket.emit('getGameHistory');
         }
       })
 			gameSocket.on('finishGame', () => {
 				setOnGame(false);
 			})
-			gameSocket.emit('getGameHistory'); // 이거 삭제 해야 하나?
+			// gameSocket.emit('getGameHistory'); // 이거 삭제 해야 하나?
 			}
 		}, [gameSocket, setOnGame])
 
@@ -230,7 +231,10 @@ const OverView: NextPageWithLayout = () => {
 				</div>
 			)}
 			{onGame ? (
-			<Canvas></Canvas>
+			<Canvas
+				// startGame={startGame}
+				// setStartGame={setStartGame}
+			></Canvas>
 			) : (
 				<div className="flex h-full w-full flex-col items-center px-8 py-6">
 				{/* 자동 매칭 버튼 */}

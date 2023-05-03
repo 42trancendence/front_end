@@ -1,7 +1,14 @@
 import React, { RefObject, useEffect, useRef, useState, useContext } from 'react'
 import { GameSocketContext } from '@/lib/socketContext';
 import usePersistentState from "@/components/canvas/usePersistentState";
+import router from "next/router";
 
+interface MyComponentProps {
+  startGame: string;
+  setStartGame: boolean;
+}
+
+// const Canvas: React.FC<MyComponentProps> = (startGame, setStartGame) => {
 const Canvas: React.FC = () => {
   const canvasRef: RefObject<HTMLCanvasElement> = useRef(null);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
@@ -38,9 +45,9 @@ const Canvas: React.FC = () => {
         }
         console.log(`setStartGame: ${data}`);
       })
-      gameSocket.on('getWatcher', (data) => {
-        console.log('getWatcher', data);
-      })
+      // gameSocket.on('getGameHistory', () => {
+			// 	setStartGame(false);
+			// })
     }
   }, [gameSocket, setStartGame, setReady])
 
@@ -111,6 +118,8 @@ const Canvas: React.FC = () => {
   const handleLeaveGame = () => {
     if (gameSocket) {
       gameSocket.emit('postLeaveGame');
+      // 나갈시 새로고침 -> 게임전적 최신화
+      // router.push("/lobby/overview");
     }
   }
 
