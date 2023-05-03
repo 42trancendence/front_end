@@ -40,12 +40,12 @@ export default function ChatModal({ userData }: any) {
 				{user.role === "OWNER" ? (
 					<FontAwesomeIcon
 						icon={faCrown}
-						className="ml-auto h-5 w-5 text-yellow-500"
+						className="ml-auto h-4 w-4 text-yellow-500"
 					/>
 				) : user.role === "ADMIN" ? (
 					<FontAwesomeIcon
 						icon={faCertificate}
-						className="ml-auto h-5 w-5 text-green-600"
+						className="ml-auto h-4 w-4 text-green-600"
 					/>
 				) : (
 					<></>
