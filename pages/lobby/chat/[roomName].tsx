@@ -76,7 +76,10 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
     };
 
     router.events.on('routeChangeStart', handleRouteChangeStart);
-
+    socket?.on('getChatRoomUsers', function(data){
+      console.log("users data", data);
+      setUserList(data);
+    });
     return () => {
       router.events.off('routeChangeStart', handleRouteChangeStart);
     };
@@ -87,11 +90,6 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
   if (!roomData) {
     return <div>Loading...</div>;
   }
-	useEffect(() => {
-		if (socket) {
-			console.log("socket connected!");
-		}
-	}, [socket]);
 
   const sendKickRequest = (user) => {
     // 유저에 대한 정보를 보여주는 모달을 열고,
@@ -119,10 +117,6 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
       setShowUserModal(true);
     }
   };
-  socket?.on('getChatRoomUsers', function(data){
-    console.log("users data", data);
-    setUserList(data);
-  });
 
   socket?.on('getMessage', function(data) {
     const newMessage = {
