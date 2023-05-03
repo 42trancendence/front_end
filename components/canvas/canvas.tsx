@@ -23,9 +23,9 @@ const Canvas: React.FC = () => {
   // 소켓 연결(컨텍스트 세팅, socket.id 가 초기화 되는지 확인 필요)
 	const { gameSocket: socket } = useContext(SocketContext);
   useEffect(() => {
-    // console.log(socket);
-    if (socket) {
-      socket.on('updateGame', (data) => {
+    // console.log(gameSocket);
+    if (gameSocket) {
+      gameSocket.on('updateGame', (data) => {
 
         setGameData(data);
       })
@@ -38,11 +38,11 @@ const Canvas: React.FC = () => {
           alert(data);
         }
       })
-      socket.on('getWatcher', (data) => {
+      gameSocket.on('getWatcher', (data) => {
         console.log('getWatcher', data);
       })
     }
-  }, [socket, setStartGame, setReady])
+  }, [gameSocket, setStartGame, setReady])
 
   // 컨텍스트가 세팅되면 그림 그리기
   useEffect(() => {
@@ -88,7 +88,7 @@ const Canvas: React.FC = () => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     console.log(e.key);
     if (e.key === 'ArrowLeft') {
-      socket?.emit('postKey', 'up');
+      gameSocket?.emit('postKey', 'up');
     } else if (e.key === 'ArrowRight') {
       socket?.emit('postKey', 'down');
     }
@@ -96,23 +96,21 @@ const Canvas: React.FC = () => {
 
   const handleReadyGame = () => {
     setReady(!ready);
-    if (socket) {
-      socket.emit('postReadyGame');
+    if (gameSocket) {
+      gameSocket.emit('postReadyGame');
     }
   }
 
-  const hadleDifficulty = () => {
-    if (socket) {
-      if (difficulty) {
-        socket.emit('postDifficulty', difficulty ? 'normal' : 'hard');
-      }
+  const handleDifficulty = () => {
+    if (gameSocket) {
+      gameSocket.emit('postDifficulty', difficulty ? 'normal' : 'hard');
       setDifficulty(!difficulty);
     }
   }
 
-  const hadleLeaveGame = () => {
-    if (socket) {
-      socket.emit('postLeaveGame');
+  const handleLeaveGame = () => {
+    if (gameSocket) {
+      gameSocket.emit('postLeaveGame');
     }
   }
 
@@ -143,7 +141,7 @@ const Canvas: React.FC = () => {
             </div>
             <div className='text-center'>
               <button
-                onClick={() => hadleDifficulty()}
+                onClick={() => handleDifficulty()}
                 className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
               >
                 {difficulty ? 'hard' : 'normal' }
@@ -161,7 +159,7 @@ const Canvas: React.FC = () => {
               {ready ? '준비완료' : '준비' }
             </button>
             <button
-              onClick={() => hadleLeaveGame()}
+              onClick={() => handleLeaveGame()}
               className={'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'}
             >
               나가기

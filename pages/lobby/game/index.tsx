@@ -10,7 +10,7 @@ import usePersistentState from "@/components/canvas/usePersistentState";
 import ResultDialog from "@/components/ui/ResultDialog";
 
 const Game: NextPageWithLayout = () => {
-	const [gameRooms, setGameRooms] = useState([]);
+	const [gameList, setGameList] = useState([]);
 	const [onGame, setOnGame] = usePersistentState('onGame', false);
 	const { gameSocket:socket } = useContext(SocketContext);
 	const [match, setMatch] = useState('자동 매칭');
@@ -18,21 +18,29 @@ const Game: NextPageWithLayout = () => {
 	// socketio 로 게임방 목록 요청
 	useEffect(() => {
 		// console.log(socket);
+
 		if (socket) {
+			socket.on('connect', () => {
+				if (socket.recovered) {
+					console.log('연결이 복구되었습니다.');
+				} else {
+					console.log('새로운 연결이 생성되었습니다.');
+				}
+			})
 			socket.on('getGameList', (data) => {
 				// console.log(data);
-				setGameRooms(data);
+				setGameList(data);
 			})
-			socket.on('getMatching', (data) => {
-				console.log(`매칭되었습니당: ${data}`);
-				setMatch('자동 매칭');
-				// TODO
-				// 매칭되면 게임방으로 이동
-				setOnGame(true);
-			})
-			socket.on('getCancelMatching', (data) => {
-				console.log(`매칭 취소되었습니당: ${data}`);
-				setMatch('자동 매칭');
+			socket.on('getMatching', (data1, data2) => {
+				console.log(`getMatching: ${data1}`);
+				if (data1 == 'matching')	{
+					console.log(data2);
+					setOnGame(true);
+					setMatch('자동 매칭');
+				}	else {
+					alert('매칭 실패');
+					setMatch('자동 매칭');
+				}
 			})
 			socket.on('postLeaveGame', (data) => {
         console.log('getLeaveGame: ', data);
@@ -40,18 +48,15 @@ const Game: NextPageWithLayout = () => {
 					socket.emit('postLeaveGame');
         } else if (data == 'leave') {
 					setOnGame(false);
+					socket.emit('getGameList');
         }
       })
 			socket.on('finishGame', () => {
 				setOnGame(false);
 			})
-			// socket.on('gaming', (data) => {
-				//   console.log(data);
-				// })
-				// console.log('getGameList', socket)
-				socket.emit('getGameList'); // 이거 삭제 해야 하나?
+			socket.emit('getGameList'); // 이거 삭제 해야 하나?
 			}
-		}, [socket])
+		}, [socket, setOnGame])
 
 		// socketio 로 자동 매칭 요청
 		const handleMatching = () => {
@@ -65,19 +70,10 @@ const Game: NextPageWithLayout = () => {
 				}
 			}
 		}
-
-		const hadleWatching = () => {
-			if (socket) {
-				socket.emit('postWatching');
-				setOnGame(true);
-			}
-		}
-
 		const {friendSocket} = useContext(SocketContext);
 		useEffect(() => {
 			friendSocket?.emit("updateActiveStatus", 3);
 		}, [friendSocket]);
-
 		return (
 			<>
 			{onGame ? (
@@ -110,7 +106,7 @@ const Game: NextPageWithLayout = () => {
 						</div>
 
 						{/* Replace this array with actual game room data */}
-						{gameRooms.map((room: any, index) => (
+						{gameList.map((room, index) => (
 							<div key={index} className="bg-zinc-800 text-white p-4 rounded-lg shadow">
 								<div className="flex justify-between items-center px-10">
 									<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
@@ -120,13 +116,6 @@ const Game: NextPageWithLayout = () => {
 									<p className="font-bold">{room.status}</p>
 									</div>
 									{/* <span>{room.wa} players</span> */}
-									<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-									<button
-										onClick={hadleWatching}
-										className="rounded-lg bg-zinc-400 p-3 hover:bg-zinc-700 transition-colors cursor-pointer">
-										관전하기
-									</button>
-									</div>
 								</div>
 							</div>
 						))}

@@ -189,7 +189,7 @@ const GameSocketProvider = ({
 	}, [isOpen]);
 
 	return (
-		<GameSocketContext.Provider value={{ socket }}>
+		<GameSocketContext.Provider value={{ gameSocket }}>
 			{children}
 		</GameSocketContext.Provider>
 	);
