@@ -8,6 +8,7 @@ import {
 import { NextPageWithLayout } from "@/pages/_app";
 import { handleRefresh } from "@/lib/auth-client";
 import ChatModal from "@/components/ChatModal";
+import { useUsersDispatch, useUsersState } from "@/lib/userContext";
 
 
 
@@ -25,37 +26,17 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
   const inputRef = useRef(null);
   const router = useRouter();
 
+  const state = useUsersState();
+	const dispatch = useUsersDispatch();
+	const { data: user, loading: isUserDataLoaded, error } = state.user;
+
   useEffect(() => {
     console.log("선택된 유저", selectedUser.length);
   }, [selectedUser]);
 
 	useEffect(() => {
-		let accessToken = localStorage.getItem("token");
-		async function getUser() {
-			try {
-				const res = await fetch("http://localhost:3000/users/me", {
-					method: "GET",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${accessToken}`,
-					},
-				});
-				if (res.ok) {
-					const userData = await res.json();
-					setUsername(userData.name);
-					return userData;
-				} else if (res.status === 401) {
-					// Unauthorized, try to refresh the access token
-					await handleRefresh();
-				} else {
-					return null;
-				}
-			} catch (error) {
-				console.log(error);
-			}
-		}
-		getUser();
-	}, [username]);
+    setUsername(user.name);
+	}, [user]);
 
   useEffect(() => {
     scrollToBottom();
@@ -72,7 +53,7 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
   useEffect(() => {
     // 채팅방 페이지에 들어왔을 때, 채팅방에 입장하는 이벤트를 서버에 전달
     if (username) {
-    socket?.emit('enterChatRoom', {roomName: roomData.name, password: ""});
+      socket?.emit('enterChatRoom', {roomName: roomData.name, password: ""});
     }
   }, [socket, roomData.name, username]);
 
@@ -87,12 +68,10 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
 
     // 채팅방에 입장한 유저들의 정보를 서버로부터 받아옴
     socket?.on('getChatRoomUsers', function(data){
-      console.log("users data", data);
       setUserList(data);
       const me = data.filter((user: any) => {
         return user.user.name === username;
       });
-      console.log("userMe", me)
       setUserMe(me);
     });
 

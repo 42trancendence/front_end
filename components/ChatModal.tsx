@@ -8,11 +8,18 @@ import { SocketContext } from "@/lib/socketContext";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCertificate, faCrown } from "@fortawesome/free-solid-svg-icons";
-import {useRouter} from "next/router";
+import { useRouter } from "next/router";
 
-export default function ChatModal({ userData, userMe }: { userData: any; userMe: any }) {
-	console.log(userMe);
+export default function ChatModal({
+	userData,
+	userMe,
+}: {
+	userData: any;
+	userMe: any;
+}) {
 	const { chatSocket: socket } = useContext(SocketContext);
+	const me = userMe[0];
+
 	const router = useRouter();
 
 	function KickUser(event: React.MouseEvent<HTMLElement>, item: any) {
@@ -92,44 +99,52 @@ export default function ChatModal({ userData, userMe }: { userData: any; userMe:
 								</button>
 							)}
 						</Menu.Item>
-						<Menu.Item>
-							{({ active }) => (
-								<button
-									className={clsx(
-										active ? "bg-gray-100 text-gray-700" : "text-white",
-										"block w-full px-4 py-2 text-sm"
+						{(me.role === "OWNER" || me.role === "ADMIN") ? (
+							<>
+								<Menu.Item>
+									{({ active }) => (
+										<button
+											className={clsx(
+												active ? "bg-gray-100 text-gray-700" : "text-white",
+												"block w-full px-4 py-2 text-sm"
+											)}
+											onClick={(e) => KickUser(e, user.user)}
+										>
+											KICK
+										</button>
 									)}
-									onClick={(e) => KickUser(e, user.user)}
-								>
-									KICK
-								</button>
-							)}
-						</Menu.Item>
-						<Menu.Item>
-							{({ active }) => (
-								<button
-									className={clsx(
-										active ? "bg-gray-100 text-gray-700" : "text-white",
-										"block w-full px-4 py-2 text-sm"
+								</Menu.Item>
+								<Menu.Item>
+									{({ active }) => (
+										<button
+											className={clsx(
+												active ? "bg-gray-100 text-gray-700" : "text-white",
+												"block w-full px-4 py-2 text-sm"
+											)}
+											onClick={(e) => MuteUser(e, user.user)}
+										>
+											MUTE
+										</button>
 									)}
-									onClick={(e) => MuteUser(e, user.user)}
-								>
-									MUTE
-								</button>
-							)}
-						</Menu.Item>
-						<Menu.Item>
-							{({ active }) => (
-								<button
-									className={clsx(
-										active ? "bg-red-400 text-white" : "bg-red-500 text-white",
-										"block w-full rounded-b px-4 py-2 text-sm"
+								</Menu.Item>
+								<Menu.Item>
+									{({ active }) => (
+										<button
+											className={clsx(
+												active
+													? "bg-red-400 text-white"
+													: "bg-red-500 text-white",
+												"block w-full rounded-b px-4 py-2 text-sm"
+											)}
+										>
+											BAN
+										</button>
 									)}
-								>
-									BAN
-								</button>
-							)}
-						</Menu.Item>
+								</Menu.Item>
+							</>
+						) : (
+							<></>
+						)}
 					</div>
 				</Menu.Items>
 			</Transition>

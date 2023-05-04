@@ -5,7 +5,7 @@ import { handleRefresh } from './auth-client';
 // UsersContext 에서 사용 할 기본 상태
 const initialState = {
   user: {
-    loading: false,
+    loading: true,
     data: null,
     error: null
   }
@@ -27,7 +27,7 @@ const success = data => ({
 
 // 실패했을 때의 상태 만들어주는 함수
 const error = error => ({
-  loading: false,
+  loading: true,
   data: null,
   error: error
 });
@@ -91,6 +91,35 @@ export function useUsersDispatch() {
 
 export async function getUser(dispatch) {
   dispatch({ type: 'GET_USER' });
+  try {
+    const token = await checkIsLoggedIn();
+
+    const res = await fetch("http://localhost:3000/users/me", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (res.ok) {
+      const userData = await res.json();
+      dispatch({ type: 'GET_USER_SUCCESS', data: userData });
+    } else if (res.status === 401) {
+      // Unauthorized, try to refresh the access token
+      const newAccessToken = await handleRefresh();
+      if (!newAccessToken) {
+        throw new Error('Cannot find newAccessToken');
+      }
+      getUser(dispatch);
+    } else {
+      throw new Error('Cannot find user');
+    }
+  } catch (e) {
+    dispatch({ type: 'GET_USER_ERROR', error: e });
+  }
+}
+
+export async function refetchUser(dispatch) {
   try {
     const token = await checkIsLoggedIn();
 

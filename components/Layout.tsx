@@ -12,6 +12,7 @@ import { handleRefresh } from "@/lib/auth-client";
 import { NotifyContext, NotifyProvider } from "@/lib/notifyContext";
 import GlobalNotification from "@/components/ui/GlobalNotification";
 import ChatNotification from "./ui/ChatNotification";
+import { useUsersDispatch, useUsersState, getUser } from "@/lib/userContext";
 
 export const Notifications = () => {
 	return (
@@ -31,42 +32,21 @@ export default function Layout({
 	children: React.ReactNode;
 }) {
 	const router = useRouter();
-	const [loading, setLoading] = useState(true);
 	const [userData, setuserData] = useState<any>([]);
+	const state = useUsersState();
+	const dispatch = useUsersDispatch();
 
 	useEffect(() => {
-		const checkLoginStatus = async () => {
-			// 로그인 상태 확인하는 비동기 함수
-			const token = await checkIsLoggedIn();
+		getUser(dispatch);
+	}, [dispatch]);
 
-			if (!token) {
-				router.push("/");
-			} else {
-				const res = await fetch("http://localhost:3000/users/me", {
-					method: "GET",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${token}`,
-					},
-				});
-				if (res.ok) {
-					setLoading(false);
-				} else if (res.status === 401) {
-					// Unauthorized, try to refresh the access token
-					const newAccessToken = await handleRefresh();
-					if (!newAccessToken) {
-						router.push("/");
-					}
-					router.reload();
-				} else {
-					return null;
-				}
-				setLoading(false);
-			}
-		};
+	const { data: user, loading, error } = state.user;
 
-		checkLoginStatus();
-	}, [router]);
+	useEffect(() => {
+		if (error) {
+			router.push("/");
+		}
+	}, [error, router]);
 
 	// 소켓 연결
 	const { friendSocket: socket } = useContext(SocketContext);
