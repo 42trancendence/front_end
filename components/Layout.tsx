@@ -115,7 +115,6 @@ export default function Layout({
 				<NotifyProvider>
 					<Notifications />
 					<div className="lg:flex bg-zinc-800 text-white">
-
 						<NavBar userData={userData} />
 						<div className="relative flex w-full flex-1 px-8 py-6">
 							{pageProps}

@@ -6,9 +6,14 @@ import { NormalButton } from "@/components/ui/NormalButton";
 import Loading from "../../../components/ui/Loading";
 import CloseButton from "@/components/ui/CloseButton"
 import OpenButton from "@/components/ui/OpenButton"
+import SlideButton from "@/components/ui/SlideButton";
 import { ReactElement, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { handleRefresh } from "@/lib/auth-client";
+import {
+	ChatBubbleLeftRightIcon,
+	QueueListIcon
+} from "@heroicons/react/24/outline";
 import {
 	SocketContext,
 	SocketProvider,
@@ -115,7 +120,7 @@ const ChatRooms: NextPageWithLayout = () => {
 	  };
 
 
-	  const handleTabClick = (tab) => {
+	  const handleTabClick = (tab: string) => {
 		setActiveTab(tab);
 	  };
 
@@ -131,6 +136,7 @@ const ChatRooms: NextPageWithLayout = () => {
 					onClick={() => handleTabClick("chat")}
 					style={{ cursor: "pointer" }}
 					>
+					<QueueListIcon className="h-6 w-6 shrink-0"/>
 						나의 채팅방 목록
 					</div>
 					<div className={`${activeTab === "DM"
@@ -141,6 +147,7 @@ const ChatRooms: NextPageWithLayout = () => {
 					onClick={() => handleTabClick("DM")}
 					style={{ cursor: "pointer" }}
 					>
+					<ChatBubbleLeftRightIcon className="h-6 w-6 shrink-0"/>
 						DM
 					</div>
 				</div>
@@ -233,20 +240,28 @@ const ChatRooms: NextPageWithLayout = () => {
 					</>
 					</div>
 			</div>}
+			<button className="fixed bottom-[60px] right-[60px] max-w-[200px] min-w-[62px] h-[62px] z-[3] bg-gradient-to-r from-cyan-500 to-blue-500 from-main1 to-main2 rounded-[20px] flex justify-center items-center transition-all duration-300 ease-in-out group px-[17px] hover:pr-[25px]">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" className="text-white w-[1.787rem]​ h-[1.787rem]​">
+				<path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd">
+				</path>
+				</svg>
+				<span className="overflow-hidden inline-flex whitespace-nowrap max-w-0 group-hover:!max-w-[140px] text-white font-semibold group-hover:ml-[12px] transition-all duration-300 ease-in-out">채팅방 생성</span>
+			</button>
 			<div className="absolute bottom-5 right-8 ...">
+
 				<div className="flex -mt-12 w-24 flex-col items-center justify-center space-y-3 text-sm">
-					{!showCreateRoomPopup && <OpenButton onClick={() => setShowCreateRoomPopup(true)} />}
-					{showCreateRoomPopup && <CloseButton onClick={() => setShowCreateRoomPopup(false)} />}
+					{!showCreateRoomPopup && <SlideButton onClick={() => setShowCreateRoomPopup(true)} />}
+					{showCreateRoomPopup && <SlideButton onClick={() => setShowCreateRoomPopup(false)} />}
 					{showCreateRoomPopup && (
-						<div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 grid w-60 rounded bg-zinc-800 shadow-neumreverse">
-							<p className="text-sm text-center text-[#939efb]">방 제목</p>
+						<div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 grid rounded bg-zinc-600 gap-4">
+							<p className="text-lg mt-4 text-center text-[#bbc2ff]">방 제목</p>
 							<input
 								type="text"
 								value={name}
 								onChange={(e) => setName(e.target.value)}
 								className="bg-black text-white px-3 py-2 rounded-md mb-3"
 							/>
-							<p className="text-sm text-center text-[#939efb]">비밀번호 설정</p>
+							<p className="text-lg text-center text-[#bbc2ff]">비밀번호 설정</p>
 							<input
 								type="checkbox"
 								checked={isPrivate}
@@ -254,7 +269,7 @@ const ChatRooms: NextPageWithLayout = () => {
 								className="mb-3"
 							/>
 							{isPrivate && (
-							<p className="text-sm text-center text-[#939efb]">비밀번호 입력</p>
+							<p className="text-lg text-center text-[#bbc2ff]">비밀번호 입력</p>
 							)}
 							{isPrivate &&
 							(
@@ -266,7 +281,7 @@ const ChatRooms: NextPageWithLayout = () => {
 								/>
 							)
 							}
-						<button onClick={createChatRoom}>생성</button>
+							<button onClick={createChatRoom} className="rounded-lg bg-zinc-400 p-3 hover:bg-green-600 transition-colors cursor-pointer">생성</button>
 						</div>
 					)}
 				</div>
@@ -275,12 +290,14 @@ const ChatRooms: NextPageWithLayout = () => {
 	);
 };
 
+
+
 ChatRooms.getLayout = function getLayout(page: ReactElement) {
 	return (
 		<SocketProvider>
 			<Layout>{page}</Layout>
 		</SocketProvider>
-	);
+	);	
 };
 
 export default ChatRooms;
