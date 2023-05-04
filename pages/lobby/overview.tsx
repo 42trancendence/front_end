@@ -17,7 +17,11 @@ import EditProfilePallet from "@/components/EditProfilePallet";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import Canvas from "@/components/canvas/canvas";
 import usePersistentState from "@/components/canvas/usePersistentState";
+<<<<<<< HEAD
 import { useUsersDispatch, useUsersState, getUser, refetchUser } from "@/lib/userContext";
+=======
+>>>>>>> bc491b48c86987bd873b1806ba6074798b73ad8b
+import { Socket } from "socket.io-client";
 
 
 const OverView: NextPageWithLayout = () => {
@@ -33,11 +37,7 @@ const OverView: NextPageWithLayout = () => {
 	const [onGame, setOnGame] = usePersistentState('onGame', false);
 	const [match, setMatch] = useState('자동 매칭');
 
-
-
-
-
-	// user 정보 가져오기
+	// user 정보 가져오기	
 	useEffect(() => {
 		setUsername(user.name);
 		setavatarUrl(user.avatarImageUrl);
@@ -94,10 +94,10 @@ const OverView: NextPageWithLayout = () => {
 	// socketio 로 게임방 목록 요청
 	useEffect(() => {
 
-		if (gameSocket) {
+		if (friendSocket) {
 			// console.log('gameSocket: ', socket);
-			gameSocket.on('connect', () => {
-				if (gameSocket.recovered) {
+			friendSocket.on('connect', () => {
+				if (friendSocket.recovered) {
 					console.log('연결이 복구되었습니다.');
 				} else {
 					console.log('새로운 연결이 생성되었습니다.');
@@ -107,7 +107,7 @@ const OverView: NextPageWithLayout = () => {
 			// 	console.log(data);
 			// 	setGameHistory(data);
 			// })
-			gameSocket.on('getMatching', (data1: string, data2: object) => {
+			friendSocket.on('getMatching', (data1: string, data2: object) => {
 				console.log(`getMatching: ${data1}`);
 				if (data1 == 'matching')	{
 					console.log(data2);
@@ -118,31 +118,31 @@ const OverView: NextPageWithLayout = () => {
 					setMatch('자동 매칭');
 				}
 			})
-			gameSocket.on('postLeaveGame', (data: string) => {
+			friendSocket.on('postLeaveGame', (data: string) => {
         console.log('getLeaveGame: ', data);
         if (data == 'delete') {
-					gameSocket.emit('postLeaveGame');
+			friendSocket.emit('postLeaveGame');
         } else if (data == 'leave') {
 					setOnGame(false);
-					gameSocket.emit('getGameHistory');
+					friendSocket.emit('getGameHistory');
         }
       })
-			gameSocket.on('finishGame', () => {
+	  friendSocket.on('finishGame', () => {
 				setOnGame(false);
 			})
-			gameSocket.emit('getGameHistory'); // 이거 삭제 해야 하나?
+			friendSocket.emit('getGameHistory'); // 이거 삭제 해야 하나?
 			}
-		}, [gameSocket, setOnGame])
+		}, [friendSocket, setOnGame])
 
 		// socketio 로 자동 매칭 요청
 		const handleMatching = () => {
-			if (gameSocket) {
+			if (friendSocket) {
 				if (match == '자동 매칭') {
-					console.log('자동 매칭: ', gameSocket, match)
-					gameSocket.emit('postMatching');
+					console.log('자동 매칭: ', friendSocket, match)
+					friendSocket.emit('postMatching');
 					setMatch('매칭 중~~~');
 				} else {
-					gameSocket.emit('postCancelMatching');
+					friendSocket.emit('postCancelMatching');
 					setMatch('자동 매칭');
 				}
 			}
