@@ -26,7 +26,7 @@ const ChatRooms: NextPageWithLayout = () => {
 	const [password, setPassword] = useState('');
 	const [showCreateRoomPopup, setShowCreateRoomPopup] = useState(false);
 	const [chatRooms, setChatRooms] = useState([]);
-	const [DMRooms, setDMRooms] = useState([]);
+	const [DMLists, setDMLists] = useState([]);
 	const router = useRouter();
 
 	// socket 연결
@@ -63,8 +63,8 @@ const ChatRooms: NextPageWithLayout = () => {
 
 
 	chatSocket?.on("showDirectMessageList", function(data) {
-		console.log(data);
-		setDMRooms(data);
+		console.log("dm room list", data);
+		setDMLists(data);
 		showChatRoomList(data);
 	})
 
@@ -145,6 +145,7 @@ const ChatRooms: NextPageWithLayout = () => {
 					</div>
 				</div>
 			</div>
+		{ activeTab === "chat" ? (
 		<div className="container mx-auto py-6">
 			<div className="grid grid-cols-1 gap-3 rounded-lg bg-zinc-600 p-5">
 				<div className="flex divide-x-4 divide-zinc-400 content-start">
@@ -191,6 +192,47 @@ const ChatRooms: NextPageWithLayout = () => {
 					</>
 					</div>
 			</div>
+			) :
+			<div className="container mx-auto py-6">
+			<div className="grid grid-cols-1 gap-3 rounded-lg bg-zinc-600 p-5">
+				<div className="flex divide-x-2 divide-zinc-400 content-start">
+					<div className="flex w-1/4 flex-col items-center justify-center text-base">
+						<p className="text-[#bbc2ff]">이름</p>
+					</div>
+					<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
+						<p className="text-[#bbc2ff]">접속상태</p>
+					</div>
+				</div>
+
+						{/* Replace this array with actual game room data */}
+					<>
+					{loading ? (
+					<>
+						<Loading />
+					</>
+					) : (
+					DMLists.map((room: any) => (
+					<div key={room.id} className="bg-zinc-800 text-white p-4 rounded-lg shadow">
+						<div className="flex divide-x-4 divide-zinc-800">
+							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
+								<p className="font-bold">{room.name}</p>
+							</div>
+							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
+								<p className="font-bold">{room.users.length || '---'}</p>
+							</div>
+							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
+								<p className="font-bold">{room.type === "PROTECTED" ? '비공개' : '공개'}</p>
+							</div>
+							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
+								<button onClick={() => joinChatRoom(room)} className="rounded-lg bg-zinc-400 p-3 hover:bg-zinc-700 transition-colors cursor-pointer">입장</button>
+							</div>
+						</div>
+					</div>
+					))
+					)}
+					</>
+					</div>
+			</div>}
 			<div className="absolute bottom-5 right-8 ...">
 				<div className="flex -mt-12 w-24 flex-col items-center justify-center space-y-3 text-sm">
 					{!showCreateRoomPopup && <OpenButton onClick={() => setShowCreateRoomPopup(true)} />}

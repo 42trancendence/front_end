@@ -31,7 +31,7 @@ const OverView: NextPageWithLayout = () => {
 	const [onGame, setOnGame] = usePersistentState('onGame', false);
 	const [match, setMatch] = useState('자동 매칭');
 
-	// user 정보 가져오기
+	// user 정보 가져오기	
 	useEffect(() => {
 		let accessToken = localStorage.getItem("token");
 
