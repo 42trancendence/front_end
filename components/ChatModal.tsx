@@ -91,20 +91,24 @@ export default function ChatModal({
 								</button>
 							)}
 						</Menu.Item>
-						<Menu.Item>
-							{({ active }) => (
-								<button
-									className={clsx(
-										active ? "bg-gray-100 text-gray-700" : "text-white",
-										"block w-full px-4 py-2 text-sm"
-									)}
-									onClick={(e) => MuteUser(e, user.user)}
-								>
-									게임 초대
-								</button>
-							)}
-						</Menu.Item>
-						{(me.role === "OWNER" || me.role === "ADMIN") && (me.user.id !== user.user.id) ? (
+						{me.user.id !== user.user.id && (
+							<Menu.Item>
+								{({ active }) => (
+									<button
+										className={clsx(
+											active ? "bg-gray-100 text-gray-700" : "text-white",
+											"block w-full px-4 py-2 text-sm"
+										)}
+										onClick={(e) => MuteUser(e, user.user)}
+									>
+										게임 초대
+									</button>
+								)}
+							</Menu.Item>
+						)}
+
+						{(me.role === "OWNER" || me.role === "ADMIN") &&
+						me.user.id !== user.user.id ? (
 							<>
 								<Menu.Item>
 									{({ active }) => (
