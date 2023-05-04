@@ -55,10 +55,13 @@ const RoomPage: NextPageWithLayout = ({
 
 	useEffect(() => {
 		// 채팅방 페이지에 들어왔을 때, 채팅방에 입장하는 이벤트를 서버에 전달
-		if (username) {
-			socket?.emit("enterChatRoom", { roomName: roomName, password: password });
-		}
-	}, [username]);
+		socket?.emit("enterChatRoom", { roomName: roomName, password: password }, (error: boolean) => {
+			if (error) {
+				console.log(error); // 서버에서 전달된 에러 메시지 출력
+				router.push(`/lobby/chat/`);
+			}
+		});
+	}, []);
 
 
 	// 페이지를 떠날 때 실행되는 이벤트 등록 후 콜백함수 호출
@@ -103,7 +106,7 @@ const RoomPage: NextPageWithLayout = ({
 		return () => {
 			router.events.off("routeChangeStart", handleRouteChangeStart);
 		};
-	}, [router, socket]);
+	}, [router, socket, username]);
 
 	const userElements: { [key: string]: HTMLLIElement | null } = {};
 
@@ -136,7 +139,12 @@ const RoomPage: NextPageWithLayout = ({
 		// 채팅방 설정 변경 모달을 띄우는 로직을 구현
 		// type password
 		const type = isPrivate ? "PRIVATE" : "PUBLIC";
-		socket?.emit("updateChatRoom", { type: type, password: password });
+		socket?.emit("updateChatRoom", { type: type, password: password }, (error: boolean) => {
+			if (error) {
+				console.log(error); // 서버에서 전달된 에러 메시지 출력
+				router.push(`/lobby/chat/`);
+			}
+		});
 		setShowCreateRoomPopup(false);
 	};
 

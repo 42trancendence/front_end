@@ -24,22 +24,42 @@ export default function ChatModal({
 
 	function KickUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
-		socket?.emit("kickUser", item.name);
+		socket?.emit("kickUser", item.name, (error: boolean) => {
+			if (error) {
+				console.log(error); // 서버에서 전달된 에러 메시지 출력
+				router.push(`/lobby/chat/`);
+			}
+		});
 	}
 
 	function BanUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
-		socket?.emit("toggleBanUser", item.name);
+		socket?.emit("toggleBanUser", item.name, (error: boolean) => {
+			if (error) {
+				console.log(error); // 서버에서 전달된 에러 메시지 출력
+				router.push(`/lobby/chat/`);
+			}
+		});
 	}
 
 	function MuteUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
-		socket?.emit("setMuteUser", item.name);
+		socket?.emit("setMuteUser", item.name, (error: boolean) => {
+			if (error) {
+				console.log(error); // 서버에서 전달된 에러 메시지 출력
+				router.push(`/lobby/chat/`);
+			}
+		});
 	}
 
 	function SetAdmin(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
-		socket?.emit("setAdmin", item.name);
+		socket?.emit("setAdmin", item.name, (error: boolean) => {
+			if (error) {
+				console.log(error); // 서버에서 전달된 에러 메시지 출력
+				router.push(`/lobby/chat/`);
+			}
+		});
 	}
 
 	return userData.map((user: any, index: number) => (

@@ -21,11 +21,7 @@ import {
 import { NextPageWithLayout } from "@/pages/_app";
 
 const ChatRooms: NextPageWithLayout = () => {
-<<<<<<< HEAD
 	const [loading, setLoading] = useState(true);
-=======
-	const [loading, setLoading] = useState(true);
->>>>>>> bc491b48c86987bd873b1806ba6074798b73ad8b
 	const [activeTab, setActiveTab] = useState("chat");
 	const [username, setUsername] = useState("");
 	const [avatar, setavatarUrl] = useState(DefaultAvatar);
@@ -66,11 +62,6 @@ const ChatRooms: NextPageWithLayout = () => {
 		console.log(data);
 		setChatRooms(data);
 		setLoading(false);
-<<<<<<< HEAD
-		showChatRoomList(data);
-	})
-
-=======
 		showChatRoomList(data);
 	})
 
@@ -80,32 +71,6 @@ const ChatRooms: NextPageWithLayout = () => {
 		setDMLists(data);
 		showChatRoomList(data);
 	})
-
-	function createChatRoomMethod(roomType: string) {
-		return new Promise((resolve, reject) => {
-		  chatSocket?.emit('createChatRoom', {
-			name,
-			type: String(roomType),
-			password
-		  }, (error, response) => {
-			if (error) {
-			  reject(error);
-			} else {
-			  resolve(response);
-			}
-		  });
-		  console.log("test");
-		});
-	  }
-
-	const createChatRoom = () => {
->>>>>>> bc491b48c86987bd873b1806ba6074798b73ad8b
-
-	chatSocket?.on("showDirectMessageList", function(data) {
-		console.log("dm room list", data);
-		setDMLists(data);
-		showChatRoomList(data);
-	});
 
 	function createChatRoomMethod(roomType: string) {
 		return new Promise((resolve, reject) => {
@@ -142,11 +107,6 @@ const ChatRooms: NextPageWithLayout = () => {
 		router.push(`/lobby/chat/${name}?password=${password}`);
 		setShowCreateRoomPopup(false);
 	  };
-<<<<<<< HEAD
-
-=======
-
->>>>>>> bc491b48c86987bd873b1806ba6074798b73ad8b
 	  const joinChatRoom = (room: any) => {
 		if (room.type === "PROTECTED") {
 		  const inputPassword = prompt("비밀번호를 입력하세요");
@@ -279,7 +239,7 @@ const ChatRooms: NextPageWithLayout = () => {
 			</div>}
 			<button className="fixed bottom-[60px] right-[60px] max-w-[200px] min-w-[62px] h-[62px] z-[3] bg-gradient-to-r from-cyan-500 to-blue-500 from-main1 to-main2 rounded-[20px] flex justify-center items-center transition-all duration-300 ease-in-out group px-[17px] hover:pr-[25px]">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" className="text-white w-[1.787rem]​ h-[1.787rem]​">
-				<path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd">
+				<path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd">
 				</path>
 				</svg>
 				<span className="overflow-hidden inline-flex whitespace-nowrap max-w-0 group-hover:!max-w-[140px] text-white font-semibold group-hover:ml-[12px] transition-all duration-300 ease-in-out">채팅방 생성</span>
