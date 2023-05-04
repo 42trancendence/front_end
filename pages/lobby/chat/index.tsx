@@ -10,6 +10,10 @@ import { ReactElement, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { handleRefresh } from "@/lib/auth-client";
 import {
+	ChatBubbleLeftRightIcon,
+	QueueListIcon
+} from "@heroicons/react/24/outline";
+import {
 	SocketContext,
 	SocketProvider,
 } from "@/lib/socketContext";
@@ -131,6 +135,7 @@ const ChatRooms: NextPageWithLayout = () => {
 					onClick={() => handleTabClick("chat")}
 					style={{ cursor: "pointer" }}
 					>
+					<QueueListIcon className="h-6 w-6 shrink-0"/>
 						나의 채팅방 목록
 					</div>
 					<div className={`${activeTab === "DM"
@@ -141,6 +146,7 @@ const ChatRooms: NextPageWithLayout = () => {
 					onClick={() => handleTabClick("DM")}
 					style={{ cursor: "pointer" }}
 					>
+					<ChatBubbleLeftRightIcon className="h-6 w-6 shrink-0"/>
 						DM
 					</div>
 				</div>
@@ -238,15 +244,15 @@ const ChatRooms: NextPageWithLayout = () => {
 					{!showCreateRoomPopup && <OpenButton onClick={() => setShowCreateRoomPopup(true)} />}
 					{showCreateRoomPopup && <CloseButton onClick={() => setShowCreateRoomPopup(false)} />}
 					{showCreateRoomPopup && (
-						<div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 grid w-60 rounded bg-zinc-800 shadow-neumreverse">
-							<p className="text-sm text-center text-[#939efb]">방 제목</p>
+						<div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 grid rounded bg-zinc-600 gap-4">
+							<p className="text-lg mt-4 text-center text-[#bbc2ff]">방 제목</p>
 							<input
 								type="text"
 								value={name}
 								onChange={(e) => setName(e.target.value)}
 								className="bg-black text-white px-3 py-2 rounded-md mb-3"
 							/>
-							<p className="text-sm text-center text-[#939efb]">비밀번호 설정</p>
+							<p className="text-lg text-center text-[#bbc2ff]">비밀번호 설정</p>
 							<input
 								type="checkbox"
 								checked={isPrivate}
@@ -254,7 +260,7 @@ const ChatRooms: NextPageWithLayout = () => {
 								className="mb-3"
 							/>
 							{isPrivate && (
-							<p className="text-sm text-center text-[#939efb]">비밀번호 입력</p>
+							<p className="text-lg text-center text-[#bbc2ff]">비밀번호 입력</p>
 							)}
 							{isPrivate &&
 							(
@@ -266,7 +272,7 @@ const ChatRooms: NextPageWithLayout = () => {
 								/>
 							)
 							}
-						<button onClick={createChatRoom}>생성</button>
+							<button onClick={createChatRoom} className="rounded-lg bg-zinc-400 p-3 hover:bg-green-600 transition-colors cursor-pointer">생성</button>
 						</div>
 					)}
 				</div>
