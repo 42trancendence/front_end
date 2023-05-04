@@ -74,7 +74,7 @@ export default function SearchBox({
 		});
 	}
 
-	const { socket } = useContext(SocketContext);
+	const { friendSocket: socket } = useContext(SocketContext);
 	const addFriend = (event: React.MouseEvent<HTMLElement>, item: any) => {
 		socket?.emit("addFriend", { friendName: item.name });
 		onSuccessed();

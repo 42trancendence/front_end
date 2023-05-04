@@ -1,24 +1,17 @@
 import Layout from "@/components/Layout";
 import { ReactElement, useContext, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
-import io from 'socket.io-client';
-import { Socket } from 'socket.io-client';
-import Loading from "../../../components/ui/Loading";
 import {
 	SocketContext,
 	SocketProvider,
 } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
 import { handleRefresh } from "@/lib/auth-client";
-import ChatModal from "@/components/ChatModal";
+import DirectChatModal from "@/components/DirectChatModal";
 
 const RoomPage: NextPageWithLayout = ({ password, roomName}: { password: string, roomName: string}) => {
-
   const [message, setMessage] = useState([]);
-	const [loading, setLoading] = useState(true);
   const [selectedUser, setSelectedUser] = useState("");
-  const [userOffsetTop, setUserOffsetTop] = useState(0);
-  const [userOffsetLeft, setUserOffsetLeft] = useState(0);
   const [showUserModal, setShowUserModal] = useState(false);
   const [userList, setUserList] = useState([]);
 	const [username, setUsername] = useState("");
@@ -58,7 +51,6 @@ const RoomPage: NextPageWithLayout = ({ password, roomName}: { password: string,
 		getUser();
 	}, [username]);
 
-  
   useEffect(() => {
     scrollToBottom();
   }, [message]);
@@ -81,36 +73,15 @@ const RoomPage: NextPageWithLayout = ({ password, roomName}: { password: string,
     };
 
     router.events.on('routeChangeStart', handleRouteChangeStart);
-
-    // socket?.emit('enterChatRoom', {roomName: roomName, password: password}, (error: boolean)=>{
-    //   if(error){
-    //     console.log(error); // 서버에서 전달된 에러 메시지 출력
-    //     router.push(`/lobby/chat/`);
-    //   } else {
-    //       socket?.on('getChatRoomUsers', function(data){
-    //       console.log("users data", data);
-    //       setUserList(data);
-    //       setLoading(false);
-    //     });
-    //   }
-
-        socket?.emit('enterChatRoom', {roomName: roomName, password: password})
-      // if(error){
-      //   console.log(error); // 서버에서 전달된 에러 메시지 출력
-      //   router.push(`/lobby/chat/`);
-      // } else {
-          socket?.on('getChatRoomUsers', function(data){
-          console.log("users data", data);
-          setUserList(data);
-          setLoading(false);
-        // });
-      // }
+    socket?.on('getChatRoomUsers', function(data){
+      console.log("users data", data);
+      setUserList(data);
     });
-
     return () => {
       router.events.off('routeChangeStart', handleRouteChangeStart);
     };
   }, [router, socket]);
+
 
   const userElements: { [key: string]: HTMLLIElement | null } = {};
 
@@ -118,13 +89,6 @@ const RoomPage: NextPageWithLayout = ({ password, roomName}: { password: string,
     setSelectedUser("");
     setShowUserModal(false);
   };
-
-  socket?.on('getChatRoomMessages', function(data?)
-  {
-    console.log("msg data", data);
-    if (data)
-      setMessage(data);
-  })
 
   socket?.on('getMessage', function(data) {
     const newMessage = {
@@ -137,19 +101,12 @@ const RoomPage: NextPageWithLayout = ({ password, roomName}: { password: string,
 
   const handleSendMessage = () => {
     const messageText = inputRef.current.value;
-    socket?.emit('sendMessage', messageText);
+    socket?.emit('sendDirectMessage', messageText);
 
     inputRef.current.value = "";
   };
 
   return (
-
-		<>
-    {loading ? (
-      <>
-        <Loading />
-      </>
-    ) : (
     <div className="relative flex flex-1 flex-col gap-4 h-full">
       <p className="text-4xl text-left text-[#939efb]">{roomName}</p>
       <div className="grid grid-cols-[1fr,200px] gap-4">
@@ -176,7 +133,7 @@ const RoomPage: NextPageWithLayout = ({ password, roomName}: { password: string,
         <div className="p-6 h-full rounded-[14px] bg-[#616161]">
           <p className="text-xl text-[#939efb]">유저 목록</p>
           <ul className="mt-4">
-          <ChatModal userData={userList} />
+          <DirectChatModal userData={userList} />
           {showUserModal && selectedUser.length > 0 && (
             <div
               className="fixed z-50 top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex items-center justify-center"
@@ -207,14 +164,16 @@ const RoomPage: NextPageWithLayout = ({ password, roomName}: { password: string,
         </button>
       </div>
     </div>
-    )}
-    </>
   );
+
 }
+
+
 
 export const getServerSideProps = async ({ query }) => {
   const { password, roomName } = query;
   // password와 roomName을 사용하여 필요한 데이터를 가져오는 등의 처리를 수행할 수 있습니다.
+
   return {
     props: {
       password: password ?? null,
@@ -230,5 +189,6 @@ RoomPage.getLayout = function getLayout(page: ReactElement) {
 		</SocketProvider>
 	);
 };
+
 
 export default RoomPage;
