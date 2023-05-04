@@ -17,7 +17,15 @@ import EditProfilePallet from "@/components/EditProfilePallet";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import Canvas from "@/components/canvas/canvas";
 import usePersistentState from "@/components/canvas/usePersistentState";
+import moment from "moment";
 
+interface GameHistory {
+  createAt: string;
+  player1Score: number;
+  player2Score: number;
+  winnerName: string;
+  loserName: string;
+}
 
 const OverView: NextPageWithLayout = () => {
 	const [username, setUsername] = useState("");
@@ -26,7 +34,7 @@ const OverView: NextPageWithLayout = () => {
 	const [isEditOpen, setisEditOpen] = useState(false);
 	const [isProfileChanged, setisProfileChanged] = useState(false);
 	const [isUserDataLoaded, setisUserDataLoaded] = useState(false);
-	const [gameHistory, setGameHistory] = useState([]);
+	const [gameHistory, setGameHistory] = useState<GameHistory[]>([]);
 	const [onGame, setOnGame] = usePersistentState('onGame', false);
 	const [startGame, setStartGame] = usePersistentState('startGame', false);
 	const [match, setMatch] = useState('자동 매칭');
@@ -153,7 +161,7 @@ const OverView: NextPageWithLayout = () => {
 			})
 			// gameSocket.emit('getGameHistory'); // 이거 삭제 해야 하나?
 			}
-		}, [gameSocket])
+		}, [gameSocket, setOnGame, setStartGame])
 
 		// socketio 로 자동 매칭 요청
 		const handleMatching = () => {
@@ -232,9 +240,17 @@ const OverView: NextPageWithLayout = () => {
 						</div>
 					</div>
 				)}
-				<button type="button" className="flex flex-col items-center justify-center w-full bg-zinc-900 hover:bg-zinc-700 shadow rounded-lg py-6 mt-8 text-xl font-bold">
+			{onGame ? (
+			<Canvas></Canvas>
+			) : (
+				<div className="flex h-full w-full flex-col items-center px-8 py-6">
+				{/* 자동 매칭 버튼 */}
+				<button onClick={handleMatching} type="button" className="flex flex-col items-center justify-center w-full bg-zinc-900 hover:bg-zinc-700 shadow rounded-lg py-6 mt-8 text-xl font-bold">
 					{match}
 				</button>
+				{/* 내 전적 목록 */}
+				{gameHistory.length == 0 ? (
+
 				<div className="mt-8 flex flex-grow flex-col items-center justify-center rounded-lg border border-zinc-500 px-6 py-14 text-center text-sm sm:px-14">
 					<ExclamationCircleIcon
 						type="outline"
@@ -248,37 +264,32 @@ const OverView: NextPageWithLayout = () => {
 						게임을 플레이 하여 전적을 확인할 수 있습니다!
 					</p>
 				</div>
-			{onGame ? (
-			<Canvas
-				// startGame={startGame}
-				// setStartGame={setStartGame}
-			></Canvas>
-			) : (
-				<div className="flex h-full w-full flex-col items-center px-8 py-6">
-				{/* 자동 매칭 버튼 */}
-				<button onClick={handleMatching} className="bg-zinc-600 w-[50%] font-bold text-xl text-indigo-400 h-20 rounded-lg hover:bg-zinc-400 hover:text-zinc-800" >
-					{match}
-				</button>
-				{/* 내 전적 목록 */}
+				) : (
 				<div className="container mx-auto py-6">
 					<div className="text-2xl font-extrabold text-indigo-400 mb-4">
 						최근 전적
 					</div>
 					<div className="grid grid-cols-1 gap-4 rounded-lg bg-zinc-600 p-5">
 						{/* { gameHistory } */}
-						{gameHistory.map((room, index) => (
-							<div key={index} className="bg-zinc-800 text-white p-4 rounded-lg shadow">
-								<div className="flex justify-between items-center px-10">
-									<span>{room.createAt}</span>
-									<span>{room.player1Score}</span>
-									<span>{room.player2Score}</span>
-									<span>{room.winnerName}</span>
-									<span>{room.loserName}</span>
+						{gameHistory.map((room, index) => {
+							const date = moment(room.createAt);
+							const formattedDateTime = date.format('YYYY-MM-DD HH:mm:ss');
+
+							return (
+								<div key={index} className="bg-zinc-800 text-white p-4 rounded-lg shadow">
+									<div className="flex justify-between items-center px-10">
+										<span>{formattedDateTime}</span>
+										<span>{room.player1Score}</span>
+										<span>{room.player2Score}</span>
+										<span>{room.winnerName}</span>
+										<span>{room.loserName}</span>
+									</div>
 								</div>
-							</div>
-						))}
+							);
+						})}
 					</div>
 				</div>
+				)}
 			</div>
 			)}
 		</div>
