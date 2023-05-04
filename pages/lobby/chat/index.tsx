@@ -21,7 +21,11 @@ import {
 import { NextPageWithLayout } from "@/pages/_app";
 
 const ChatRooms: NextPageWithLayout = () => {
+<<<<<<< HEAD
 	const [loading, setLoading] = useState(true);
+=======
+	const [loading, setLoading] = useState(true);
+>>>>>>> bc491b48c86987bd873b1806ba6074798b73ad8b
 	const [activeTab, setActiveTab] = useState("chat");
 	const [username, setUsername] = useState("");
 	const [avatar, setavatarUrl] = useState(DefaultAvatar);
@@ -62,9 +66,40 @@ const ChatRooms: NextPageWithLayout = () => {
 		console.log(data);
 		setChatRooms(data);
 		setLoading(false);
+<<<<<<< HEAD
 		showChatRoomList(data);
 	})
 
+=======
+		showChatRoomList(data);
+	})
+
+
+	chatSocket?.on("showDirectMessageList", function(data) {
+		console.log("dm room list", data);
+		setDMLists(data);
+		showChatRoomList(data);
+	})
+
+	function createChatRoomMethod(roomType: string) {
+		return new Promise((resolve, reject) => {
+		  chatSocket?.emit('createChatRoom', {
+			name,
+			type: String(roomType),
+			password
+		  }, (error, response) => {
+			if (error) {
+			  reject(error);
+			} else {
+			  resolve(response);
+			}
+		  });
+		  console.log("test");
+		});
+	  }
+
+	const createChatRoom = () => {
+>>>>>>> bc491b48c86987bd873b1806ba6074798b73ad8b
 
 	chatSocket?.on("showDirectMessageList", function(data) {
 		console.log("dm room list", data);
@@ -107,7 +142,11 @@ const ChatRooms: NextPageWithLayout = () => {
 		router.push(`/lobby/chat/${name}?password=${password}`);
 		setShowCreateRoomPopup(false);
 	  };
+<<<<<<< HEAD
 
+=======
+
+>>>>>>> bc491b48c86987bd873b1806ba6074798b73ad8b
 	  const joinChatRoom = (room: any) => {
 		if (room.type === "PROTECTED") {
 		  const inputPassword = prompt("비밀번호를 입력하세요");
