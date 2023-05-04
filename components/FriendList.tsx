@@ -6,15 +6,25 @@ import { Fragment, useContext } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { SocketContext } from "@/lib/socketContext";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
-import {useRouter} from "next/router";
+import { useRouter } from "next/router";
 
 export default function FreindList({ userData }: any) {
-	const { socket } = useContext(SocketContext);
+	const { friendSocket: socket, chatSocket } = useContext(SocketContext);
 	function deleteFriend(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
 		socket?.emit("deleteFriend", { friendName: item.name });
 	}
 	const router = useRouter();
+
+	const createDirectMessage = (id: string, name: string) => {
+		chatSocket?.emit("createDirectMessage", {
+			receiverId: id,
+		});
+		chatSocket?.on("error", (error) => {
+			console.log(error); // 서버에서 전달된 에러 메시지 출력
+		});
+		router.push(`/lobby/chat/dm/dm: ${name}`);
+	};
 	return (
 		<>
 			{userData.length > 0 ? (
@@ -67,10 +77,12 @@ export default function FreindList({ userData }: any) {
 									<Menu.Item>
 										{({ active }) => (
 											<button
+												type="button"
 												className={clsx(
 													active ? "bg-gray-100 text-gray-700" : "text-white",
 													"block w-full px-4 py-2 text-sm"
 												)}
+												onClick={(e) => createDirectMessage(user.id, user.name)}
 											>
 												1:1 채팅
 											</button>

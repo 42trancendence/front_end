@@ -6,17 +6,15 @@ import { NormalButton } from "@/components/ui/NormalButton";
 import { ReactElement, useContext, useEffect, useState } from "react";
 import { handleRefresh } from "@/lib/auth-client";
 import {
-	ChatSocketProvider,
 	SocketContext,
 	SocketProvider,
-	GameSocketProvider,
-	GameSocketContext
 } from "@/lib/socketContext";
 import { NextPageWithLayout } from "../_app";
 import OverviewSkeleton from "@/components/ui/OverviewSkeleton";
 import router from "next/router";
 import Seo from "@/components/Seo";
 import EditProfilePallet from "@/components/EditProfilePallet";
+import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import Canvas from "@/components/canvas/canvas";
 import usePersistentState from "@/components/canvas/usePersistentState";
 
@@ -26,6 +24,7 @@ const OverView: NextPageWithLayout = () => {
 	const [avatar, setavatarUrl] = useState(DefaultAvatar);
 	const [userData, setuserData] = useState({});
 	const [isEditOpen, setisEditOpen] = useState(false);
+	const [isProfileChanged, setisProfileChanged] = useState(false);
 	const [isUserDataLoaded, setisUserDataLoaded] = useState(false);
 	const [gameHistory, setGameHistory] = useState([]);
 	const [onGame, setOnGame] = usePersistentState('onGame', false);
@@ -36,7 +35,7 @@ const OverView: NextPageWithLayout = () => {
 	useEffect(() => {
 		let accessToken = localStorage.getItem("token");
 
-		const getUser =  async () => {
+		const getUser = async () => {
 			try {
 				const res = await fetch("http://localhost:3000/users/me", {
 					method: "GET",
@@ -56,7 +55,7 @@ const OverView: NextPageWithLayout = () => {
 
 					// setGameHistory(userData.gameHistory);
 					return userData;
-				} else if (res.status === 401){
+				} else if (res.status === 401) {
 					// Unauthorized, try to refresh the access token
 					const newAccessToken = await handleRefresh();
 					if (!newAccessToken) {
@@ -105,17 +104,17 @@ const OverView: NextPageWithLayout = () => {
 		getGameHistory();
 	}, [username, onGame]);
 
-	const { socket } = useContext(SocketContext);
+	const { friendSocket } = useContext(SocketContext);
 	useEffect(() => {
-		if (socket) {
-			socket.emit("updateActiveStatus", 1);
+		if (friendSocket) {
+			friendSocket.emit("updateActiveStatus", 1);
 		}
-	}, [socket]);
+	}, [friendSocket]);
 
-	const { gameSocket } = useContext(GameSocketContext);
+	const { gameSocket } = useContext(SocketContext);
 	// socketio 로 게임방 목록 요청
 	useEffect(() => {
-		
+
 		if (gameSocket) {
 			// console.log('gameSocket: ', socket);
 			gameSocket.on('connect', () => {
@@ -172,64 +171,83 @@ const OverView: NextPageWithLayout = () => {
 
 	return (
 		<>
-		<Seo title="Overview" />
-		<EditProfilePallet isOpen={isEditOpen} setIsOpen={setisEditOpen} />
-		<div className="relative flex flex-1 flex-col">
-
-			<div>
-				<Image
-					className="h-48 w-full rounded-lg object-cover lg:h-56 brightness-95 drop-shadow"
-					src={ProfileBackground}
-					alt=""
-				/>
-			</div>
-			<div className="-mt-12 flex space-x-5 self-center sm:-mt-16">
-				<div className="z-20 flex">
+			<Seo title="Overview" />
+			<EditProfilePallet isOpen={isEditOpen} setIsOpen={setisEditOpen} setisProfileChanged={setisProfileChanged} />
+			<div className="relative flex flex-1 flex-col">
+				<div>
 					<Image
-						className="h-24 w-24 rounded-full bg-zinc-800 shadow ring-8 ring-zinc-800 sm:h-32 sm:w-32"
-						src={avatar}
+						className="h-48 w-full rounded-lg object-cover brightness-95 drop-shadow lg:h-56"
+						src={ProfileBackground}
 						alt=""
-						width={300}
-						height={300}
 					/>
 				</div>
-			</div>
-			{!isUserDataLoaded ? (
-				<OverviewSkeleton /> // 로딩중일때
-			) : (
-				<div className="z-10 text-center -mt-6 grid w-3/4 grid-cols-1 gap-3 self-center rounded bg-zinc-800 p-6 shadow-neumreverse lg:grid-cols-3">
-					<div className="flex divide-x divide-zinc-400">
-						<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm font-orbitron">
-							<p className="text-zinc-200">Total</p>
-							<p className="text-lg font-semibold">100</p>
-						</div>
-						<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm font-orbitron">
-							<p className="text-zinc-200">Win</p>
-							<p className="text-lg font-semibold">50</p>
-						</div>
-						<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm font-orbitron">
-							<p className="text-zinc-200">Lose</p>
-							<p className="text-lg font-semibold">50</p>
-						</div>
-					</div>
-					<div className="m-auto flex">
-						<div className="text-2xl font-bold">
-							<p className="text-white font-orbitron">{username}</p>
-						</div>
-					</div>
-					<div className="ml-auto flex divide-x divide-zinc-400">
-						<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm font-orbitron">
-							<p className="text-zinc-200 text-xs">Achievement</p>
-							<p className="text-lg font-semibold">1</p>
-						</div>
-						<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
-							<NormalButton className="shadow" variant="bright" onClick={() => setisEditOpen(true)}>
-								Edit
-							</NormalButton>
-						</div>
+				<div className="-mt-12 flex space-x-5 self-center sm:-mt-16">
+					<div className="z-20 flex">
+						<Image
+							className="h-24 w-24 rounded-full bg-zinc-800 shadow ring-8 ring-zinc-800 sm:h-32 sm:w-32"
+							src={avatar}
+							alt=""
+							width={300}
+							height={300}
+						/>
 					</div>
 				</div>
-			)}
+				{!isUserDataLoaded ? (
+					<OverviewSkeleton /> // 로딩중일때
+				) : (
+					<div className="z-10 -mt-6 grid w-full sm:w-3/4 grid-cols-1 gap-3 self-center rounded bg-zinc-800 p-6 text-center shadow-neumreverse lg:grid-cols-3">
+						<div className="flex divide-x divide-zinc-400">
+							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
+								<p className="text-zinc-200">Total</p>
+								<p className="text-lg font-semibold">100</p>
+							</div>
+							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
+								<p className="text-zinc-200">Win</p>
+								<p className="text-lg font-semibold">50</p>
+							</div>
+							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
+								<p className="text-zinc-200">Lose</p>
+								<p className="text-lg font-semibold">50</p>
+							</div>
+						</div>
+						<div className="m-auto flex">
+							<div className="text-2xl font-bold">
+								<p className="font-orbitron text-white">{username}</p>
+							</div>
+						</div>
+						<div className="ml-auto gap-2 flex divide-x divide-zinc-400">
+							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
+								<p className="text-xs text-zinc-200">Achievement</p>
+								<p className="text-lg font-semibold">1</p>
+							</div>
+							<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
+								<NormalButton
+									className="shadow"
+									variant="bright"
+									onClick={() => setisEditOpen(true)}
+								>
+									Edit
+								</NormalButton>
+							</div>
+						</div>
+					</div>
+				)}
+				<button type="button" className="flex flex-col items-center justify-center w-full bg-zinc-900 hover:bg-zinc-700 shadow rounded-lg py-6 mt-8 text-xl font-bold">
+					{match}
+				</button>
+				<div className="mt-8 flex flex-grow flex-col items-center justify-center rounded-lg border border-zinc-500 px-6 py-14 text-center text-sm sm:px-14">
+					<ExclamationCircleIcon
+						type="outline"
+						name="exclamation-circle"
+						className="mx-auto h-6 w-6 text-gray-400"
+					/>
+					<p className="mt-4 font-semibold text-zinc-400">
+						전적이 존재하지 않습니다.
+					</p>
+					<p className="mt-2 text-zinc-500">
+						게임을 플레이 하여 전적을 확인할 수 있습니다!
+					</p>
+				</div>
 			{onGame ? (
 			<Canvas
 				// startGame={startGame}
@@ -271,11 +289,7 @@ const OverView: NextPageWithLayout = () => {
 OverView.getLayout = function getLayout(page: ReactElement) {
 	return (
 		<SocketProvider>
-			<ChatSocketProvider isOpen={false}>
-				<GameSocketProvider>
 					<Layout>{page}</Layout>
-				</GameSocketProvider>
-			</ChatSocketProvider>
 		</SocketProvider>
 	);
 };

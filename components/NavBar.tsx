@@ -10,9 +10,11 @@ import {
 	Bars3Icon,
 } from "@heroicons/react/24/outline";
 import { useRouter } from "next/router";
-import { Fragment, useState } from "react";
+import { Fragment, useContext, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import SearchBox from "./SerachBox";
+import { NotifyContext } from "@/lib/notifyContext";
+import { SocketContext } from "@/lib/socketContext";
 
 function classNames(...classes: string[]) {
 	return classes.filter(Boolean).join(" ");
@@ -26,12 +28,11 @@ interface NavigationItem {
 
 const navigation = [
 	{
-		name: "내 정보",
+		name: "로비",
 		href: "/lobby/overview",
 		icon: IdentificationIcon,
 	},
 	{ name: "채팅", href: "/lobby/chat", icon: UsersIcon },
-	{ name: "게임", href: "/lobby/game", icon: PlayIcon },
 ];
 
 function NavItem({ item }: { item: NavigationItem }) {
@@ -72,6 +73,19 @@ export default function NavBar({ userData }: any) {
 		localStorage.removeItem("token");
 		router.push("/");
 	};
+
+	const { friendSocket, chatSocket } = useContext(SocketContext);
+	const { successed } = useContext(NotifyContext);
+	function onSuccessed(name: string, message: string, id: string) {
+		successed({
+			header: name,
+			message: message,
+			id: id
+		});
+	}
+	chatSocket?.on("newDirectMessage", (data) => {
+		onSuccessed(data.name, data.message, data.id);
+	});
 	return (
 		<>
 			<SearchBox isOpen={isSerchBoxOpen} setIsOpen={setIsSerchBoxOpen} />
@@ -87,7 +101,7 @@ export default function NavBar({ userData }: any) {
 				</button>
 				<Link
 					href="/lobby/overview"
-					className="font-orbitron text-lg m-auto font-bold text-zinc-200"
+					className="m-auto font-orbitron text-lg font-bold text-zinc-200"
 				>
 					TRANS-PONG
 				</Link>
@@ -133,7 +147,9 @@ export default function NavBar({ userData }: any) {
 									role="list"
 									className="-mx-2 mt-2 space-y-1 rounded-md bg-zinc-800 p-2"
 								>
-									<FreindList userData={userData} />
+									<FreindList
+										userData={userData}
+									/>
 								</ul>
 							</li>
 							<li className="mb-4 mt-auto">
@@ -243,7 +259,9 @@ export default function NavBar({ userData }: any) {
 													role="list"
 													className="-mx-2 mt-2 space-y-1 rounded-md bg-zinc-800 p-2"
 												>
-													<FreindList userData={userData} />
+													<FreindList
+														userData={userData}
+													/>
 												</ul>
 											</li>
 											<li className="mb-4 mt-auto">

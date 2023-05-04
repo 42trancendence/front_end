@@ -1,6 +1,7 @@
 import { Dialog } from "@headlessui/react";
 import { CheckCircleIcon, ExclamationTriangleIcon } from "@heroicons/react/24/outline";
-import clsx from "clsx";
+import Image from "next/image";
+import DefaultAvatarPic from "@/public/default_avatar.svg";
 
 type AlertType = {
 	[style: string]: {color: string; icon: typeof CheckCircleIcon};
@@ -19,22 +20,23 @@ let alertStyles: AlertType = {
 	},
 };
 
-export default function MyDialog({
+export default function ResultDialog({
 	type,
-	dialogTitle,
-	dialogText,
+	user1,
+	user2,
+	score,
 	isOpen,
 	setIsOpen,
 	closeCallback,
 }: {
-	type: string,
-	dialogTitle: string,
-	dialogText: string;
+	type?: string,
+	user1: string,
+	user2: string,
+	score: number[],
 	isOpen: boolean;
 	setIsOpen: any;
 	closeCallback?: any;
 }) {
-	const Icon = alertStyles[type].icon;
 	return (
 		<Dialog
 			open={isOpen}
@@ -51,26 +53,27 @@ export default function MyDialog({
 				className="fixed inset-0 bg-zinc-900 bg-opacity-90 transition-opacity"
 				aria-hidden="true"
 			/>
-			<div className="fixed inset-0 z-10 overflow-y-auto">
+			<div className="fixed inset-0 z-10 overflow-y-auto font-orbitron">
 				<div className="flex min-h-full items-end justify-center p-4 text-center sm:items-center sm:p-0">
-					<Dialog.Panel className="relative overflow-hidden rounded-lg bg-zinc-800 px-4 pb-4 pt-5 text-left shadow-xl sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
-						<div className="sm:flex sm:items-start">
-							<div className={clsx("mx-auto flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-full sm:mx-0 sm:h-10 sm:w-10",
-								alertStyles[type].color)}>
-								<Icon
-									className="h-6 w-6 text-white"
-									aria-hidden="true"
-								/>
-							</div>
-							<div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-								<Dialog.Title
-									as="h3"
-									className="text-base font-semibold leading-6 text-white"
-								>
-									{dialogTitle}
-								</Dialog.Title>
-								<div className="mt-2">
-									<p className="text-sm text-gray-200">{dialogText}</p>
+					<Dialog.Panel className="relative overflow-hidden rounded-lg flex flex-col items-center justify-center bg-zinc-800 p-4 shadow-xl sm:my-8 sm:w-full sm:max-w-lg sm:p-6">
+						<div className="flex flex-col gap-4 items-center justify-center">
+							<Dialog.Title
+								as="h3"
+								className="text-base font-semibold leading-6 text-white"
+							>
+								Result
+							</Dialog.Title>
+							<div className="flex flex-row gap-4 items-center justify-center text-zinc-200">
+								<div className="flex flex-col gap-2 justify-center items-center">
+									<Image src={DefaultAvatarPic} className="h-8 w-8" alt="" />
+									<p className="text-lg">{user1}</p>
+									<p className="text-xl mt-2">{score[0]}</p>
+								</div>
+								<p className="text-lg">:</p>
+								<div className="flex flex-col gap-2 justify-center items-center">
+									<Image src={DefaultAvatarPic} className="h-8 w-8" alt="" />
+									<p className="text-lg">{user2}</p>
+									<p className="text-xl mt-2">{score[1]}</p>
 								</div>
 							</div>
 						</div>

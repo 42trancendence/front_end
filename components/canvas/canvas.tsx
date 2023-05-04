@@ -1,5 +1,5 @@
 import React, { RefObject, useEffect, useRef, useState, useContext } from 'react'
-import { GameSocketContext } from '@/lib/socketContext';
+import { SocketContext } from '@/lib/socketContext';
 import usePersistentState from "@/components/canvas/usePersistentState";
 import router from "next/router";
 
@@ -22,28 +22,28 @@ const Canvas: React.FC = () => {
     if (canvasRef?.current) {
       const canvas = canvasRef.current;
       const context = canvas.getContext('2d');
-      
+
       setCtx(context);
     }
   }, []);
 
-  // 소켓 연결(컨텍스트 세팅, gameSocket.id 가 초기화 되는지 확인 필요)
-	const { gameSocket } = useContext(GameSocketContext);
+  // 소켓 연결(컨텍스트 세팅, socket.id 가 초기화 되는지 확인 필요)
+	const { gameSocket } = useContext(SocketContext);
   useEffect(() => {
-    // console.log(gameSocket);
+    console.log(gameSocket);
     if (gameSocket) {
       gameSocket.on('updateGame', (data) => {
 
         setGameData(data);
       })
       gameSocket.on('setStartGame', (data) => {
+        console.log(`setStartGame: ${data}`);
         if (data == 'start') {
           setStartGame(true);
         } else {
           setStartGame(false);
           alert(data);
         }
-        console.log(`setStartGame: ${data}`);
       })
       // gameSocket.on('getGameHistory', () => {
 			// 	setStartGame(false);
@@ -67,14 +67,14 @@ const Canvas: React.FC = () => {
       drawText();
     }
   }
-  
+
   const drawPaddle = (paddle: Object) => {
     if (ctx) {
       ctx.fillStyle = 'red';
       ctx.fillRect(paddle?.x_, paddle?.y_, paddle?.width_, paddle?.height_);
     }
   }
-  
+
   const drawBall = (x: number, y:number) => {
     if (ctx) {
       ctx.beginPath();
@@ -83,7 +83,7 @@ const Canvas: React.FC = () => {
       ctx.fill();
     }
   }
-  
+
   const drawText = () => {
     if (ctx) {
       ctx.font = '30px Arial';
@@ -98,7 +98,7 @@ const Canvas: React.FC = () => {
       gameSocket?.emit('postKey', 'up');
     } else if (e.key === 'ArrowRight') {
       gameSocket?.emit('postKey', 'down');
-    } 
+    }
   }
 
   const handleReadyGame = () => {
@@ -125,21 +125,24 @@ const Canvas: React.FC = () => {
 
   return (
     <>
+    <div className='relative w-full'>
       <div
         tabIndex={0} // 키보드 포커스를 위한 tabIndex 설정
         style={{ outline: 'none' }} // 선택시 브라우저가 테두리를 그리지 않도록 함
         onKeyDown={handleKeyDown} // 함수 자체를 전달
+        className='flex flex-col justify-center items-center w-full'
       >
-        <canvas 
+        <canvas
           ref={canvasRef} width={500} height={500}
         />
       </div>
-      {startGame ? 
+      {startGame ?
         <div>
           게임 시작
         </div>
         :
         // 가운데 정렬
+        <div className="absolute w-full flex items-center justify-center m-auto inset-0">
         <div className='mx-auto my-auto space-y-4'>
           <div>
             <div className='text-center mb-2'>
@@ -172,7 +175,9 @@ const Canvas: React.FC = () => {
             </button>
           </div>
         </div>
+        </div>
     }
+    </div>
     </>
   )
 }

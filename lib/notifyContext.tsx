@@ -11,6 +11,7 @@ interface State {
 	isSuccessed: boolean;
 	header: string;
 	message: string;
+	id?: string;
 	successed: (info: Info) => void;
 	failed: (info: Info) => void;
 	close: () => void;
@@ -20,6 +21,7 @@ interface State {
 export interface Info {
 	header: string;
 	message: string;
+	id?: string;
 }
 
 const defaultState: State = {
@@ -27,6 +29,7 @@ const defaultState: State = {
 	isSuccessed: false,
 	header: '',
 	message: '',
+	id: '',
 	successed: (info: Info) => { },
 	failed: (info: Info) => { },
 	close: () => { },
@@ -45,6 +48,7 @@ const NotifyProvider = ({ children }: NotifyProviderProps) => {
 			isSuccessed: true,
 			header: info.header,
 			message: info.message,
+			id: info.id,
 		}));
 	};
 
@@ -56,6 +60,7 @@ const NotifyProvider = ({ children }: NotifyProviderProps) => {
 			isSuccessed: false,
 			header: info.header,
 			message: info.message,
+			id: info.id,
 		}));
 	};
 
@@ -69,6 +74,7 @@ const NotifyProvider = ({ children }: NotifyProviderProps) => {
 		isSuccessed: state.isSuccessed,
 		header: state.header,
 		message: state.message,
+		id: state.id,
 		successed,
 		failed,
 		close,

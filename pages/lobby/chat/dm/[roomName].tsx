@@ -7,7 +7,7 @@ import {
 } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
 import { handleRefresh } from "@/lib/auth-client";
-import ChatModal from "@/components/ChatModal";
+import DirectChatModal from "@/components/DirectChatModal";
 
 
 
@@ -78,7 +78,6 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
     };
 
     router.events.on('routeChangeStart', handleRouteChangeStart);
-    socket?.emit('enterChatRoom', {roomName: roomData.name, password: ""});
     socket?.on('getChatRoomUsers', function(data){
       console.log("users data", data);
       setUserList(data);
@@ -93,7 +92,6 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
   if (!roomData) {
     return <div>Loading...</div>;
   }
-
   const sendKickRequest = (user) => {
     // 유저에 대한 정보를 보여주는 모달을 열고,
     // 모달 내부에서 kick 또는 mute 처리를 할 수 있는 버튼을 추가하는 로직을 구현.
@@ -121,6 +119,7 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
     }
   };
 
+
   socket?.on('getMessage', function(data) {
     const newMessage = {
       text: data.message,
@@ -132,7 +131,7 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
 
   const handleSendMessage = () => {
     const messageText = inputRef.current.value;
-    socket?.emit('sendMessage', messageText);
+    socket?.emit('sendDirectMessage', messageText);
 
     inputRef.current.value = "";
   };
@@ -164,7 +163,7 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
         <div className="p-6 h-full rounded-[14px] bg-[#616161]">
           <p className="text-xl text-[#939efb]">유저 목록</p>
           <ul className="mt-4">
-          <ChatModal userData={userList} />
+          <DirectChatModal userData={userList} />
           {showUserModal && selectedUser.length > 0 && (
             <div
               className="fixed z-50 top-0 left-0 w-full h-full bg-gray-500 bg-opacity-50 flex items-center justify-center"

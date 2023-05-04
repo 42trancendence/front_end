@@ -9,8 +9,19 @@ import Loading from "./ui/Loading";
 import { SocketContext } from "@/lib/socketContext";
 import FriendNotification from "./ui/FriendNotification";
 import { handleRefresh } from "@/lib/auth-client";
-import { NotifyProvider } from "@/lib/notifyContext";
+import { NotifyContext, NotifyProvider } from "@/lib/notifyContext";
 import GlobalNotification from "@/components/ui/GlobalNotification";
+import ChatNotification from "./ui/ChatNotification";
+
+export const Notifications = () => {
+	return (
+		<>
+			<GlobalNotification />
+			<ChatNotification />
+			<FriendNotification />
+		</>
+	)
+}
 
 export default function Layout({
 	pageProps,
@@ -58,7 +69,7 @@ export default function Layout({
 	}, [router]);
 
 	// 소켓 연결
-	const { socket } = useContext(SocketContext);
+	const { friendSocket: socket } = useContext(SocketContext);
 	useEffect(() => {
 		function changeUserStatus(data: any) {
 			let copy = [...userData];
@@ -94,7 +105,6 @@ export default function Layout({
 			});
 		}
 	}, [socket, userData]);
-
 	return (
 		<>
 			{loading ? (
@@ -103,9 +113,9 @@ export default function Layout({
 				</>
 			) : (
 				<NotifyProvider>
-					<GlobalNotification />
+					<Notifications />
 					<div className="lg:flex bg-zinc-800 text-white">
-						<FriendNotification />
+
 						<NavBar userData={userData} />
 						<div className="relative flex w-full flex-1 px-8 py-6">
 							{pageProps}
