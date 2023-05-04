@@ -3,15 +3,26 @@ import Image from "next/image";
 import DefaultAvatar from "@/public/default_avatar.svg";
 import ProfileBackground from "@/public/profile_background.jpg";
 import { NormalButton } from "@/components/ui/NormalButton";
-import CloseButton from "@/components/ui/CloseButton";
-import OpenButton from "@/components/ui/OpenButton";
+import Loading from "../../../components/ui/Loading";
+import CloseButton from "@/components/ui/CloseButton"
+import OpenButton from "@/components/ui/OpenButton"
+import SlideButton from "@/components/ui/SlideButton";
 import { ReactElement, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
 import { handleRefresh } from "@/lib/auth-client";
-import { SocketContext, SocketProvider } from "@/lib/socketContext";
+import {
+	ChatBubbleLeftRightIcon,
+	QueueListIcon
+} from "@heroicons/react/24/outline";
+import {
+	SocketContext,
+	SocketProvider,
+} from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
 
 const ChatRooms: NextPageWithLayout = () => {
+	const [loading, setLoading] = useState(true);
+	const [activeTab, setActiveTab] = useState("chat");
 	const [username, setUsername] = useState("");
 	const [avatar, setavatarUrl] = useState(DefaultAvatar);
 	const [userData, setuserData] = useState({});
@@ -20,6 +31,7 @@ const ChatRooms: NextPageWithLayout = () => {
 	const [password, setPassword] = useState("");
 	const [showCreateRoomPopup, setShowCreateRoomPopup] = useState(false);
 	const [chatRooms, setChatRooms] = useState([]);
+	const [DMLists, setDMLists] = useState([]);
 	const router = useRouter();
 
 	// socket 연결
@@ -49,206 +61,234 @@ const ChatRooms: NextPageWithLayout = () => {
 	chatSocket?.on("showChatRoomList", function (data) {
 		console.log(data);
 		setChatRooms(data);
+		setLoading(false);
+		showChatRoomList(data);
+	})
 
+
+	chatSocket?.on("showDirectMessageList", function(data) {
+		console.log("dm room list", data);
+		setDMLists(data);
 		showChatRoomList(data);
 	});
 
-	const createChatRoom = () => {
-		const roomType = isPrivate === true ? "PROTECTED" : "PUBLIC";
-		chatSocket?.emit("createChatRoom", {
+	function createChatRoomMethod(roomType: string) {
+		return new Promise((resolve, reject) => {
+		  chatSocket?.emit('createChatRoom', {
 			name,
 			type: String(roomType),
-			password,
+			password
+		  }, (error, response) => {
+			if (error) {
+			  reject(error);
+			} else {
+			  resolve(response);
+			}
+		  });
+		  console.log("test");
 		});
-		chatSocket?.on("error", (error) => {
+	  }
+
+	const createChatRoom = () => {
+		const roomType = isPrivate === true ? "PROTECTED" : "PUBLIC";
+		createChatRoomMethod(roomType)
+		.then(chatRoom => {
+		  console.log('Created chat room:', chatRoom);
+		  // do something with the chat room data
+		})
+		.catch(error => {
+		  console.error('Error creating chat room:', error);
+		  // handle the error
+		});
+		chatSocket?.on('error', (error) => {
 			console.log(error); // 서버에서 전달된 에러 메시지 출력
 		});
 		// socket?.emit('enterChatRoom', {name, password});
-		router.push(`/lobby/chat/${name}`);
+		router.push(`/lobby/chat/${name}?password=${password}`);
 		setShowCreateRoomPopup(false);
-	};
+	  };
 
-	const joinChatRoom = (room: any) => {
+	  const joinChatRoom = (room: any) => {
 		if (room.type === "PROTECTED") {
-			const inputPassword = prompt("비밀번호를 입력하세요");
-			//chatSocket?.emit('enterChatRoom', {roomName: room.name, password: inputPassword});
-			return;
+		  const inputPassword = prompt("비밀번호를 입력하세요");
+		  router.push(`/lobby/chat/${room.name}?password=${inputPassword}`);
+		  return;
 		}
-		//chatSocket?.emit('enterChatRoom', {roomName: room.name, password});
 		router.push(`/lobby/chat/${room.name}`);
-	};
+	  };
+
+
+	  const handleTabClick = (tab: string) => {
+		setActiveTab(tab);
+	  };
 
 	return (
 		<div className="relative flex flex-1 flex-col gap-4">
-			<div className="container mx-auto py-6">
-				<div className="mb-4 text-3xl font-bold text-indigo-400">
-					나의 채팅방 목록
-				</div>
-				<div className="grid grid-cols-1 gap-3 rounded-lg bg-zinc-600 p-5">
-					<div className="flex content-start divide-x-4 divide-zinc-400">
-						<div className="flex w-1/4 flex-col items-center justify-center text-base">
-							<p className="text-[#bbc2ff]">채팅방 이름</p>
-						</div>
-						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-							<p className="text-[#bbc2ff]">인원</p>
-						</div>
-						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-							<p className="text-[#bbc2ff]">공개 채널</p>
-						</div>
-						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-							<p className="text-[#bbc2ff]">입장</p>
-						</div>
+			<div className="grid grid-cols-1 gap-3 p-3 mt-4 -mb-8">
+				<div className="flex divide-zinc-400 content-start">
+					<div className={`${activeTab === "chat"
+							? "bg-white text-zinc-800"
+							: "text-indigo-200 hover:bg-zinc-700 hover:text-white"}
+						group flex gap-x-3 rounded-md p-2 mr-40 text-xl font-semibold leading-6
+					`}
+					onClick={() => handleTabClick("chat")}
+					style={{ cursor: "pointer" }}
+					>
+					<QueueListIcon className="h-6 w-6 shrink-0"/>
+						나의 채팅방 목록
 					</div>
-
-					{/* Replace this array with actual game room data */}
-					{chatRooms.map((room: any) => (
-						<div
-							key={room.id}
-							className="rounded-lg bg-zinc-800 p-4 text-white shadow"
-						>
-							<div className="flex divide-x-4 divide-zinc-800">
-								<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-									<p className="font-bold">{room.name}</p>
-								</div>
-								<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-									<p className="font-bold">{room.users.length || "---"}</p>
-								</div>
-								<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-									<p className="font-bold">
-										{room.type === "PROTECTED" ? "비공개" : "공개"}
-									</p>
-								</div>
-								<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-									<button
-										onClick={() => joinChatRoom(room)}
-										className="cursor-pointer rounded-lg bg-zinc-400 p-3 transition-colors hover:bg-zinc-700"
-									>
-										입장
-									</button>
-								</div>
-							</div>
-						</div>
-					))}
+					<div className={`${activeTab === "DM"
+					? "bg-white text-zinc-800"
+					: "text-indigo-200 hover:bg-zinc-700 hover:text-white"}
+						group flex gap-x-3 rounded-md p-2 text-xl font-semibold leading-6
+					`}
+					onClick={() => handleTabClick("DM")}
+					style={{ cursor: "pointer" }}
+					>
+					<ChatBubbleLeftRightIcon className="h-6 w-6 shrink-0"/>
+						DM
+					</div>
 				</div>
 			</div>
-
-			{/* <p className="text-3xl text-left font-bold text-indigo-400">나의 채팅방 목록</p>
-			<div className="flex w-full -my-2 h-[40px] my-4 grid rounded-[15px] bg-[#3a3a3a] grid-cols-1 gap-8 justify-self-center">
-					<div className="flex divide-x-4 divide-zinc-400 content-start">
-						<div className="flex w-1/4 flex-col items-center justify-center text-base">
+		{ activeTab === "chat" ? (
+		<div className="container mx-auto py-6">
+			<div className="grid grid-cols-1 gap-3 rounded-lg bg-zinc-600 p-5">
+				<div className="flex divide-x-4 divide-zinc-400 content-start">
+					<div className="flex w-1/4 flex-col items-center justify-center text-base">
 						<p className="text-[#bbc2ff]">채팅방 이름</p>
-						</div>
-						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
+					</div>
+					<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
 						<p className="text-[#bbc2ff]">인원</p>
-						</div>
-						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
+					</div>
+					<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
 						<p className="text-[#bbc2ff]">공개 채널</p>
-						</div>
-						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
+					</div>
+					<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
 						<p className="text-[#bbc2ff]">입장</p>
-						</div>
 					</div>
 				</div>
-			<div className="flex-row w-8/9 h-full overflow-y-auto rounded-[14px] bg-[#616161] -mt-5">
-				{chatRooms.map((room: any) => (
-					<div key={room.id}>
-						<div className="flex divide-x-4 mt-5 divide-zinc-400">
+
+						{/* Replace this array with actual game room data */}
+					<>
+					{loading ? (
+					<>
+						<Loading />
+					</>
+					) : (
+					chatRooms.map((room: any) => (
+					<div key={room.id} className="bg-zinc-800 text-white p-4 rounded-lg shadow">
+						<div className="flex divide-x-4 divide-zinc-800">
 							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-								<p className="text-[#bbc2ff]">{room.name}</p>
+								<p className="font-bold">{room.name}</p>
 							</div>
 							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-								<p className="text-[#bbc2ff]">{room.users.length || '---'}</p>
+								<p className="font-bold">{room.users.length || '---'}</p>
 							</div>
 							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-								<p className="text-[#bbc2ff]">{room.type === "PROTECTED" ? '비공개' : '공개'}</p>
+								<p className="font-bold">{room.type === "PROTECTED" ? '비공개' : '공개'}</p>
 							</div>
 							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-								<button onClick={() => joinChatRoom(room)}>입장</button>
+								<button onClick={() => joinChatRoom(room)} className="rounded-lg bg-zinc-400 p-3 hover:bg-zinc-700 transition-colors cursor-pointer">입장</button>
 							</div>
 						</div>
 					</div>
-					))}
-			</div> */}
-			<div className="... absolute bottom-5 right-8">
-				<div className="-mt-12 flex w-24 flex-col items-center justify-center space-y-3 text-sm">
-					{!showCreateRoomPopup && (
-						<OpenButton onClick={() => setShowCreateRoomPopup(true)} />
+					))
 					)}
-					{showCreateRoomPopup && (
-						<CloseButton onClick={() => setShowCreateRoomPopup(false)} />
+					</>
+					</div>
+			</div>
+			) :
+			<div className="container mx-auto py-6">
+			<div className="grid grid-cols-1 gap-3 rounded-lg bg-zinc-600 p-5">
+				<div className="flex divide-x-2 divide-zinc-400 content-start">
+					<div className="flex w-1/4 flex-col items-center justify-center text-base">
+						<p className="text-[#bbc2ff]">이름</p>
+					</div>
+					<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
+						<p className="text-[#bbc2ff]">접속상태</p>
+					</div>
+				</div>
+
+						{/* Replace this array with actual game room data */}
+					<>
+					{loading ? (
+					<>
+						<Loading />
+					</>
+					) : (
+					DMLists.map((room: any) => (
+					<div key={room.id} className="bg-zinc-800 text-white p-4 rounded-lg shadow">
+						<div className="flex divide-x-4 divide-zinc-800">
+							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
+								<p className="font-bold">{room.name}</p>
+							</div>
+							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
+								<p className="font-bold">{room.users.length || '---'}</p>
+							</div>
+							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
+								<p className="font-bold">{room.type === "PROTECTED" ? '비공개' : '공개'}</p>
+							</div>
+							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
+								<button onClick={() => joinChatRoom(room)} className="rounded-lg bg-zinc-400 p-3 hover:bg-zinc-700 transition-colors cursor-pointer">입장</button>
+							</div>
+						</div>
+					</div>
+					))
 					)}
+					</>
+					</div>
+			</div>}
+			<button className="fixed bottom-[60px] right-[60px] max-w-[200px] min-w-[62px] h-[62px] z-[3] bg-gradient-to-r from-cyan-500 to-blue-500 from-main1 to-main2 rounded-[20px] flex justify-center items-center transition-all duration-300 ease-in-out group px-[17px] hover:pr-[25px]">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" className="text-white w-[1.787rem]​ h-[1.787rem]​">
+				<path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd">
+				</path>
+				</svg>
+				<span className="overflow-hidden inline-flex whitespace-nowrap max-w-0 group-hover:!max-w-[140px] text-white font-semibold group-hover:ml-[12px] transition-all duration-300 ease-in-out">채팅방 생성</span>
+			</button>
+			<div className="absolute bottom-5 right-8 ...">
+
+				<div className="flex -mt-12 w-24 flex-col items-center justify-center space-y-3 text-sm">
+					{!showCreateRoomPopup && <SlideButton onClick={() => setShowCreateRoomPopup(true)} />}
+					{showCreateRoomPopup && <SlideButton onClick={() => setShowCreateRoomPopup(false)} />}
 					{showCreateRoomPopup && (
-						<>
-							<div className="fixed left-1/2 top-1/2 flex w-60 -translate-x-1/2 -translate-y-1/2 transform flex-col items-center justify-center rounded bg-zinc-800 py-2 shadow-xl">
-								<p className="text-center text-sm text-[#939efb]">방 제목</p>
-								<div className="mx-2">
+						<div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 grid rounded bg-zinc-600 gap-4">
+							<p className="text-lg mt-4 text-center text-[#bbc2ff]">방 제목</p>
+							<input
+								type="text"
+								value={name}
+								onChange={(e) => setName(e.target.value)}
+								className="bg-black text-white px-3 py-2 rounded-md mb-3"
+							/>
+							<p className="text-lg text-center text-[#bbc2ff]">비밀번호 설정</p>
+							<input
+								type="checkbox"
+								checked={isPrivate}
+								onChange={() => setIsPrivate(prevState => !prevState)}
+								className="mb-3"
+							/>
+							{isPrivate && (
+							<p className="text-lg text-center text-[#bbc2ff]">비밀번호 입력</p>
+							)}
+							{isPrivate &&
+							(
 								<input
 									type="text"
 									value={name}
 									onChange={(e) => setName(e.target.value)}
 									className="rounded-md w-full bg-black px-3 py-2 text-white"
 								/>
-								</div>
-								<div className="relative mt-2 flex items-start">
-									<div className="flex h-6 items-center">
-										<input
-											id="private"
-											name="private"
-											type="checkbox"
-											checked={isPrivate}
-											onChange={() => setIsPrivate((prevState) => !prevState)}
-											className="h-4 w-4 rounded border-zinc-300 text-zinc-600 focus:ring-zinc-600"
-										/>
-									</div>
-									<div className="ml-3 text-sm leading-6">
-										<label
-											htmlFor="private"
-											className="font-medium text-zinc-200"
-										>
-											비밀번호 설정
-										</label>
-									</div>
-								</div>
-								{isPrivate && (
-									<>
-										<p className="mt-2 text-center text-sm text-[#939efb]">
-											비밀번호 입력
-										</p>
-										<div className="mx-2">
-											<input
-												type="text"
-												value={password}
-												onChange={(e) => setPassword(e.target.value)}
-												className="mb-3 w-full rounded-md bg-black px-3 py-2 text-white"
-											/>
-										</div>
-									</>
-								)}
-
-								<div className="mt-5 flex gap-2 sm:mt-4">
-									<button
-										className="mt-3 inline-flex w-full justify-center rounded-md bg-white px-3 py-2 text-sm font-semibold text-zinc-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 sm:mt-0 sm:w-auto"
-										type="button"
-										onClick={createChatRoom}
-									>
-										저장
-									</button>
-									<button
-										type="button"
-										className="mt-3 inline-flex w-full justify-center rounded-md bg-zinc-800 px-3 py-2 text-sm font-semibold text-zinc-100 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-zinc-700 sm:mt-0 sm:w-auto"
-										onClick={() => setShowCreateRoomPopup(false)}
-									>
-										닫기
-									</button>
-								</div>
-							</div>
-						</>
+							)
+							}
+							<button onClick={createChatRoom} className="rounded-lg bg-zinc-400 p-3 hover:bg-green-600 transition-colors cursor-pointer">생성</button>
+						</div>
 					)}
 				</div>
 			</div>
 		</div>
 	);
 };
+
+
 
 ChatRooms.getLayout = function getLayout(page: ReactElement) {
 	return (

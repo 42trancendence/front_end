@@ -1,37 +1,39 @@
 import Layout from "@/components/Layout";
 import { ReactElement, useContext, useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
-import { SocketContext, SocketProvider } from "@/lib/socketContext";
+import Loading from "../../../components/ui/Loading";
+import {
+	SocketContext,
+	SocketProvider,
+} from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
 import { handleRefresh } from "@/lib/auth-client";
 import ChatModal from "@/components/ChatModal";
 import { useUsersDispatch, useUsersState } from "@/lib/userContext";
 import { Cog6ToothIcon } from "@heroicons/react/20/solid";
 
-const RoomPage: NextPageWithLayout = ({ roomData }) => {
-	const [message, setMessage] = useState([]);
-	const [selectedUser, setSelectedUser] = useState("");
-	const [userOffsetTop, setUserOffsetTop] = useState(0);
-	const [userOffsetLeft, setUserOffsetLeft] = useState(0);
-	const [showUserModal, setShowUserModal] = useState(false);
-	const [userList, setUserList] = useState([]);
+const RoomPage: NextPageWithLayout = ({ password, roomName}: { password: string, roomName: string}) => {
+
+  const [message, setMessage] = useState([]);
+	const [loading, setLoading] = useState(true);
+  const [selectedUser, setSelectedUser] = useState("");
+  const [userOffsetTop, setUserOffsetTop] = useState(0);
+  const [userOffsetLeft, setUserOffsetLeft] = useState(0);
+  const [showUserModal, setShowUserModal] = useState(false);
+  const [userList, setUserList] = useState([]);
 	const [username, setUsername] = useState("");
-	const [userMe, setUserMe] = useState([]);
+  const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
+  const router = useRouter();
+
+  const [userMe, setUserMe] = useState([]);
 	const [showCreateRoomPopup, setShowCreateRoomPopup] = useState(false);
 	const [isPrivate, setIsPrivate] = useState(false);
-	const [password, setPassword] = useState("");
-
-	const messagesEndRef = useRef(null);
-	const inputRef = useRef(null);
-	const router = useRouter();
+	const [newPassword, setNewPassword] = useState("");
 
 	const state = useUsersState();
 	const dispatch = useUsersDispatch();
 	const { data: user, loading: isUserDataLoaded, error } = state.user;
-
-	useEffect(() => {
-		console.log("선택된 유저", selectedUser.length);
-	}, [selectedUser]);
 
 	useEffect(() => {
 		setUsername(user.name);
@@ -241,7 +243,7 @@ const RoomPage: NextPageWithLayout = ({ roomData }) => {
 								<input
 									type="text"
 									value={password}
-									onChange={(e) => setPassword(e.target.value)}
+									onChange={(e) => setNewPassword(e.target.value)}
 									className="mb-3 w-full rounded-md bg-black px-3 py-2 text-white"
 								/>
                 </div>
