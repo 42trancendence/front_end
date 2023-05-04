@@ -37,6 +37,11 @@ export default function ChatModal({
 		socket?.emit("setMuteUser", item.name);
 	}
 
+	function SetAdmin(event: React.MouseEvent<HTMLElement>, item: any) {
+		event.preventDefault();
+		socket?.emit("setAdmin", item.name);
+	}
+
 	return userData.map((user: any, index: number) => (
 		<Menu as="li" key={index}>
 			<div className="bg-black"></div>
@@ -99,8 +104,21 @@ export default function ChatModal({
 								</button>
 							)}
 						</Menu.Item>
-						{(me.role === "OWNER" || me.role === "ADMIN") ? (
+						{(me.role === "OWNER" || me.role === "ADMIN") && (me.user.id !== user.user.id) ? (
 							<>
+								<Menu.Item>
+									{({ active }) => (
+										<button
+											className={clsx(
+												active ? "bg-gray-100 text-gray-700" : "text-white",
+												"block w-full px-4 py-2 text-sm"
+											)}
+											onClick={(e) => SetAdmin(e, user.user)}
+										>
+											관리자 임명
+										</button>
+									)}
+								</Menu.Item>
 								<Menu.Item>
 									{({ active }) => (
 										<button

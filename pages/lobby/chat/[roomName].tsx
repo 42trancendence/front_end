@@ -9,6 +9,7 @@ import { NextPageWithLayout } from "@/pages/_app";
 import { handleRefresh } from "@/lib/auth-client";
 import ChatModal from "@/components/ChatModal";
 import { useUsersDispatch, useUsersState } from "@/lib/userContext";
+import { Cog6ToothIcon } from "@heroicons/react/20/solid";
 
 
 
@@ -131,11 +132,16 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
     inputRef.current.value = "";
   };
 
+  const changeRoomSettings = () => {
+    // 채팅방 설정 변경 모달을 띄우는 로직을 구현
+  };
+
   return (
+    <>
     <div className="relative flex flex-1 flex-col gap-4 h-full">
       <p className="text-4xl text-left text-[#939efb]">{roomData.name}</p>
       <div className="grid grid-cols-[1fr,200px] gap-4">
-        <div className="p-6 rounded-[14px] bg-[#616161] overflow-y-auto max-h-[calc(100vh-240px)] min-h-[calc(100vh-240px)]">
+        <div className="p-6 relative rounded-[14px] bg-[#616161] overflow-y-auto max-h-[calc(100vh-240px)] min-h-[calc(100vh-240px)]">
           <div className="flex-1 p-6">
             {message.map((msg: any, index: number) => (
             <div
@@ -154,7 +160,10 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
             </div>
             ))}
           </div>
-        </div>
+          {userMe[0]?.role === "OWNER" && (
+            <Cog6ToothIcon onClick={changeRoomSettings} className="absolute bottom-0 right-0 w-6 h-6 m-4 text-zinc-200 hover:text-zinc-400 cursor-pointer" />
+          )}
+          </div>
         <div className="p-6 h-full rounded-[14px] bg-[#616161]">
           <p className="text-xl text-[#939efb]">유저 목록</p>
           <ul className="mt-4">
@@ -189,6 +198,7 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
         </button>
       </div>
     </div>
+    </>
   );
 
 }
