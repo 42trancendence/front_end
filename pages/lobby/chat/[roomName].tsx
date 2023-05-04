@@ -90,13 +90,10 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
       console.log("users data", data);
       setUserList(data);
       const me = data.filter((user: any) => {
-        console.log("user", username);
-        user.user.name === username;
+        return user.user.name === username;
       });
-      setUserMe(data.filter((user: any) => {
-        user.user.name === username;
-      }));
       console.log("userMe", me)
+      setUserMe(me);
     });
 
     // 채팅방 페이지를 떠날 때, 채팅방에서 나가는 이벤트를 서버에 전달

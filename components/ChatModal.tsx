@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCertificate, faCrown } from "@fortawesome/free-solid-svg-icons";
 import {useRouter} from "next/router";
 
-export default function ChatModal({ userData }: any, userMe: any) {
+export default function ChatModal({ userData, userMe }: { userData: any; userMe: any }) {
 	console.log(userMe);
 	const { chatSocket: socket } = useContext(SocketContext);
 	const router = useRouter();

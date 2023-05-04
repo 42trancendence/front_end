@@ -20,8 +20,8 @@ export const Notifications = () => {
 			<ChatNotification />
 			<FriendNotification />
 		</>
-	)
-}
+	);
+};
 
 export default function Layout({
 	pageProps,
@@ -114,8 +114,7 @@ export default function Layout({
 			) : (
 				<NotifyProvider>
 					<Notifications />
-					<div className="lg:flex bg-zinc-800 text-white">
-
+					<div className="bg-zinc-800 text-white lg:flex">
 						<NavBar userData={userData} />
 						<div className="relative flex w-full flex-1 px-8 py-6">
 							{pageProps}
