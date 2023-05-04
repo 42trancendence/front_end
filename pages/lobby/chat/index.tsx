@@ -16,7 +16,8 @@ import {
 import { NextPageWithLayout } from "@/pages/_app";
 
 const ChatRooms: NextPageWithLayout = () => {
-	const [loading, setLoading] = useState(true);
+	const [loading, setLoading] = useState(true); 
+	const [activeTab, setActiveTab] = useState("chat");
 	const [username, setUsername] = useState("");
 	const [avatar, setavatarUrl] = useState(DefaultAvatar);
 	const [userData, setuserData] = useState({});
@@ -25,6 +26,7 @@ const ChatRooms: NextPageWithLayout = () => {
 	const [password, setPassword] = useState('');
 	const [showCreateRoomPopup, setShowCreateRoomPopup] = useState(false);
 	const [chatRooms, setChatRooms] = useState([]);
+	const [DMRooms, setDMRooms] = useState([]);
 	const router = useRouter();
 
 	// socket 연결
@@ -59,6 +61,12 @@ const ChatRooms: NextPageWithLayout = () => {
 		showChatRoomList(data);
 	})
 
+
+	chatSocket?.on("showDirectMessageList", function(data) {
+		console.log(data);
+		setDMRooms(data);
+		showChatRoomList(data);
+	})
 
 	function createChatRoomMethod(roomType: string) {
 		return new Promise((resolve, reject) => {
@@ -106,28 +114,53 @@ const ChatRooms: NextPageWithLayout = () => {
 		router.push(`/lobby/chat/${room.name}`);
 	  };
 
+
+	  const handleTabClick = (tab) => {
+		setActiveTab(tab);
+	  };
+
 	return (
 		<div className="relative flex flex-1 flex-col gap-4">
-
-		<div className="container mx-auto py-6">
-					<div className="text-3xl font-bold text-indigo-400 mb-4">
+			<div className="grid grid-cols-1 gap-3 p-3 mt-4 -mb-8">
+				<div className="flex divide-zinc-400 content-start">
+					<div className={`${activeTab === "chat"
+							? "bg-white text-zinc-800"
+							: "text-indigo-200 hover:bg-zinc-700 hover:text-white"}
+						group flex gap-x-3 rounded-md p-2 mr-40 text-xl font-semibold leading-6
+					`}
+					onClick={() => handleTabClick("chat")}
+					style={{ cursor: "pointer" }}
+					>
 						나의 채팅방 목록
 					</div>
-					<div className="grid grid-cols-1 gap-3 rounded-lg bg-zinc-600 p-5">
-					<div className="flex divide-x-4 divide-zinc-400 content-start">
-						<div className="flex w-1/4 flex-col items-center justify-center text-base">
-						<p className="text-[#bbc2ff]">채팅방 이름</p>
-						</div>
-						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-						<p className="text-[#bbc2ff]">인원</p>
-						</div>
-						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-						<p className="text-[#bbc2ff]">공개 채널</p>
-						</div>
-						<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-						<p className="text-[#bbc2ff]">입장</p>
-						</div>
+					<div className={`${activeTab === "DM"
+					? "bg-white text-zinc-800"
+					: "text-indigo-200 hover:bg-zinc-700 hover:text-white"}
+						group flex gap-x-3 rounded-md p-2 text-xl font-semibold leading-6
+					`}
+					onClick={() => handleTabClick("DM")}
+					style={{ cursor: "pointer" }}
+					>
+						DM
 					</div>
+				</div>
+			</div>
+		<div className="container mx-auto py-6">
+			<div className="grid grid-cols-1 gap-3 rounded-lg bg-zinc-600 p-5">
+				<div className="flex divide-x-4 divide-zinc-400 content-start">
+					<div className="flex w-1/4 flex-col items-center justify-center text-base">
+						<p className="text-[#bbc2ff]">채팅방 이름</p>
+					</div>
+					<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
+						<p className="text-[#bbc2ff]">인원</p>
+					</div>
+					<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
+						<p className="text-[#bbc2ff]">공개 채널</p>
+					</div>
+					<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
+						<p className="text-[#bbc2ff]">입장</p>
+					</div>
+				</div>
 
 						{/* Replace this array with actual game room data */}
 					<>
@@ -157,7 +190,7 @@ const ChatRooms: NextPageWithLayout = () => {
 					)}
 					</>
 					</div>
-				</div>
+			</div>
 			<div className="absolute bottom-5 right-8 ...">
 				<div className="flex -mt-12 w-24 flex-col items-center justify-center space-y-3 text-sm">
 					{!showCreateRoomPopup && <OpenButton onClick={() => setShowCreateRoomPopup(true)} />}
