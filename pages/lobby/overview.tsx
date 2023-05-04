@@ -17,10 +17,7 @@ import EditProfilePallet from "@/components/EditProfilePallet";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import Canvas from "@/components/canvas/canvas";
 import usePersistentState from "@/components/canvas/usePersistentState";
-<<<<<<< HEAD
 import { useUsersDispatch, useUsersState, getUser, refetchUser } from "@/lib/userContext";
-=======
->>>>>>> bc491b48c86987bd873b1806ba6074798b73ad8b
 import { Socket } from "socket.io-client";
 
 
@@ -37,7 +34,7 @@ const OverView: NextPageWithLayout = () => {
 	const [onGame, setOnGame] = usePersistentState('onGame', false);
 	const [match, setMatch] = useState('자동 매칭');
 
-	// user 정보 가져오기	
+	// user 정보 가져오기
 	useEffect(() => {
 		setUsername(user.name);
 		setavatarUrl(user.avatarImageUrl);
