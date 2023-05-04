@@ -8,8 +8,6 @@ import { handleRefresh } from "@/lib/auth-client";
 import {
 	SocketContext,
 	SocketProvider,
-	GameSocketProvider,
-	GameSocketContext
 } from "@/lib/socketContext";
 import { NextPageWithLayout } from "../_app";
 import OverviewSkeleton from "@/components/ui/OverviewSkeleton";
@@ -19,57 +17,39 @@ import EditProfilePallet from "@/components/EditProfilePallet";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import Canvas from "@/components/canvas/canvas";
 import usePersistentState from "@/components/canvas/usePersistentState";
+import { useUsersDispatch, useUsersState, getUser, refetchUser } from "@/lib/userContext";
 
 
 const OverView: NextPageWithLayout = () => {
+	const state = useUsersState();
+	const dispatch = useUsersDispatch();
+	const { data: user, loading: isUserDataLoaded, error } = state.user;
+
 	const [username, setUsername] = useState("");
 	const [avatar, setavatarUrl] = useState(DefaultAvatar);
-	const [userData, setuserData] = useState({});
 	const [isEditOpen, setisEditOpen] = useState(false);
 	const [isProfileChanged, setisProfileChanged] = useState(false);
-	const [isUserDataLoaded, setisUserDataLoaded] = useState(false);
 	const [gameHistory, setGameHistory] = useState([]);
 	const [onGame, setOnGame] = usePersistentState('onGame', false);
 	const [match, setMatch] = useState('자동 매칭');
 
+
+
+
+
 	// user 정보 가져오기
+	useEffect(() => {
+		setUsername(user.name);
+		setavatarUrl(user.avatarImageUrl);
+	}, [user]);
+
+	useEffect(() => {
+		refetchUser(dispatch);
+	}, [isProfileChanged, dispatch]);
+
 	useEffect(() => {
 		let accessToken = localStorage.getItem("token");
 
-		const getUser = async () => {
-			try {
-				const res = await fetch("http://localhost:3000/users/me", {
-					method: "GET",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${accessToken}`,
-					},
-				});
-				if (res.ok) {
-					const userData = await res.json();
-
-					console.log(userData);
-
-					setUsername(userData.name);
-					setavatarUrl(userData.avatarImageUrl);
-					setisUserDataLoaded(true);
-
-					// setGameHistory(userData.gameHistory);
-					return userData;
-				} else if (res.status === 401) {
-					// Unauthorized, try to refresh the access token
-					const newAccessToken = await handleRefresh();
-					if (!newAccessToken) {
-						router.push("/");
-					}
-					getUser();
-				} else {
-					return null;
-				}
-			} catch (error) {
-				console.log(error);
-			}
-		}
 		const getGameHistory =  async () => {
 			try {
 				const res = await fetch("http://localhost:3000/users/game-history", {
@@ -101,18 +81,16 @@ const OverView: NextPageWithLayout = () => {
 				console.log(error);
 			}
 		}
-		getUser();
 		getGameHistory();
-	}, [username]);
+	}, []);
 
-	const { friendSocket } = useContext(SocketContext);
+	const { friendSocket, gameSocket } = useContext(SocketContext);
 	useEffect(() => {
 		if (friendSocket) {
 			friendSocket.emit("updateActiveStatus", 1);
 		}
 	}, [friendSocket]);
 
-	const { gameSocket } = useContext(GameSocketContext);
 	// socketio 로 게임방 목록 요청
 	useEffect(() => {
 
@@ -193,7 +171,7 @@ const OverView: NextPageWithLayout = () => {
 						/>
 					</div>
 				</div>
-				{!isUserDataLoaded ? (
+				{isUserDataLoaded ? (
 					<OverviewSkeleton /> // 로딩중일때
 				) : (
 					<div className="z-10 -mt-6 grid w-full sm:w-3/4 grid-cols-1 gap-3 self-center rounded bg-zinc-800 p-6 text-center shadow-neumreverse lg:grid-cols-3">
@@ -249,7 +227,6 @@ const OverView: NextPageWithLayout = () => {
 						게임을 플레이 하여 전적을 확인할 수 있습니다!
 					</p>
 				</div>
-			)}
 			{onGame ? (
 			<Canvas></Canvas>
 			) : (

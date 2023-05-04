@@ -8,6 +8,7 @@ import {
 import { NextPageWithLayout } from "@/pages/_app";
 import { handleRefresh } from "@/lib/auth-client";
 import DirectChatModal from "@/components/DirectChatModal";
+import { useUsersDispatch, useUsersState } from "@/lib/userContext";
 
 
 
@@ -24,37 +25,17 @@ const RoomPage: NextPageWithLayout = ({roomData}) => {
   const inputRef = useRef(null);
   const router = useRouter();
 
+  const state = useUsersState();
+	const dispatch = useUsersDispatch();
+	const { data: user, loading: isUserDataLoaded, error } = state.user;
+
   useEffect(() => {
     console.log("선택된 유저", selectedUser.length);
   }, [selectedUser]);
 
 	useEffect(() => {
-		let accessToken = localStorage.getItem("token");
-		async function getUser() {
-			try {
-				const res = await fetch("http://localhost:3000/users/me", {
-					method: "GET",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${accessToken}`,
-					},
-				});
-				if (res.ok) {
-					const userData = await res.json();
-					setUsername(userData.name);
-					return userData;
-				} else if (res.status === 401) {
-					// Unauthorized, try to refresh the access token
-					await handleRefresh();
-				} else {
-					return null;
-				}
-			} catch (error) {
-				console.log(error);
-			}
-		}
-		getUser();
-	}, [username]);
+    setUsername(user.name);
+	}, [user]);
 
   useEffect(() => {
     scrollToBottom();
