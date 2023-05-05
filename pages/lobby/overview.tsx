@@ -238,6 +238,23 @@ const OverView: NextPageWithLayout = () => {
 						최근 전적
 					</div>
 					<div className="grid grid-cols-1 gap-4 rounded-lg bg-zinc-600 p-5">
+						<div className="flex divide-x-4 divide-zinc-400 content-start">
+							<div className="flex w-1/5 flex-col items-center justify-center text-base">
+							<p className="text-[#bbc2ff]">날짜</p>
+							</div>
+							<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+							<p className="text-[#bbc2ff]">승자 이름</p>
+							</div>
+							<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+							<p className="text-[#bbc2ff]">승자 점수</p>
+							</div>
+							<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+							<p className="text-[#bbc2ff]">패자 이름</p>
+							</div>
+							<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+							<p className="text-[#bbc2ff]">패자 점수</p>
+							</div>
+						</div>
 						{/* { gameHistory } */}
 						{gameHistory.map((room, index) => (
 							<div key={index} className="bg-zinc-800 text-white p-4 rounded-lg shadow">
