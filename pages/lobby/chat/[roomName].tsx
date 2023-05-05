@@ -98,6 +98,7 @@ const RoomPage: NextPageWithLayout = ({
 				return user.user.name === username;
 			});
 			setUserMe(me);
+			console.log("me data", me);
 			setLoading(false);
 			// });
 			// }
@@ -147,6 +148,12 @@ const RoomPage: NextPageWithLayout = ({
 		});
 		setShowCreateRoomPopup(false);
 	};
+
+  socket?.on("kickUser", function(data){
+  
+    console.log("당신은 추방당했습니다!");
+    router.push(`/lobby/chat/`);
+  })
 
 	return (
 		<>

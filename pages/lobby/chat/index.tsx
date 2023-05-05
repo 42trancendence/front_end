@@ -72,41 +72,26 @@ const ChatRooms: NextPageWithLayout = () => {
 		showChatRoomList(data);
 	})
 
-	function createChatRoomMethod(roomType: string) {
-		return new Promise((resolve, reject) => {
-		  chatSocket?.emit('createChatRoom', {
+	const createChatRoom = () => {
+		const roomType = isPrivate === true ? "PROTECTED" : "PUBLIC";
+		chatSocket?.emit('createChatRoom', {
 			name,
 			type: String(roomType),
 			password
-		  }, (error, response) => {
+		  }, (error) => {
 			if (error) {
-			  reject(error);
+				console.log(error); // 서버에서 전달된 에러 메시지 출력
 			} else {
-			  resolve(response);
+				router.push(`/lobby/chat/${name}?password=${password}`);
 			}
 		  });
-		  console.log("test");
-		});
-	  }
-
-	const createChatRoom = () => {
-		const roomType = isPrivate === true ? "PROTECTED" : "PUBLIC";
-		createChatRoomMethod(roomType)
-		.then(chatRoom => {
-		  console.log('Created chat room:', chatRoom);
-		  // do something with the chat room data
-		})
-		.catch(error => {
-		  console.error('Error creating chat room:', error);
-		  // handle the error
-		});
 		chatSocket?.on('error', (error) => {
 			console.log(error); // 서버에서 전달된 에러 메시지 출력
 		});
 		// socket?.emit('enterChatRoom', {name, password});
-		router.push(`/lobby/chat/${name}?password=${password}`);
 		setShowCreateRoomPopup(false);
 	  };
+
 	  const joinChatRoom = (room: any) => {
 		if (room.type === "PROTECTED") {
 		  const inputPassword = prompt("비밀번호를 입력하세요");
