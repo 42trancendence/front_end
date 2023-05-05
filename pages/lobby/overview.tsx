@@ -112,7 +112,7 @@ const OverView: NextPageWithLayout = () => {
 		}
 	}, [friendSocket]);
 
-	const { gameSocket } = useContext(GameSocketContext);
+	const { gameSocket } = useContext(SocketContext);
 	// socketio 로 게임방 목록 요청
 	useEffect(() => {
 
@@ -264,16 +264,43 @@ const OverView: NextPageWithLayout = () => {
 						최근 전적
 					</div>
 					<div className="grid grid-cols-1 gap-4 rounded-lg bg-zinc-600 p-5">
+						<div className="flex divide-x-4 divide-zinc-400 content-start">
+							<div className="flex w-1/3 flex-col items-center justify-center text-base">
+							<p className="text-[#bbc2ff]">날짜</p>
+							</div>
+							<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+							<p className="text-[#bbc2ff]">승자 이름</p>
+							</div>
+							<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+							<p className="text-[#bbc2ff]">승자 점수</p>
+							</div>
+							<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+							<p className="text-[#bbc2ff]">패자 이름</p>
+							</div>
+							<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+							<p className="text-[#bbc2ff]">패자 점수</p>
+							</div>
+						</div>
 						{/* { gameHistory } */}
 						{gameHistory.map((room, index) => (
 							<div key={index} className="bg-zinc-800 text-white p-4 rounded-lg shadow">
-								<div className="flex justify-between items-center px-10">
-									<span>{room.createAt}</span>
-									<span>{room.player1Score}</span>
-									<span>{room.player2Score}</span>
-									<span>{room.winnerName}</span>
-									<span>{room.loserName}</span>
+								<div className="flex divide-x-4 divide-zinc-800">
+								<div className="flex w-1/3 flex-col items-center justify-center space-y-3 text-base">
+									<p className="font-bold">{room.createAt}</p>
 								</div>
+								<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+									<p className="font-bold">{room.winnerName}</p>
+								</div>
+								<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+									<p className="font-bold">{room.player1Score}</p>
+								</div>
+								<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+									<p className="font-bold">{room.loserName}</p>
+								</div>
+								<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+									<p className="font-bold">{room.player2Score}</p>
+								</div>
+							</div>
 							</div>
 						))}
 					</div>
