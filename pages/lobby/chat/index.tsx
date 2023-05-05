@@ -41,14 +41,14 @@ const ChatRooms: NextPageWithLayout = () => {
 	}, [friendSocket]);
 
 	function showChatRoomList(data: any) {
-		console.log("chatrooms data : ", data);
+		// console.log("chatrooms data : ", data);
 	}
 
 	useEffect(() => {
 		const handleRouteChangeStart = (url: string) => {
 			if (!url.match(/^\/lobby\/chat(?:\/)?(?:\/.*)?$/)) {
 				chatSocket?.emit("leaveChatPage");
-				console.log("페이지를 떠납니다.");
+				// console.log("페이지를 떠납니다.");
 			}
 		};
 		chatSocket?.emit("enterChatLobby");
@@ -59,16 +59,15 @@ const ChatRooms: NextPageWithLayout = () => {
 	}, [chatSocket, router]);
 
 	chatSocket?.on("showChatRoomList", function (data) {
-		console.log(data);
+		// console.log(data);
 		setChatRooms(data);
 		setLoading(false);
 		showChatRoomList(data);
 	})
 
-
 	chatSocket?.on("showDirectMessageList", function(data) {
-		console.log("dm room list", data);
 		setDMLists(data);
+		console.log("dm room list", data);
 		showChatRoomList(data);
 	})
 
@@ -79,15 +78,15 @@ const ChatRooms: NextPageWithLayout = () => {
 			type: String(roomType),
 			password
 		  }, (error) => {
+			console.log("testing");
 			if (error) {
 				console.log(error); // 서버에서 전달된 에러 메시지 출력
 			} else {
+				console.log(error); // 서버에서 전달된 에러 메시지 출력
 				router.push(`/lobby/chat/${name}?password=${password}`);
 			}
 		  });
-		chatSocket?.on('error', (error) => {
-			console.log(error); // 서버에서 전달된 에러 메시지 출력
-		});
+		  console.log("testing2");
 		// socket?.emit('enterChatRoom', {name, password});
 		setShowCreateRoomPopup(false);
 	  };
@@ -100,7 +99,15 @@ const ChatRooms: NextPageWithLayout = () => {
 		}
 		router.push(`/lobby/chat/${room.name}`);
 	  };
-
+	  const joinDMRoom = (room: any) => {
+		chatSocket?.emit("enterDirectMessage", {
+			directMessageId: room.id,
+		});
+		chatSocket?.on("error", (error) => {
+			console.log(error); // 서버에서 전달된 에러 메시지 출력
+		});
+		router.push(`/lobby/chat/dm/dm: ${room.user1.name}`);
+	};
 
 	  const handleTabClick = (tab: string) => {
 		setActiveTab(tab);
@@ -184,15 +191,6 @@ const ChatRooms: NextPageWithLayout = () => {
 			) :
 			<div className="container mx-auto py-6">
 			<div className="grid grid-cols-1 gap-3 rounded-lg bg-zinc-600 p-5">
-				<div className="flex divide-x-2 divide-zinc-400 content-start">
-					<div className="flex w-1/4 flex-col items-center justify-center text-base">
-						<p className="text-[#bbc2ff]">이름</p>
-					</div>
-					<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-						<p className="text-[#bbc2ff]">접속상태</p>
-					</div>
-				</div>
-
 						{/* Replace this array with actual game room data */}
 					<>
 					{loading ? (
@@ -203,17 +201,20 @@ const ChatRooms: NextPageWithLayout = () => {
 					DMLists.map((room: any) => (
 					<div key={room.id} className="bg-zinc-800 text-white p-4 rounded-lg shadow">
 						<div className="flex divide-x-4 divide-zinc-800">
-							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-								<p className="font-bold">{room.name}</p>
+							<div className="z-20 flex">
+								<Image
+									className="h-12 w-12 rounded-full bg-zinc-800 shadow ring-8 ring-zinc-800 sm:h-12 sm:w-12"
+									src={room.user2.avatarImageUrl}
+									alt=""
+									width={100}
+									height={100}
+								/>
 							</div>
 							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-								<p className="font-bold">{room.users.length || '---'}</p>
+								<p className="font-bold">{username === room.user1.name ? room.user1.name + "\t님과의 대화방" : room.user2.name + "\t님과의 대화방"}</p>
 							</div>
-							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-								<p className="font-bold">{room.type === "PROTECTED" ? '비공개' : '공개'}</p>
-							</div>
-							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-								<button onClick={() => joinChatRoom(room)} className="rounded-lg bg-zinc-400 p-3 hover:bg-zinc-700 transition-colors cursor-pointer">입장</button>
+							<div className="flex w-1/4 flex-col items-end justify-end space-y-3 text-base flex-grow">
+								<button onClick={() => joinDMRoom(room)} className="rounded-lg bg-zinc-400 p-3 hover:bg-zinc-700 transition-colors cursor-pointer">대화</button>
 							</div>
 						</div>
 					</div>
