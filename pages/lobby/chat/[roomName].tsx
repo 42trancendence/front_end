@@ -160,36 +160,33 @@ const RoomPage: NextPageWithLayout = ({
 						<p className="text-left text-4xl text-[#939efb]">{roomName}</p>
 						<div className="grid grid-cols-[1fr,200px] gap-4">
 							<div className="max-h-[calc(100vh-240px)] min-h-[calc(100vh-240px)] overflow-y-auto rounded-[14px] bg-[#616161] p-6">
-								<div className="flex-1 p-6">
-									{message.map((msg: any, index: number) => (
-										<div
-											className={`flex justify-${
-												msg.user === username ? "end" : "start"
-											} mb-4 items-start`}
-											key={index}
-										>
-											<div
-												className={`${
-													msg.user === username
-														? "bg-blue-300"
-														: "bg-yellow-300"
-												}
-                rounded-lg p-3
-                ${msg.user === username ? "rounded-bl-none" : "rounded-br-none"}
-                max-w-xs`}
-											>
-												<p
-													className={`${
-														msg.user === username ? "text-black" : " text-black"
-													} text-sm leading-tight`}
-												>
-													{msg.text}
-												</p>
-											</div>
-											<div ref={messagesEndRef} />
-										</div>
-									))}
-								</div>
+              <div className="flex flex-col">
+                {message.map((msg: any, index: number) => (
+                  <div
+                    className={`flex mb-4 ${
+                      msg.user === username ? "justify-end" : "justify-start"
+                    }`}
+                    key={index}
+                  >
+                    <div
+                      className={`rounded-lg p-3 max-w-xs ${
+                        msg.user === username ? "bg-blue-300 rounded-bl-none" : "bg-yellow-300 rounded-br-none"
+                      } ${
+                        msg.user === username ? "self-end justify-self-end" : "self-start justify-self-start"
+                      }`}
+                    >
+                      <p
+                        className={`text-sm leading-tight ${
+                          msg.user === username ? "text-black" : "text-black"
+                        }`}
+                      >
+                        {msg.text}
+                      </p>
+                    </div>
+                    <div ref={messagesEndRef} />
+                  </div>
+                ))}
+              </div>
 								{userMe[0]?.role === "OWNER" && (
 									<Cog6ToothIcon
 										onClick={() => setShowCreateRoomPopup(true)}
