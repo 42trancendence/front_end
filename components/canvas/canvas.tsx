@@ -21,7 +21,7 @@ const Canvas: React.FC = () => {
   }, []);
 
   // 소켓 연결(컨텍스트 세팅, socket.id 가 초기화 되는지 확인 필요)
-	const { gameSocket: socket } = useContext(SocketContext);
+	const { gameSocket } = useContext(SocketContext);
   useEffect(() => {
     // console.log(gameSocket);
     if (gameSocket) {
@@ -29,7 +29,7 @@ const Canvas: React.FC = () => {
 
         setGameData(data);
       })
-      socket.on('setStartGame', (data) => {
+      gameSocket.on('setStartGame', (data) => {
         console.log(`setStartGame: ${data}`);
         if (data == 'start') {
           setStartGame(true);
@@ -90,7 +90,7 @@ const Canvas: React.FC = () => {
     if (e.key === 'ArrowLeft') {
       gameSocket?.emit('postKey', 'up');
     } else if (e.key === 'ArrowRight') {
-      socket?.emit('postKey', 'down');
+      gameSocket?.emit('postKey', 'down');
     }
   }
 
