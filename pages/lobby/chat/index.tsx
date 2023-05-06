@@ -72,6 +72,12 @@ const ChatRooms: NextPageWithLayout = () => {
 		showChatRoomList(data);
 	})
 
+		// chatSocket?.on("showDirectMessageList", function(data) {
+		// 	console.log("dm room list", data);
+		// 	setDMLists(data);
+		// 	showChatRoomList(data);
+		// });
+
 	function createChatRoomMethod(roomType: string) {
 		return new Promise((resolve, reject) => {
 		  chatSocket?.emit('createChatRoom', {
