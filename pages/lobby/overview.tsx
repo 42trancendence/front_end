@@ -18,6 +18,7 @@ import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import Canvas from "@/components/canvas/canvas";
 import usePersistentState from "@/components/canvas/usePersistentState";
 import moment from "moment";
+import { useUsersDispatch, useUsersState, getUser, refetchUser } from "@/lib/userContext";
 
 interface GameHistory {
   createAt: string;
@@ -28,55 +29,34 @@ interface GameHistory {
 }
 
 const OverView: NextPageWithLayout = () => {
+	const state = useUsersState();
+	const dispatch = useUsersDispatch();
+	const { data: user, loading: isUserDataLoaded, error } = state.user;
+
 	const [username, setUsername] = useState("");
 	const [avatar, setavatarUrl] = useState(DefaultAvatar);
-	const [userData, setuserData] = useState({});
 	const [isEditOpen, setisEditOpen] = useState(false);
 	const [isProfileChanged, setisProfileChanged] = useState(false);
-	const [isUserDataLoaded, setisUserDataLoaded] = useState(false);
+	// const [isUserDataLoaded, setisUserDataLoaded] = useState(false);
 	const [gameHistory, setGameHistory] = useState<GameHistory[]>([]);
 	const [onGame, setOnGame] = usePersistentState('onGame', false);
 	const [startGame, setStartGame] = usePersistentState('startGame', false);
 	const [match, setMatch] = useState('자동 매칭');
 
-	// user 정보 가져오기
+	// user 정보 가져오기	
+	useEffect(() => {
+		setUsername(user.name);
+		setavatarUrl(user.avatarImageUrl);
+	}, [user]);
+
+	// console.log(userData);
+	useEffect(() => {
+		refetchUser(dispatch);
+	}, [isProfileChanged, dispatch]);
+
 	useEffect(() => {
 		let accessToken = localStorage.getItem("token");
 
-		const getUser = async () => {
-			try {
-				const res = await fetch("http://localhost:3000/users/me", {
-					method: "GET",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${accessToken}`,
-					},
-				});
-				if (res.ok) {
-					const userData = await res.json();
-
-					// console.log(userData);
-
-					setUsername(userData.name);
-					setavatarUrl(userData.avatarImageUrl);
-					setisUserDataLoaded(true);
-
-					// setGameHistory(userData.gameHistory);
-					return userData;
-				} else if (res.status === 401) {
-					// Unauthorized, try to refresh the access token
-					const newAccessToken = await handleRefresh();
-					if (!newAccessToken) {
-						router.push("/");
-					}
-					getUser();
-				} else {
-					return null;
-				}
-			} catch (error) {
-				console.log(error);
-			}
-		}
 		const getGameHistory =  async () => {
 			try {
 				const res = await fetch("http://localhost:3000/users/game-history", {
@@ -108,21 +88,18 @@ const OverView: NextPageWithLayout = () => {
 				console.log(error);
 			}
 		}
-		getUser();
 		getGameHistory();
 	}, [username, onGame]);
 
-	const { friendSocket } = useContext(SocketContext);
+	const { friendSocket, gameSocket } = useContext(SocketContext);
 	useEffect(() => {
 		if (friendSocket) {
 			friendSocket.emit("updateActiveStatus", 1);
 		}
 	}, [friendSocket]);
 
-	const { gameSocket } = useContext(SocketContext);
 	// socketio 로 게임방 목록 요청
 	useEffect(() => {
-
 		if (gameSocket) {
 			// console.log('gameSocket: ', socket);
 			gameSocket.on('connect', () => {
@@ -137,6 +114,10 @@ const OverView: NextPageWithLayout = () => {
 				setStartGame(false);
 			})
 			gameSocket.on('getMatching', (data1: string, data2: object) => {
+			// gameSocket.on('getGameHistory', (data: []) => {
+			// 	console.log(data);
+			// 	setGameHistory(data);
+			// })
 				console.log(`getMatching: ${data1}`);
 				if (data1 == 'matching')	{
 					console.log(data2);
@@ -150,13 +131,13 @@ const OverView: NextPageWithLayout = () => {
 			gameSocket.on('postLeaveGame', (data: string) => {
         console.log('getLeaveGame: ', data);
         if (data == 'delete') {
-					gameSocket.emit('postLeaveGame');
+			gameSocket.emit('postLeaveGame');
         } else if (data == 'leave') {
 					setOnGame(false);
 					// gameSocket.emit('getGameHistory');
         }
       })
-			gameSocket.on('finishGame', () => {
+	  	gameSocket.on('finishGame', () => {
 				setOnGame(false);
 			})
 			// gameSocket.emit('getGameHistory'); // 이거 삭제 해야 하나?
@@ -200,7 +181,7 @@ const OverView: NextPageWithLayout = () => {
 						/>
 					</div>
 				</div>
-				{!isUserDataLoaded ? (
+				{isUserDataLoaded ? (
 					<OverviewSkeleton /> // 로딩중일때
 				) : (
 					<div className="z-10 -mt-6 grid w-full sm:w-3/4 grid-cols-1 gap-3 self-center rounded bg-zinc-800 p-6 text-center shadow-neumreverse lg:grid-cols-3">
@@ -270,23 +251,49 @@ const OverView: NextPageWithLayout = () => {
 						최근 전적
 					</div>
 					<div className="grid grid-cols-1 gap-4 rounded-lg bg-zinc-600 p-5">
-						{/* { gameHistory } */}
+						<div className="flex divide-x-4 divide-zinc-400 content-start">
+							<div className="flex w-1/3 flex-col items-center justify-center text-base">
+							<p className="text-[#bbc2ff]">날짜</p>
+							</div>
+							<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+							<p className="text-[#bbc2ff]">승자 이름</p>
+							</div>
+							<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+							<p className="text-[#bbc2ff]">승자 점수</p>
+							</div>
+							<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+							<p className="text-[#bbc2ff]">패자 이름</p>
+							</div>
+							<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+							<p className="text-[#bbc2ff]">패자 점수</p>
+							</div>
+						</div>
 						{gameHistory.map((room, index) => {
 							const date = moment(room.createAt);
 							const formattedDateTime = date.format('YYYY-MM-DD HH:mm:ss');
 
 							return (
 								<div key={index} className="bg-zinc-800 text-white p-4 rounded-lg shadow">
-									<div className="flex justify-between items-center px-10">
-										<span>{formattedDateTime}</span>
-										<span>{room.player1Score}</span>
-										<span>{room.player2Score}</span>
-										<span>{room.winnerName}</span>
-										<span>{room.loserName}</span>
+									<div className="flex divide-x-4 divide-zinc-800">
+										<div className="flex w-1/3 flex-col items-center justify-center space-y-3 text-base">
+											<p className="font-bold">{formattedDateTime}</p>
+										</div>
+										<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+											<p className="font-bold">{room.winnerName}</p>
+										</div>
+										<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+											<p className="font-bold">{room.player1Score}</p>
+										</div>
+										<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+											<p className="font-bold">{room.loserName}</p>
+										</div>
+										<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+											<p className="font-bold">{room.player2Score}</p>
+										</div>
 									</div>
 								</div>
 							);
-						})}
+							})}
 					</div>
 				</div>
 				)}

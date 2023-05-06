@@ -3,6 +3,7 @@ import { createContext, useEffect, useState, ReactNode, Dispatch } from "react";
 import { Manager, Socket, io } from "socket.io-client";
 import { handleRefresh } from "./auth-client";
 import router from "next/router";
+import { UsersProvider } from "./userContext";
 
 interface SocketContextValue {
 	friendSocket: Socket | null;
@@ -82,11 +83,13 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
 	}, []);
 
 	return (
-		<SocketContext.Provider
-			value={{ friendSocket, chatSocket, gameSocket, notifySocket }}
-		>
-			{children}
-		</SocketContext.Provider>
+		<UsersProvider>
+			<SocketContext.Provider
+				value={{ friendSocket, chatSocket, gameSocket, notifySocket }}
+			>
+				{children}
+			</SocketContext.Provider>
+		</UsersProvider>
 	);
 };
 
