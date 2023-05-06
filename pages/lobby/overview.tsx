@@ -114,11 +114,9 @@ const OverView: NextPageWithLayout = () => {
 				setStartGame(false);
 			})
 			gameSocket.on('getMatching', (data1: string, data2: object) => {
-			// gameSocket.on('getGameHistory', (data: []) => {
-			// 	console.log(data);
-			// 	setGameHistory(data);
-			// })
+
 				console.log(`getMatching: ${data1}`);
+
 				if (data1 == 'matching')	{
 					console.log(data2);
 					setOnGame(true);
@@ -134,10 +132,9 @@ const OverView: NextPageWithLayout = () => {
 			gameSocket.emit('postLeaveGame');
         } else if (data == 'leave') {
 					setOnGame(false);
-					// gameSocket.emit('getGameHistory');
         }
       })
-	  	gameSocket.on('finishGame', () => {
+			gameSocket.on('finishGame', () => {
 				setOnGame(false);
 			})
 			// gameSocket.emit('getGameHistory'); // 이거 삭제 해야 하나?
