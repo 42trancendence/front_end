@@ -12,6 +12,7 @@ import { handleRefresh } from "@/lib/auth-client";
 import { NotifyContext, NotifyProvider } from "@/lib/notifyContext";
 import GlobalNotification from "@/components/ui/GlobalNotification";
 import ChatNotification from "./ui/ChatNotification";
+import GameNotification from "./ui/GameNotification";
 import { useUsersDispatch, useUsersState, getUser } from "@/lib/userContext";
 
 export const Notifications = () => {
@@ -20,6 +21,7 @@ export const Notifications = () => {
 			<GlobalNotification />
 			<ChatNotification />
 			<FriendNotification />
+			<GameNotification />
 		</>
 	);
 };

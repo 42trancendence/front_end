@@ -7,9 +7,10 @@ import { Menu, Transition } from "@headlessui/react";
 import { SocketContext } from "@/lib/socketContext";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/router";
+import { NotifyContext } from "@/lib/notifyContext";
 
 export default function FreindList({ userData }: any) {
-	const { friendSocket: socket, chatSocket } = useContext(SocketContext);
+	const { friendSocket: socket, chatSocket, gameSocket } = useContext(SocketContext);
 	function deleteFriend(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
 		socket?.emit("deleteFriend", { friendName: item.name });
@@ -25,6 +26,33 @@ export default function FreindList({ userData }: any) {
 		});
 		router.push(`/lobby/chat/dm/dm: ${name}`);
 	};
+
+	// const inviteUserForGame = (id: string, name: string) => {
+	// 	gameSocket?.emit("inviteUserForGame", {
+	// 		receiverId: id,
+	// 	});
+	// 	gameSocket?.on("error", (error) => {
+	// 		console.log(error); // 서버에서 전달된 에러 메시지 출력
+	// 	});
+	// 	router.push(`/lobby/overview`);
+	// };
+
+		// 친구 추가 소켓 이벤트
+	const { successed } = useContext(NotifyContext);
+	function onSuccessed() {
+		successed({
+			header: "게임요청",
+			message: "게임요청을 성공적으로 보냈습니다.",
+		});
+	}
+
+	const inviteUserForGame = (event: React.MouseEvent<HTMLElement>, item: any) => {
+		socket?.emit("createGame", { userId: item.id });
+		router.push(`/lobby/overview`);
+		onSuccessed();
+	};
+
+
 	return (
 		<>
 			{userData.length > 0 ? (
@@ -95,6 +123,7 @@ export default function FreindList({ userData }: any) {
 													active ? "bg-gray-100 text-gray-700" : "text-white",
 													"block w-full px-4 py-2 text-sm"
 												)}
+												onClick={(e) => { inviteUserForGame(user.id, user.name) }}
 											>
 												게임 초대
 											</button>
