@@ -40,8 +40,10 @@ const Canvas: React.FC = () => {
         console.log(`setStartGame: ${data}`);
         if (data == 'start') {
           setStartGame(true);
+          canvasRef.current?.focus();
         } else {
           setStartGame(false);
+          // 결과 모달창 true, false를 여기서 하면 된다
           alert(data);
         }
       })
