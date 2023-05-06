@@ -88,7 +88,6 @@ const OverView: NextPageWithLayout = () => {
 		}
 	}, [friendSocket]);
 
-	const { gameSocket } = useContext(SocketContext);
 	// socketio 로 게임방 목록 요청
 	useEffect(() => {
 
