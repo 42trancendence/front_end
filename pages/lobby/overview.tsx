@@ -8,8 +8,6 @@ import { handleRefresh } from "@/lib/auth-client";
 import {
 	SocketContext,
 	SocketProvider,
-	GameSocketProvider,
-	GameSocketContext
 } from "@/lib/socketContext";
 import { NextPageWithLayout } from "../_app";
 import OverviewSkeleton from "@/components/ui/OverviewSkeleton";
@@ -19,57 +17,36 @@ import EditProfilePallet from "@/components/EditProfilePallet";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import Canvas from "@/components/canvas/canvas";
 import usePersistentState from "@/components/canvas/usePersistentState";
+import { useUsersDispatch, useUsersState, getUser, refetchUser } from "@/lib/userContext";
+import { Socket } from "socket.io-client";
 
 
 const OverView: NextPageWithLayout = () => {
+	const state = useUsersState();
+	const dispatch = useUsersDispatch();
+	const { data: user, loading: isUserDataLoaded, error } = state.user;
+
 	const [username, setUsername] = useState("");
 	const [avatar, setavatarUrl] = useState(DefaultAvatar);
-	const [userData, setuserData] = useState({});
 	const [isEditOpen, setisEditOpen] = useState(false);
 	const [isProfileChanged, setisProfileChanged] = useState(false);
-	const [isUserDataLoaded, setisUserDataLoaded] = useState(false);
 	const [gameHistory, setGameHistory] = useState([]);
 	const [onGame, setOnGame] = usePersistentState('onGame', false);
 	const [match, setMatch] = useState('자동 매칭');
 
-	// user 정보 가져오기
+	// user 정보 가져오기	
+	useEffect(() => {
+		setUsername(user.name);
+		setavatarUrl(user.avatarImageUrl);
+	}, [user]);
+
+	useEffect(() => {
+		refetchUser(dispatch);
+	}, [isProfileChanged, dispatch]);
+
 	useEffect(() => {
 		let accessToken = localStorage.getItem("token");
 
-		const getUser = async () => {
-			try {
-				const res = await fetch("http://localhost:3000/users/me", {
-					method: "GET",
-					headers: {
-						"Content-Type": "application/json",
-						Authorization: `Bearer ${accessToken}`,
-					},
-				});
-				if (res.ok) {
-					const userData = await res.json();
-
-					console.log(userData);
-
-					setUsername(userData.name);
-					setavatarUrl(userData.avatarImageUrl);
-					setisUserDataLoaded(true);
-
-					// setGameHistory(userData.gameHistory);
-					return userData;
-				} else if (res.status === 401) {
-					// Unauthorized, try to refresh the access token
-					const newAccessToken = await handleRefresh();
-					if (!newAccessToken) {
-						router.push("/");
-					}
-					getUser();
-				} else {
-					return null;
-				}
-			} catch (error) {
-				console.log(error);
-			}
-		}
 		const getGameHistory =  async () => {
 			try {
 				const res = await fetch("http://localhost:3000/users/game-history", {
@@ -101,11 +78,10 @@ const OverView: NextPageWithLayout = () => {
 				console.log(error);
 			}
 		}
-		getUser();
 		getGameHistory();
-	}, [username]);
+	}, []);
 
-	const { friendSocket } = useContext(SocketContext);
+	const { friendSocket, gameSocket } = useContext(SocketContext);
 	useEffect(() => {
 		if (friendSocket) {
 			friendSocket.emit("updateActiveStatus", 1);
@@ -116,10 +92,10 @@ const OverView: NextPageWithLayout = () => {
 	// socketio 로 게임방 목록 요청
 	useEffect(() => {
 
-		if (gameSocket) {
+		if (friendSocket) {
 			// console.log('gameSocket: ', socket);
-			gameSocket.on('connect', () => {
-				if (gameSocket.recovered) {
+			friendSocket.on('connect', () => {
+				if (friendSocket.recovered) {
 					console.log('연결이 복구되었습니다.');
 				} else {
 					console.log('새로운 연결이 생성되었습니다.');
@@ -129,7 +105,7 @@ const OverView: NextPageWithLayout = () => {
 			// 	console.log(data);
 			// 	setGameHistory(data);
 			// })
-			gameSocket.on('getMatching', (data1: string, data2: object) => {
+			friendSocket.on('getMatching', (data1: string, data2: object) => {
 				console.log(`getMatching: ${data1}`);
 				if (data1 == 'matching')	{
 					console.log(data2);
@@ -140,31 +116,31 @@ const OverView: NextPageWithLayout = () => {
 					setMatch('자동 매칭');
 				}
 			})
-			gameSocket.on('postLeaveGame', (data: string) => {
+			friendSocket.on('postLeaveGame', (data: string) => {
         console.log('getLeaveGame: ', data);
         if (data == 'delete') {
-					gameSocket.emit('postLeaveGame');
+			friendSocket.emit('postLeaveGame');
         } else if (data == 'leave') {
 					setOnGame(false);
-					gameSocket.emit('getGameHistory');
+					friendSocket.emit('getGameHistory');
         }
       })
-			gameSocket.on('finishGame', () => {
+	  friendSocket.on('finishGame', () => {
 				setOnGame(false);
 			})
-			gameSocket.emit('getGameHistory'); // 이거 삭제 해야 하나?
+			friendSocket.emit('getGameHistory'); // 이거 삭제 해야 하나?
 			}
-		}, [gameSocket, setOnGame])
+		}, [friendSocket, setOnGame])
 
 		// socketio 로 자동 매칭 요청
 		const handleMatching = () => {
-			if (gameSocket) {
+			if (friendSocket) {
 				if (match == '자동 매칭') {
-					console.log('자동 매칭: ', gameSocket, match)
-					gameSocket.emit('postMatching');
+					console.log('자동 매칭: ', friendSocket, match)
+					friendSocket.emit('postMatching');
 					setMatch('매칭 중~~~');
 				} else {
-					gameSocket.emit('postCancelMatching');
+					friendSocket.emit('postCancelMatching');
 					setMatch('자동 매칭');
 				}
 			}
@@ -193,7 +169,7 @@ const OverView: NextPageWithLayout = () => {
 						/>
 					</div>
 				</div>
-				{!isUserDataLoaded ? (
+				{isUserDataLoaded ? (
 					<OverviewSkeleton /> // 로딩중일때
 				) : (
 					<div className="z-10 -mt-6 grid w-full sm:w-3/4 grid-cols-1 gap-3 self-center rounded bg-zinc-800 p-6 text-center shadow-neumreverse lg:grid-cols-3">
@@ -249,7 +225,6 @@ const OverView: NextPageWithLayout = () => {
 						게임을 플레이 하여 전적을 확인할 수 있습니다!
 					</p>
 				</div>
-			)}
 			{onGame ? (
 			<Canvas></Canvas>
 			) : (

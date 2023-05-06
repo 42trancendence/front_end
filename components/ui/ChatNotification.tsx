@@ -13,7 +13,7 @@ export default function ChatNotification() {
 	const { show, isSuccessed, header, message, id, close } =
 		useContext(NotifyContext);
 
-	// 3초 후 알림창 닫기
+	// 5초 후 알림창 닫기
 	useEffect(() => {
 		if (show) {
 			setTimeout(() => {
