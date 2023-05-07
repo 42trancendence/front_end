@@ -29,7 +29,7 @@ export default function ChatModal({
 		event.preventDefault();
 		console.log("kick user name : ", item);
 		socket?.emit("kickUser", {userId: item.id}, (error) => {
-			if (!error.status) {
+			if (!error.status) {	
 				console.log(error); // 서버에서 전달된 에러 메시지 출력
 				router.push(`/lobby/chat/`);
 			}
@@ -182,6 +182,7 @@ export default function ChatModal({
 													: "bg-red-500 text-white",
 												"block w-full rounded-b px-4 py-2 text-sm"
 											)}
+											onClick={(e) => BanUser(e, user.user)}
 										>
 											BAN
 										</button>

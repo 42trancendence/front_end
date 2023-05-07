@@ -88,7 +88,7 @@ const ChatRooms: NextPageWithLayout = () => {
 				router.push(`/lobby/chat/${name}?password=${password}`);
 			}
 		  });
-		  console.log("testing2");
+		router.push(`/lobby/chat/${name}?password=${password}`);
 		// socket?.emit('enterChatRoom', {name, password});
 		setShowCreateRoomPopup(false);
 	  };
@@ -108,7 +108,7 @@ const ChatRooms: NextPageWithLayout = () => {
 		chatSocket?.on("error", (error) => {
 			console.log(error); // 서버에서 전달된 에러 메시지 출력
 		});
-		router.push(`/lobby/chat/dm/dm: ${room.user1.name}`);
+		router.push(`/lobby/chat/dm/dm: ${room.otherUserName}`);
 	};
 
 	  const handleTabClick = (tab: string) => {
@@ -206,14 +206,14 @@ const ChatRooms: NextPageWithLayout = () => {
 							<div className="z-20 flex">
 								<Image
 									className="h-12 w-12 rounded-full bg-zinc-800 shadow ring-8 ring-zinc-800 sm:h-12 sm:w-12"
-									src={room.user2.avatarImageUrl}
+									src={room.otherUserAvatarImageUrl}
 									alt=""
 									width={100}
 									height={100}
 								/>
 							</div>
 							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-								<p className="font-bold">{username === room.user1.name ? room.user1.name + "\t님과의 대화방" : room.user2.name + "\t님과의 대화방"}</p>
+								<p className="font-bold">{room.otherUserName + "\t님과의 대화방"}</p>
 							</div>
 							<div className="flex w-1/4 flex-col items-end justify-end space-y-3 text-base flex-grow">
 								<button onClick={() => joinDMRoom(room)} className="rounded-lg bg-zinc-400 p-3 hover:bg-zinc-700 transition-colors cursor-pointer">대화</button>

@@ -118,13 +118,14 @@ const RoomPage: NextPageWithLayout = ({
 
 	socket?.on("getChatRoomMessages", function (data?) {
 		console.log("msg data", data);
-		if (data) setMessage(data);
+		if (data)
+			setMessage(data);
 	});
 
 	socket?.on("getMessage", function (data) {
 		const newMessage = {
-			text: data.message,
-			user: data.user.name,
+			message: data.message,
+			user: [data.user.name],
 		};
 		console.log(newMessage);
 		setMessage([...message, newMessage]);
@@ -187,7 +188,7 @@ const RoomPage: NextPageWithLayout = ({
                           msg.user === username ? "text-black" : "text-black"
                         }`}
                       >
-                        {msg.text}
+                        {msg.message}
                       </p>
                     </div>
                     <div ref={messagesEndRef} />
