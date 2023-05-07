@@ -116,11 +116,11 @@ const ChatRooms: NextPageWithLayout = () => {
 	return (
 		<div className="relative flex flex-1 flex-col gap-4">
 			<div className="grid grid-cols-1 gap-3 p-3 mt-4 -mb-8">
-				<div className="flex divide-zinc-400 content-start">
+				<div className="flex gap-4 divide-zinc-400 content-start">
 					<div className={`${activeTab === "chat"
 							? "bg-white text-zinc-800"
 							: "text-indigo-200 hover:bg-zinc-700 hover:text-white"}
-						group flex gap-x-3 rounded-md p-2 mr-40 text-xl font-semibold leading-6
+						group flex gap-x-3 rounded-md px-3.5 py-2 text-xl font-semibold leading-6
 					`}
 					onClick={() => handleTabClick("chat")}
 					style={{ cursor: "pointer" }}
@@ -130,14 +130,14 @@ const ChatRooms: NextPageWithLayout = () => {
 					</div>
 					<div className={`${activeTab === "DM"
 					? "bg-white text-zinc-800"
-					: "text-indigo-200 hover:bg-zinc-700 hover:text-white"}
-						group flex gap-x-3 rounded-md p-2 text-xl font-semibold leading-6
+					: "text-indigo-200 hover:bg-zinc-700 hover:text-white border"}
+						group flex gap-x-3 rounded-md px-3.5 py-2 text-xl font-semibold leading-6
 					`}
 					onClick={() => handleTabClick("DM")}
 					style={{ cursor: "pointer" }}
 					>
 					<ChatBubbleLeftRightIcon className="h-6 w-6 shrink-0"/>
-						DM
+						1:1 채팅
 					</div>
 				</div>
 			</div>
