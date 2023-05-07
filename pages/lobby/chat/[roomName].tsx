@@ -55,8 +55,8 @@ const RoomPage: NextPageWithLayout = ({
 
 	useEffect(() => {
 		// 채팅방 페이지에 들어왔을 때, 채팅방에 입장하는 이벤트를 서버에 전달
-		socket?.emit("enterChatRoom", { roomName: roomName, password: password }, (error: boolean) => {
-			if (error) {
+		socket?.emit("enterChatRoom", { roomName: roomName, password: password }, (error) => {
+			if (!error.status) {
 				console.log(error); // 서버에서 전달된 에러 메시지 출력
 				router.push(`/lobby/chat/`);
 			}
