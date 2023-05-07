@@ -54,7 +54,7 @@ export default function ChatNotification() {
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
 					>
-						<div onClick={moveToDirectMessage} className="pointer-events-auto flex w-full max-w-md rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+						<div onClick={moveToDirectMessage} className="pointer-events-auto cursor-pointer flex w-full max-w-md rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
 							<div className="w-0 flex-1 p-4">
 								<div className="flex items-start">
 									<div className="flex-shrink-0 pt-0.5">

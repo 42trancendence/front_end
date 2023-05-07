@@ -72,6 +72,7 @@ const ChatRooms: NextPageWithLayout = () => {
 	})
 
 	const createChatRoom = () => {
+		setLoading(true);
 		const roomType = isPrivate === true ? "PROTECTED" : "PUBLIC";
 		chatSocket?.emit('createChatRoom', {
 			name,
@@ -81,6 +82,7 @@ const ChatRooms: NextPageWithLayout = () => {
 			console.log("testing");
 			if (!callback.status) {
 				console.log(callback.message); // 서버에서 전달된 에러 메시지 출력
+				setLoading(false);
 			} else {
 				console.log(callback.message); // 서버에서 전달된 메시지 출력
 				router.push(`/lobby/chat/${name}?password=${password}`);
