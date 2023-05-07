@@ -17,13 +17,8 @@ import EditProfilePallet from "@/components/EditProfilePallet";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import Canvas from "@/components/canvas/canvas";
 import usePersistentState from "@/components/canvas/usePersistentState";
-<<<<<<< HEAD
-import { useUsersDispatch, useUsersState, getUser, refetchUser } from "@/lib/userContext";
-import { Socket } from "socket.io-client";
-=======
 import moment from "moment";
 import { useUsersDispatch, useUsersState, getUser, refetchUser } from "@/lib/userContext";
->>>>>>> master
 
 interface GameHistory {
   createAt: string;
