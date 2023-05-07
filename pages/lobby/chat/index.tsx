@@ -77,12 +77,12 @@ const ChatRooms: NextPageWithLayout = () => {
 			name,
 			type: String(roomType),
 			password
-		  }, (error) => {
+		  }, (callback: any) => {
 			console.log("testing");
-			if (error) {
-				console.log(error); // 서버에서 전달된 에러 메시지 출력
+			if (!callback.status) {
+				console.log(callback.message); // 서버에서 전달된 에러 메시지 출력
 			} else {
-				console.log(error); // 서버에서 전달된 에러 메시지 출력
+				console.log(callback.message); // 서버에서 전달된 메시지 출력
 				router.push(`/lobby/chat/${name}?password=${password}`);
 			}
 		  });
