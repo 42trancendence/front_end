@@ -8,6 +8,7 @@ import { handleRefresh } from "@/lib/auth-client";
 import ChatModal from "@/components/ChatModal";
 import { useUsersDispatch, useUsersState } from "@/lib/userContext";
 import { Cog6ToothIcon } from "@heroicons/react/20/solid";
+import Image from "next/image";
 
 const RoomPage: NextPageWithLayout = ({
 	password,
@@ -19,10 +20,9 @@ const RoomPage: NextPageWithLayout = ({
 	const [message, setMessage] = useState([]);
 	const [loading, setLoading] = useState(true);
 	const [selectedUser, setSelectedUser] = useState("");
-	const [userOffsetTop, setUserOffsetTop] = useState(0);
-	const [userOffsetLeft, setUserOffsetLeft] = useState(0);
 	const [showUserModal, setShowUserModal] = useState(false);
 	const [userList, setUserList] = useState([]);
+	const [bannedUserList, setbannedUserList] = useState([]);
 	const [username, setUsername] = useState("");
 	const messagesEndRef = useRef(null);
 	const inputRef = useRef(null);
@@ -95,16 +95,19 @@ const RoomPage: NextPageWithLayout = ({
 		//   router.push(`/lobby/chat/`);
 		// } else {
 		socket?.on("getChatRoomUsers", function (data) {
-			console.log("users data", data);
-			setUserList(data);
-			const me = data.filter((user: any) => {
+			const Users = data.filter((user: any) => {
+				return !(user.user.isBanned);
+			});
+			const bannedUsers = data.filter((user: any) => {
+				return user.user.isBanned;
+			});
+			setUserList(Users);
+			setbannedUserList(bannedUsers);
+			const me = Users.filter((user: any) => {
 				return user.user.name === username;
 			});
 			setUserMe(me);
-			console.log("me data", me);
 			setLoading(false);
-			// });
-			// }
 		});
 
 		return () => {
@@ -182,9 +185,11 @@ const RoomPage: NextPageWithLayout = ({
                   >
 					{msg.user.name !== username && (
 						<div className="mr-2">
-						<img
+						<Image
 							src={msg.user.avatarImageUrl}
 							alt=""
+							width={64}
+							height={64}
 							className="w-8 h-8 rounded-full"
 						/>
 						</div>
@@ -219,10 +224,20 @@ const RoomPage: NextPageWithLayout = ({
 									/>
 								)}
 							</div>
-							<div className="h-full rounded-[14px] bg-[#616161] p-6">
+							<div className="h-full flex flex-col rounded-[14px] bg-[#616161] p-6">
 								<p className="text-xl text-[#939efb]">유저 목록</p>
 								<ul className="mt-4">
 									<ChatModal userData={userList} userMe={userMe} />
+									{showUserModal && selectedUser.length > 0 && (
+										<div
+											className="fixed left-0 top-0 z-50 flex h-full w-full items-center justify-center bg-gray-500 bg-opacity-50"
+											onClick={handleCloseUserModal}
+										></div>
+									)}
+								</ul>
+								<p className="text-xl text-[#939efb] mt-auto">차단된 유저</p>
+								<ul className="mt-4">
+									<ChatModal userData={bannedUserList} userMe={userMe} />
 									{showUserModal && selectedUser.length > 0 && (
 										<div
 											className="fixed left-0 top-0 z-50 flex h-full w-full items-center justify-center bg-gray-500 bg-opacity-50"
