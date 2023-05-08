@@ -71,14 +71,15 @@ const RoomPage: NextPageWithLayout = ({ password, roomName}: { password: string,
     setShowUserModal(false);
   };
 
-  socket?.on('getMessage', function(data) {
-    const newMessage = {
-      text: data.message,
-      user: data.user.name
-    };
-    console.log(newMessage);
-    setMessage([...message, newMessage]);
-  })
+	socket?.on("getMessage", function (data) {
+		const newMessage = {
+			message: data.message,
+			user: [data.user.name],
+		};
+		console.log(newMessage);
+		setMessage([...message, newMessage]);
+	});
+
 
   const handleSendMessage = () => {
     const messageText = inputRef.current.value;
@@ -95,16 +96,16 @@ const RoomPage: NextPageWithLayout = ({ password, roomName}: { password: string,
           <div className="flex-1 p-6">
             {message.map((msg: any, index: number) => (
             <div
-              className={`flex justify-${msg.user === username ? "end" : "start"} items-start mb-4`}
+              className={`flex justify-${msg.user[0] === username ? "end" : "start"} items-start mb-4`}
               key={index}
             >
               <div
-                className={`${msg.user === username ? "bg-blue-300" : "bg-yellow-300"}
+                className={`${msg.user[0] === username ? "bg-blue-300" : "bg-yellow-300"}
                 p-3 rounded-lg
                 ${msg.user === username ? "rounded-bl-none" : "rounded-br-none"}
                 max-w-xs`}
               >
-                <p className={`${msg.user === username ? "text-black" : " text-black"} text-sm leading-tight`}>{msg.text}</p>
+                <p className={`${msg.user[0] === username ? "text-black" : " text-black"} text-sm leading-tight`}>{msg.text}</p>
               </div>
             <div ref={messagesEndRef} />
             </div>

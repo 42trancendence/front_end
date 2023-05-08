@@ -123,11 +123,11 @@ const RoomPage: NextPageWithLayout = ({
 	});
 
 	socket?.on("getMessage", function (data) {
+		console.log(data);
 		const newMessage = {
 			message: data.message,
 			user: [data.user.name],
 		};
-		console.log(newMessage);
 		setMessage([...message, newMessage]);
 	});
 
@@ -172,20 +172,23 @@ const RoomPage: NextPageWithLayout = ({
                 {message.map((msg: any, index: number) => (
                   <div
                     className={`flex mb-4 ${
-                      msg.user === username ? "justify-end" : "justify-start"
+                      msg.user[0] === username ? "justify-end" : "justify-start"
                     }`}
                     key={index}
                   >
                     <div
                       className={`rounded-lg p-3 max-w-xs ${
-                        msg.user === username ? "bg-blue-300 rounded-bl-none" : "bg-yellow-300 rounded-br-none"
+                        msg.user[0] === username ? "bg-blue-300 rounded-bl-none" : "bg-yellow-300 rounded-br-none"
                       } ${
-                        msg.user === username ? "self-end justify-self-end" : "self-start justify-self-start"
+                        msg.user[0] === username ? "self-end justify-self-end" : "self-start justify-self-start"
                       }`}
                     >
+					{msg.user[0] !== username && (
+         				 <p className="text-sm text-cyan-700 font-bold mb-1">{msg.user[0]}</p>
+        			)}
                       <p
                         className={`text-sm leading-tight ${
-                          msg.user === username ? "text-black" : "text-black"
+                          msg.user[0] === username ? "text-black" : "text-black"
                         }`}
                       >
                         {msg.message}
