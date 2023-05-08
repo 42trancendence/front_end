@@ -19,6 +19,7 @@ import Canvas from "@/components/canvas/canvas";
 import usePersistentState from "@/components/canvas/usePersistentState";
 import moment from "moment";
 import { useUsersDispatch, useUsersState, getUser, refetchUser } from "@/lib/userContext";
+import Achievements from "@/components/Achievements";
 
 interface GameHistory {
   createAt: string;
@@ -37,7 +38,7 @@ const OverView: NextPageWithLayout = () => {
 	const [avatar, setavatarUrl] = useState(DefaultAvatar);
 	const [isEditOpen, setisEditOpen] = useState(false);
 	const [isProfileChanged, setisProfileChanged] = useState(false);
-	// const [isUserDataLoaded, setisUserDataLoaded] = useState(false);
+	const [isAchievementsOpen, setisAchievementsOpen] = useState(false);
 	const [gameHistory, setGameHistory] = useState<GameHistory[]>([]);
 	const [onGame, setOnGame] = usePersistentState('onGame', false);
 	const [startGame, setStartGame] = usePersistentState('startGame', false);
@@ -158,6 +159,7 @@ const OverView: NextPageWithLayout = () => {
 	return (
 		<>
 			<Seo title="Overview" />
+			<Achievements isOpen={isAchievementsOpen} setIsOpen={setisAchievementsOpen} />
 			<EditProfilePallet isOpen={isEditOpen} setIsOpen={setisEditOpen} setisProfileChanged={setisProfileChanged} />
 			<div className="relative flex flex-1 flex-col">
 				<div>
@@ -204,7 +206,7 @@ const OverView: NextPageWithLayout = () => {
 						<div className="ml-auto gap-2 flex divide-x divide-zinc-400">
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
 								<p className="text-xs text-zinc-200">Achievement</p>
-								<p className="text-lg font-semibold">1</p>
+								<p className="text-lg font-semibold underline cursor-pointer" onClick={() => setisAchievementsOpen(true)}>1</p>
 							</div>
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
 								<NormalButton

@@ -1,6 +1,5 @@
 // NotifyContext.tsx
 import { createContext, useEffect, useState, ReactNode } from "react";
-import { Socket, io } from "socket.io-client";
 
 interface NotifyProviderProps {
 	children: ReactNode;

@@ -1,15 +1,10 @@
-import {
-	checkIsLoggedIn,
-	isTwoFactorAuthEnabled,
-} from "@/utils/Authentication";
 import { useRouter } from "next/router";
 import { useState, useEffect, useLayoutEffect, useContext } from "react";
 import NavBar from "./NavBar";
 import Loading from "./ui/Loading";
 import { SocketContext } from "@/lib/socketContext";
 import FriendNotification from "./ui/FriendNotification";
-import { handleRefresh } from "@/lib/auth-client";
-import { NotifyContext, NotifyProvider } from "@/lib/notifyContext";
+import { NotifyProvider } from "@/lib/notifyContext";
 import GlobalNotification from "@/components/ui/GlobalNotification";
 import ChatNotification from "./ui/ChatNotification";
 import GameNotification from "./ui/GameNotification";

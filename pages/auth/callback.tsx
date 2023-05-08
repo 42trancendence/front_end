@@ -10,11 +10,11 @@ export default function AuthCallback({ token, isValidated2fa }: { token?: string
 		async function checkLoginStatus() {
 		if (token) {
 			localStorage.setItem("token", token as string);
-			if (isValidated2fa === true) {
+			if (isValidated2fa === false) {
 				router.push("/lobby/overview");
 			}
 			else {
-				router.push("/signup");
+				router.push("/2fa");
 			}
 		} else {
 			router.push("/");
@@ -28,19 +28,28 @@ export default function AuthCallback({ token, isValidated2fa }: { token?: string
 export const getServerSideProps: GetServerSideProps = async (context) => {
 	const token = context.query.token;
 	if (token) {
-		const isValidated2fa = await isTwoFactorAuthEnabled(token as string);
-		if (isValidated2fa === 401) {
+		const twofaStauts = await isTwoFactorAuthEnabled(token as string);
+		if (twofaStauts.status === 200) {
+			if (twofaStauts.token !== "") {
+				return {
+					props: {
+						token: "",
+						isValidated2fa: true,
+					},
+				};
+			} else {
+				return {
+					props: {
+						token: twofaStauts.token,
+						isValidated2fa: false,
+					},
+				};
+			}
+		} else if (twofaStauts.status === 500){
 			return {
 				redirect: {
 					destination: "/",
 					permanent: false,
-				},
-			};
-		} else if (isValidated2fa === 409) {
-			return {
-				props: {
-					token,
-					isValidated2fa: true,
 				},
 			};
 		} else {
