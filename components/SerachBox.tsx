@@ -66,18 +66,51 @@ export default function SearchBox({
 			  });
 
 	// 친구 추가 소켓 이벤트
-	const { successed } = useContext(NotifyContext);
+	const { successed, failed } = useContext(NotifyContext);
 	function onSuccessed() {
 		successed({
 			header: "친구요청",
 			message: "친구요청을 성공적으로 보냈습니다.",
 		});
 	}
+	function onfailed() {
+		failed({
+			header: "친구요청",
+			message: "이미 친구요청을 보낸 사용자입니다.",
+		});
+	}
 
 	const { friendSocket: socket } = useContext(SocketContext);
 	const addFriend = (event: React.MouseEvent<HTMLElement>, item: any) => {
-		socket?.emit("addFriend", { friendName: item.name });
-		onSuccessed();
+		socket?.emit("addFriend", { friendName: item.name }, (res) => {
+			if (res.status) {
+				onSuccessed();
+			}
+			if (!res.status) {
+				failed({
+					header: "친구요청",
+					message: res.message,
+				});
+			}
+		});
+
+	};
+
+	// 채팅방으로 이동
+	const { chatSocket } = useContext(SocketContext);
+
+	const createDirectMessage = (id: string, name: string) => {
+		chatSocket?.emit("createDirectMessage", {
+			receiverId: id,
+		}, (res) => {
+			router.replace(`/lobby/chat/dm/dm: ${name}?dmId=${res.directMessageId}`);
+			setIsOpen(false);
+			if (!res.status) {
+				console.log(res); // 서버에서 전달된 에러 메시지 출력
+				router.push(`/lobby/chat/`);
+			}
+		});
+
 	};
 
 	return (
@@ -157,6 +190,13 @@ export default function SearchBox({
 														onClick={(e) => addFriend(e, item)}
 													>
 														친구신청
+													</NormalButton>
+													<NormalButton
+														variant="bright"
+														className="mr-2 border"
+														onClick={() => createDirectMessage(item.id, item.name)}
+													>
+														DM
 													</NormalButton>
 													<NormalButton
 														variant="bright"
