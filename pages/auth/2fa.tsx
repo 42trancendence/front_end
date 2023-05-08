@@ -12,6 +12,7 @@ import MyDialog from "@/components/ui/Dialog";
 import OneLineInform from "@/components/ui/OneLineInform";
 import Loading from "@/components/ui/Loading";
 import Image from "next/image";
+import axios from "axios";
 
 export default function TwoFAPage() {
 	const router = useRouter();
@@ -148,16 +149,15 @@ export default function TwoFAPage() {
 	const validate2faValidationCode_email = async (event: any) => {
 		event.preventDefault();
 		try {
-			const res = await fetch("http://localhost:3000/2fa/email/turn-on", {
+			const res = await axios("http://localhost:3000/2fa/email/turn-on", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
 					Authorization: `Bearer ${localStorage.getItem("token")}`,
 				},
-				redirect: "follow",
-				body: JSON.stringify({
+				data: {
 					code: validationCode,
-				}),
+				},
 			});
 			if (res.status === 201) {
 				setisValidated2fa(true);
@@ -176,15 +176,15 @@ export default function TwoFAPage() {
 	const validate2faValidationCode_qr = async (event: any) => {
 		event.preventDefault();
 		try {
-			const res = await fetch("http://localhost:3000/2fa/qrcode/turn-on", {
-				method: "POST",
+			const res = await axios("http://localhost:3000/2fa/qrcode/turn-on", {
+				method: "post",
 				headers: {
 					"Content-Type": "application/json",
 					Authorization: `Bearer ${localStorage.getItem("token")}`,
 				},
-				body: JSON.stringify({
+				data: {
 					code: validationCode,
-				}),
+				},
 			});
 			if (res.status === 201) {
 				setisValidated2fa(true);
