@@ -103,7 +103,7 @@ const ChatRooms: NextPageWithLayout = () => {
 	  };
 	
 	  const joinDMRoom = (room: any) => {
-		router.push(`/lobby/chat/dm/dm: ${room.otherUserName}?dmId=${room.id}`);
+		router.push(`/lobby/chat/dm/dm: ${room.otherUserName}?dmId=${room.otherUserId}`);
 	};
 
 	  const handleTabClick = (tab: string) => {
