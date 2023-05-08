@@ -1,12 +1,9 @@
 import React, { RefObject, useEffect, useRef, useState, useContext } from 'react'
 import { SocketContext } from '@/lib/socketContext';
 import usePersistentState from "@/components/canvas/usePersistentState";
-<<<<<<< HEAD
 import Image from "next/image";
 import GameModal from "../GameModal";
-=======
 import router from "next/router";
->>>>>>> d892ebf5ea95be626e7cd4446272f76c8c66c1c1
 
 interface MyComponentProps {
   startGame: string;
