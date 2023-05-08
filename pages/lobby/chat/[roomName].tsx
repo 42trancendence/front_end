@@ -9,6 +9,7 @@ import ChatModal from "@/components/ChatModal";
 import { useUsersDispatch, useUsersState } from "@/lib/userContext";
 import { Cog6ToothIcon } from "@heroicons/react/20/solid";
 import Image from "next/image";
+import BannedChatModal from "@/components/BannedChatModal";
 
 const RoomPage: NextPageWithLayout = ({
 	password,
@@ -58,14 +59,17 @@ const RoomPage: NextPageWithLayout = ({
 
 	useEffect(() => {
 		// 채팅방 페이지에 들어왔을 때, 채팅방에 입장하는 이벤트를 서버에 전달
-		socket?.emit("enterChatRoom", { roomName: roomName, password: password }, (error) => {
-			if (!error.status) {
-				console.log(error); // 서버에서 전달된 에러 메시지 출력
-				router.push(`/lobby/chat/`);
+		socket?.emit(
+			"enterChatRoom",
+			{ roomName: roomName, password: password },
+			(error) => {
+				if (!error.status) {
+					console.log(error); // 서버에서 전달된 에러 메시지 출력
+					router.push(`/lobby/chat/`);
+				}
 			}
-		});
+		);
 	}, []);
-
 
 	// 페이지를 떠날 때 실행되는 이벤트 등록 후 콜백함수 호출
 	useEffect(() => {
@@ -96,7 +100,7 @@ const RoomPage: NextPageWithLayout = ({
 		// } else {
 		socket?.on("getChatRoomUsers", function (data) {
 			const Users = data.filter((user: any) => {
-				return !(user.isBanned);
+				return !user.isBanned;
 			});
 			const bannedUsers = data.filter((user: any) => {
 				return user.isBanned;
@@ -124,8 +128,7 @@ const RoomPage: NextPageWithLayout = ({
 
 	socket?.on("getChatRoomMessages", function (data?) {
 		console.log("msg data", data);
-		if (data)
-			setMessage(data);
+		if (data) setMessage(data);
 	});
 
 	socket?.on("getMessage", function (data) {
@@ -148,20 +151,23 @@ const RoomPage: NextPageWithLayout = ({
 		// 채팅방 설정 변경 모달을 띄우는 로직을 구현
 		// type password
 		const type = isPrivate ? "PRIVATE" : "PUBLIC";
-		socket?.emit("updateChatRoom", { type: type, password: password }, (error: boolean) => {
-			if (error) {
-				console.log(error); // 서버에서 전달된 에러 메시지 출력
-				router.push(`/lobby/chat/`);
+		socket?.emit(
+			"updateChatRoom",
+			{ type: type, password: password },
+			(error: boolean) => {
+				if (error) {
+					console.log(error); // 서버에서 전달된 에러 메시지 출력
+					router.push(`/lobby/chat/`);
+				}
 			}
-		});
+		);
 		setShowCreateRoomPopup(false);
 	};
 
-  socket?.on("kickUser", function(data){
-
-    console.log("당신은 추방당했습니다!");
-    router.push(`/lobby/chat/`);
-  })
+	socket?.on("kickUser", function (data) {
+		console.log("당신은 추방당했습니다!");
+		router.push(`/lobby/chat/`);
+	});
 
 	return (
 		<>
@@ -175,48 +181,58 @@ const RoomPage: NextPageWithLayout = ({
 						<p className="text-left text-4xl text-[#939efb]">{roomName}</p>
 						<div className="grid grid-cols-[1fr,200px] gap-4">
 							<div className="max-h-[calc(100vh-240px)] min-h-[calc(100vh-240px)] overflow-y-auto rounded-[14px] bg-[#616161] p-6">
-              <div className="flex flex-col">
-                {message.map((msg: any, index: number) => (
-                  <div
-                    className={`flex mb-4 ${
-                      msg.user.name === username ? "justify-end" : "justify-start"
-                    }`}
-                    key={index}
-                  >
-					{msg.user.name !== username && (
-						<div className="mr-2">
-						<Image
-							src={msg.user.avatarImageUrl}
-							alt=""
-							width={64}
-							height={64}
-							className="w-8 h-8 rounded-full"
-						/>
-						</div>
-					)}
-                    <div
-                      className={`rounded-lg p-3 max-w-xs ${
-                        msg.user.name === username ? "bg-blue-300 rounded-bl-none" : "bg-yellow-300 rounded-br-none"
-                      } ${
-                        msg.user.name === username ? "self-end justify-self-end" : "self-start justify-self-start"
-                      }`}
-                    >
-					{msg.user.name !== username && (
-         				 <p className="text-sm text-cyan-700 font-bold mb-1">{msg.user.name}</p>
-        			)}
-                      <p
-                        className={`text-sm leading-tight ${
-                          msg.user.name === username ? "text-black" : "text-black"
-                        }`}
-                      >
-                        {msg.message}
-                      </p>
-        			{/* <p className="text-xs text-gray-500">{msg..toLocaleString()}</p> // 메시지를 보낸 날짜 출력 */}
-                    </div>
-                    <div ref={messagesEndRef} />
-                  </div>
-                ))}
-            				</div>
+								<div className="flex flex-col">
+									{message.map((msg: any, index: number) => (
+										<div
+											className={`mb-4 flex ${
+												msg.user.name === username
+													? "justify-end"
+													: "justify-start"
+											}`}
+											key={index}
+										>
+											{msg.user.name !== username && (
+												<div className="mr-2">
+													<Image
+														src={msg.user.avatarImageUrl}
+														alt=""
+														width={64}
+														height={64}
+														className="h-8 w-8 rounded-full"
+													/>
+												</div>
+											)}
+											<div
+												className={`max-w-xs rounded-lg p-3 ${
+													msg.user.name === username
+														? "rounded-bl-none bg-blue-300"
+														: "rounded-br-none bg-yellow-300"
+												} ${
+													msg.user.name === username
+														? "self-end justify-self-end"
+														: "self-start justify-self-start"
+												}`}
+											>
+												{msg.user.name !== username && (
+													<p className="mb-1 text-sm font-bold text-cyan-700">
+														{msg.user.name}
+													</p>
+												)}
+												<p
+													className={`text-sm leading-tight ${
+														msg.user.name === username
+															? "text-black"
+															: "text-black"
+													}`}
+												>
+													{msg.message}
+												</p>
+												{/* <p className="text-xs text-gray-500">{msg..toLocaleString()}</p> // 메시지를 보낸 날짜 출력 */}
+											</div>
+											<div ref={messagesEndRef} />
+										</div>
+									))}
+								</div>
 								{userMe[0]?.role === "OWNER" && (
 									<Cog6ToothIcon
 										onClick={() => setShowCreateRoomPopup(true)}
@@ -224,7 +240,7 @@ const RoomPage: NextPageWithLayout = ({
 									/>
 								)}
 							</div>
-							<div className="h-full flex flex-col rounded-[14px] bg-[#616161] p-6">
+							<div className="flex h-full flex-col rounded-[14px] bg-[#616161] p-6">
 								<p className="text-xl text-[#939efb]">유저 목록</p>
 								<ul className="mt-4">
 									<ChatModal userData={userList} userMe={userMe} />
@@ -235,16 +251,26 @@ const RoomPage: NextPageWithLayout = ({
 										></div>
 									)}
 								</ul>
-								<p className="text-xl text-[#939efb] mt-auto">차단된 유저</p>
-								<ul className="mt-4">
-									<ChatModal userData={bannedUserList} userMe={userMe} />
-									{showUserModal && selectedUser.length > 0 && (
-										<div
-											className="fixed left-0 top-0 z-50 flex h-full w-full items-center justify-center bg-gray-500 bg-opacity-50"
-											onClick={handleCloseUserModal}
-										></div>
-									)}
-								</ul>
+								{(userMe[0]?.role === "OWNER" ||
+									userMe[0]?.role === "ADMIN") && (
+									<>
+										<p className="mt-auto text-xl text-[#939efb]">
+											차단된 유저
+										</p>
+										<ul className="mt-4">
+											<BannedChatModal
+												userData={bannedUserList}
+												userMe={userMe}
+											/>
+											{showUserModal && selectedUser.length > 0 && (
+												<div
+													className="fixed left-0 top-0 z-50 flex h-full w-full items-center justify-center bg-gray-500 bg-opacity-50"
+													onClick={handleCloseUserModal}
+												></div>
+											)}
+										</ul>
+									</>
+								)}
 							</div>
 						</div>
 						<div className="flex justify-between rounded-lg bg-gray-200 p-4">
