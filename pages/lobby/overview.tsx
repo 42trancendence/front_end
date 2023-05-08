@@ -25,6 +25,7 @@ import Achievements from "@/components/Achievements";
 import { Menu, Switch, Transition } from "@headlessui/react";
 import clsx from "clsx";
 import Loading from "@/components/ui/Loading";
+import MiniLoading from "@/components/ui/MiniLoading";
 
 interface GameHistory {
 	createAt: string;
@@ -294,13 +295,17 @@ const OverView: NextPageWithLayout = () => {
 													<div className="flex items-center px-4 py-4">
 														<Switch
 															checked={is2faEnabled}
-															onChange={toggle2fa}
+															onChange={() => {
+																if (!is2favalidating) {
+																	toggle2fa();
+																}
+															}}
 															className={clsx(
 																is2faEnabled ? "bg-indigo-600" : "bg-gray-200",
 																"relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
 															)}
 														>
-															{is2favalidating && <Loading />}
+															{is2favalidating && <MiniLoading />}
 															<span
 																aria-hidden="true"
 																className={clsx(

@@ -20,11 +20,14 @@ export default function FreindList({ userData }: any) {
 	const createDirectMessage = (id: string, name: string) => {
 		chatSocket?.emit("createDirectMessage", {
 			receiverId: id,
+		}, (res) => {
+			router.push(`/lobby/chat/dm/dm: ${name}?dmId=${res.directMessageId}`);
+			if (!res.status) {
+				console.log(res); // 서버에서 전달된 에러 메시지 출력
+				router.push(`/lobby/chat/`);
+			}
 		});
-		chatSocket?.on("error", (error) => {
-			console.log(error); // 서버에서 전달된 에러 메시지 출력
-		});
-		router.push(`/lobby/chat/dm/dm: ${name}?dmId=${false}`);
+
 	};
 
 		// 친구 추가 소켓 이벤트
