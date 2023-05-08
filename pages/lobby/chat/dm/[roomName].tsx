@@ -44,15 +44,16 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
 
   useEffect(() => {
 		// 채팅방 페이지에 들어왔을 때, 채팅방에 입장하는 이벤트를 서버에 전달
-    console.log("dmId",dmId);
-    if (dmId !== "false")
-		socket?.emit("enterDirectMessage", { directMessageId: dmId }, (error) => {
-			if (!error.status) {
-				console.log(error); // 서버에서 전달된 에러 메시지 출력
-				router.push(`/lobby/chat/`);
-			}
-		});
-	}, []);
+    // console.log("dmId",dmId);
+    if (dmId !== "false") {
+      socket?.emit("enterDirectMessage", { directMessageId: dmId }, (error) => {
+        if (!error.status) {
+          console.log(error); // 서버에서 전달된 에러 메시지 출력
+          router.push(`/lobby/chat/`);
+        }
+      });
+    }
+	}, [router]);
 
   const { friendSocket, chatSocket: socket } = useContext(SocketContext);
 	useEffect(() => {
@@ -112,7 +113,7 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
 
   socket?.on("getChatRoomMessages", function (data: any) {
     console.log("getChatRoomMessages: ", data);
-    setMessage([...message, ...data]);
+    setMessage([...data]);
   });
 
   const handleSendMessage = () => {
