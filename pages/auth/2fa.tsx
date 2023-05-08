@@ -159,8 +159,11 @@ export default function TwoFAPage() {
 					code: validationCode,
 				},
 			});
+			const data = await res.data;
 			if (res.status === 201) {
 				setisValidated2fa(true);
+				localStorage.setItem("token", data.token);
+				router.replace("/lobby/overview");
 			} else if (res.status === 404) {
 				setisValidated2fa(false);
 				openDialog("2FA 인증 코드가 일치하지 않습니다.", "fail");
@@ -186,8 +189,11 @@ export default function TwoFAPage() {
 					code: validationCode,
 				},
 			});
+			const data = await res.data;
 			if (res.status === 201) {
 				setisValidated2fa(true);
+				localStorage.setItem("token", data.token);
+				router.replace("/lobby/overview");
 			} else if (res.status === 404) {
 				setisValidated2fa(false);
 				openDialog("2FA 인증 코드가 일치하지 않습니다.", "fail");
