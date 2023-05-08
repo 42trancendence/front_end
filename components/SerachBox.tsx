@@ -73,12 +73,6 @@ export default function SearchBox({
 			message: "친구요청을 성공적으로 보냈습니다.",
 		});
 	}
-	function onfailed() {
-		failed({
-			header: "친구요청",
-			message: "이미 친구요청을 보낸 사용자입니다.",
-		});
-	}
 
 	const { friendSocket: socket } = useContext(SocketContext);
 	const addFriend = (event: React.MouseEvent<HTMLElement>, item: any) => {

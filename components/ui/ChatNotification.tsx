@@ -59,8 +59,8 @@ export default function ChatNotification() {
 								<div className="flex items-start">
 									<div className="flex-shrink-0 pt-0.5">
 										<Image
-											className="h-10 w-10 rounded-full"
-											src="/default-avatar.svg"
+											className="h-10 w-10 rounded-full bg-zinc-800 p-2"
+											src="/default_avatar.svg"
 											width={160}
 											height={160}
 											alt=""
