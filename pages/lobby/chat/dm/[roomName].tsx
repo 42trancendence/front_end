@@ -10,6 +10,7 @@ import { NextPageWithLayout } from "@/pages/_app";
 import { handleRefresh } from "@/lib/auth-client";
 import DirectChatModal from "@/components/DirectChatModal";
 import { useUsersDispatch, useUsersState } from "@/lib/userContext";
+import Image from "next/image";
 
 const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomName: string}) => {
   const [message, setMessage] = useState([]);
@@ -66,7 +67,7 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
 
     router.events.on('routeChangeStart', handleRouteChangeStart);
 
-    
+
     return () => {
       router.events.off('routeChangeStart', handleRouteChangeStart);
     };
@@ -102,10 +103,14 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
   };
 
 	socket?.on("getMessage", function (data: any) {
-		console.log(data);
+		console.log("send messages: ", data);
 		setMessage([...message, data]);
 	});
 
+  socket?.on("getChatRoomMessages", function (data: any) {
+    console.log("getChatRoomMessages: ", data);
+    setMessage([...message, ...data]);
+  });
 
   const handleSendMessage = () => {
     const messageText = inputRef.current.value;
@@ -136,10 +141,12 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
                   >
 					{msg.user.name !== username && (
 						<div className="mr-2">
-						<img
-							src={msg.user.avatarImageUrl}
+						<Image
+							src={msg.user.avatarImageUrl ? msg.user.avatarImageUrl : "/default_avatar.svg"}
 							alt=""
-							className="w-8 h-8 rounded-full"
+              width={32}
+              height={32}
+							className="w-8 h-8 bg-zinc-900 p-1 rounded-full"
 						/>
 						</div>
 					)}
