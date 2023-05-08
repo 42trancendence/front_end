@@ -1,9 +1,19 @@
 import React, { RefObject, useEffect, useRef, useState, useContext } from 'react'
 import { SocketContext } from '@/lib/socketContext';
 import usePersistentState from "@/components/canvas/usePersistentState";
+<<<<<<< HEAD
 import Image from "next/image";
 import GameModal from "../GameModal";
+=======
+import router from "next/router";
+>>>>>>> d892ebf5ea95be626e7cd4446272f76c8c66c1c1
 
+interface MyComponentProps {
+  startGame: string;
+  setStartGame: boolean;
+}
+
+// const Canvas: React.FC<MyComponentProps> = (startGame, setStartGame) => {
 const Canvas: React.FC = () => {
   const canvasRef: RefObject<HTMLCanvasElement> = useRef(null);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
@@ -25,7 +35,7 @@ const Canvas: React.FC = () => {
   // 소켓 연결(컨텍스트 세팅, socket.id 가 초기화 되는지 확인 필요)
 	const { gameSocket } = useContext(SocketContext);
   useEffect(() => {
-    // console.log(gameSocket);
+    console.log(gameSocket);
     if (gameSocket) {
       gameSocket.on('updateGame', (data) => {
 
@@ -35,15 +45,17 @@ const Canvas: React.FC = () => {
         console.log(`setStartGame: ${data}`);
         if (data == 'start') {
           setStartGame(true);
+          canvasRef.current?.focus();
         } else {
           setStartGame(false);
+          // 결과 모달창 true, false를 여기서 하면 된다
           alert(data);
           // SetShowGameModal 함수 실행
         }
       })
-      gameSocket.on('getWatcher', (data) => {
-        console.log('getWatcher', data);
-      })
+      // gameSocket.on('getGameHistory', () => {
+			// 	setStartGame(false);
+			// })
     }
   }, [gameSocket, setStartGame, setReady])
 
@@ -114,6 +126,8 @@ const Canvas: React.FC = () => {
   const handleLeaveGame = () => {
     if (gameSocket) {
       gameSocket.emit('postLeaveGame');
+      // 나갈시 새로고침 -> 게임전적 최신화
+      // router.push("/lobby/overview");
     }
   }
 

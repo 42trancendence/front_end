@@ -26,6 +26,42 @@ const UserInfo: NextPageWithLayout = () => {
 	const router = useRouter();
 	const { id } = router.query;
 
+	// user 정보 가져오기
+	useEffect(() => {
+		let accessToken = localStorage.getItem("token");
+
+		const getUser = async () => {
+			try {
+				const res = await fetch(`http://localhost:3000/users/${id}`, {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${accessToken}`,
+					},
+				});
+				if (res.ok) {
+					const userData = await res.json();
+					setUsername(userData.name);
+					setavatarUrl(userData.avatarImageUrl);
+					setisUserDataLoaded(true);
+					return userData;
+				} else if (res.status === 401) {
+					// Unauthorized, try to refresh the access token
+					const newAccessToken = await handleRefresh();
+					if (!newAccessToken) {
+						router.push("/");
+					}
+					getUser();
+				} else {
+					return null;
+				}
+			} catch (error) {
+				console.log(error);
+			}
+		};
+		getUser();
+	}, [username, router, id]);
+
 	const { friendSocket } = useContext(SocketContext);
 	useEffect(() => {
 		if (friendSocket) {
