@@ -1,6 +1,8 @@
 import React, { RefObject, useEffect, useRef, useState, useContext } from 'react'
 import { SocketContext } from '@/lib/socketContext';
 import usePersistentState from "@/components/canvas/usePersistentState";
+import Image from "next/image";
+import GameModal from "../GameModal";
 
 const Canvas: React.FC = () => {
   const canvasRef: RefObject<HTMLCanvasElement> = useRef(null);
@@ -36,6 +38,7 @@ const Canvas: React.FC = () => {
         } else {
           setStartGame(false);
           alert(data);
+          // SetShowGameModal 함수 실행
         }
       })
       gameSocket.on('getWatcher', (data) => {
@@ -114,6 +117,10 @@ const Canvas: React.FC = () => {
     }
   }
 
+  const [showGameModal, setShowGameModal] = useState(false);
+
+  const handleOnClose = () => setShowGameModal(false);
+
   return (
     <>
     <div className='relative w-full'>
@@ -121,11 +128,37 @@ const Canvas: React.FC = () => {
         tabIndex={0} // 키보드 포커스를 위한 tabIndex 설정
         style={{ outline: 'none' }} // 선택시 브라우저가 테두리를 그리지 않도록 함
         onKeyDown={handleKeyDown} // 함수 자체를 전달
-        className='flex flex-col justify-center items-center w-full'
-      >
+        className='flex flex-col justify-center items-center w-full'>
+      <nav className="relative px-4 py-4 flex flex-row justify-between items-center bg-black w-full my-4">
+      <div className="flex flex-col items-center mt-2">
+      <Image
+							className="h-10 w-10 rounded-full bg-red-600 ring-zinc-800"
+							
+							alt=""
+							width={300}
+							height={300}
+						/>
+        <a className="text-blue-600 text-zinc-300">player1</a>
+      </div>
+		<ul className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 lg:flex lg:mx-auto lg:flex lg:items-center lg:w-auto lg:space-x-6">
+			<li><a className="text-3xl text-white font-bold">0  -  0</a></li>
+		</ul>
+    <div className="flex flex-col items-center mt-2">
+		  <Image
+					className="h-10 w-10 rounded-full bg-green-400 ring-zinc-800"
+							
+					alt=""
+					width={300}
+					height={300}
+			/>
+      <a className="text-blue-600 text-zinc-300">player2</a>
+    </div>
+	</nav>
+  <button onClick={() => setShowGameModal(true)} className="bg-red-400">모달용 테스트 버튼! 나중에 삭제해주세요</button>
         <canvas
           ref={canvasRef} width={500} height={500}
         />
+        <GameModal onClose={handleOnClose} visible={showGameModal}/>
       </div>
       {startGame ?
         <div>
@@ -136,15 +169,21 @@ const Canvas: React.FC = () => {
         <div className="absolute w-full flex items-center justify-center m-auto inset-0">
         <div className='mx-auto my-auto space-y-4'>
           <div>
-            <div className='text-center mb-2'>
+            <div className='text-center mb-2 text-2xl font-bold text-indigo-400'>
               난이도
             </div>
-            <div className='text-center'>
+            <div className='text-center space-x-4 my-10'>
               <button
                 onClick={() => handleDifficulty()}
-                className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+                className='bg-green-400 hover:bg-zinc-600 active:bg-zinc-600 w-40 h-60 text-white text-xl font-bold py-2 px-4 rounded'
               >
-                {difficulty ? 'hard' : 'normal' }
+                { 'normal' }
+              </button>
+              <button
+                onClick={() => handleDifficulty()}
+                className='bg-red-400 hover:bg-zinc-600 w-40 h-60 text-white text-xl font-bold py-2 px-4 rounded'
+              >
+                {'hard'}
               </button>
             </div>
           </div>
@@ -154,13 +193,13 @@ const Canvas: React.FC = () => {
           >
             <button
               onClick={() => handleReadyGame()}
-              className={'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'}
+              className={'bg-zinc-600 w-40 text-indigo-400 hover:bg-zinc-400 hover:text-zinc-800 py-2 px-4 rounded'}
             >
               {ready ? '준비완료' : '준비' }
             </button>
             <button
               onClick={() => handleLeaveGame()}
-              className={'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'}
+              className={'bg-zinc-600 w-40 text-indigo-400 hover:bg-zinc-400 hover:text-zinc-800 py-2 px-4 rounded'}
             >
               나가기
             </button>
