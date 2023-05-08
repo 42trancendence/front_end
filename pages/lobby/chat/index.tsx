@@ -103,13 +103,7 @@ const ChatRooms: NextPageWithLayout = () => {
 	  };
 	
 	  const joinDMRoom = (room: any) => {
-		chatSocket?.emit("enterDirectMessage", {
-			directMessageId: room.id,
-		});
-		chatSocket?.on("error", (error) => {
-			console.log(error); // 서버에서 전달된 에러 메시지 출력
-		});
-		router.push(`/lobby/chat/dm/dm: ${room.otherUserName}`);
+		router.push(`/lobby/chat/dm/dm: ${room.otherUserName}?dmId=${room.id}`);
 	};
 
 	  const handleTabClick = (tab: string) => {

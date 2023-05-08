@@ -208,7 +208,7 @@ const RoomPage: NextPageWithLayout = ({
                     <div ref={messagesEndRef} />
                   </div>
                 ))}
-              </div>
+            				</div>
 								{userMe[0]?.role === "OWNER" && (
 									<Cog6ToothIcon
 										onClick={() => setShowCreateRoomPopup(true)}
