@@ -51,7 +51,10 @@ const RoomPage: NextPageWithLayout = ({
 		}
 	};
 
-	const { chatSocket: socket } = useContext(SocketContext);
+	const { friendSocket, chatSocket: socket } = useContext(SocketContext);
+	useEffect(() => {
+		friendSocket?.emit("updateActiveStatus", 2);
+	}, [friendSocket]);
 
 	useEffect(() => {
 		// 채팅방 페이지에 들어왔을 때, 채팅방에 입장하는 이벤트를 서버에 전달
@@ -152,7 +155,7 @@ const RoomPage: NextPageWithLayout = ({
 	};
 
   socket?.on("kickUser", function(data){
-  
+
     console.log("당신은 추방당했습니다!");
     router.push(`/lobby/chat/`);
   })

@@ -54,7 +54,10 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
 		});
 	}, []);
 
-  const { chatSocket: socket } = useContext(SocketContext);
+  const { friendSocket, chatSocket: socket } = useContext(SocketContext);
+	useEffect(() => {
+		friendSocket?.emit("updateActiveStatus", 2);
+	}, [friendSocket]);
 
   // 페이지를 떠날 때 실행되는 이벤트 등록 후 콜백함수 호출
   useEffect(() => {
