@@ -8,13 +8,13 @@ export default function AuthCallback({ token, isValidated2fa }: { token?: string
 
 	useEffect(() => {
 		async function checkLoginStatus() {
+		localStorage.setItem("token", token as string);
 		if (token) {
-			localStorage.setItem("token", token as string);
 			if (isValidated2fa === false) {
 				router.push("/lobby/overview");
 			}
 			else {
-				router.push("/2fa");
+				router.push("/auth/2fa");
 			}
 		} else {
 			router.push("/");
@@ -30,10 +30,10 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 	if (token) {
 		const twofaStauts = await isTwoFactorAuthEnabled(token as string);
 		if (twofaStauts.status === 200) {
-			if (twofaStauts.token !== "") {
+			if (twofaStauts.token === "") {
 				return {
 					props: {
-						token: "",
+						token: token,
 						isValidated2fa: true,
 					},
 				};

@@ -154,6 +154,7 @@ export default function TwoFAPage() {
 					"Content-Type": "application/json",
 					Authorization: `Bearer ${localStorage.getItem("token")}`,
 				},
+				redirect: "follow",
 				body: JSON.stringify({
 					code: validationCode,
 				}),
