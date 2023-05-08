@@ -28,7 +28,7 @@ export default function TwoFAPage() {
 				router.push("/");
 			} else {
 				const twofaStauts = await isTwoFactorAuthEnabled(token);
-				if (twofaStauts.status === 409) {
+				if (twofaStauts.status !== 200) {
 					router.push("/lobby/overview");
 				} else {
 					setLoading(false);
