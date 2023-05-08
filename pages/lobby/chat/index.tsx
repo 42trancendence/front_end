@@ -94,13 +94,14 @@ const ChatRooms: NextPageWithLayout = () => {
 	  };
 
 	  const joinChatRoom = (room: any) => {
-		if (room.type === "PROTECTED") {
-		  const inputPassword = prompt("비밀번호를 입력하세요");
-		  router.push(`/lobby/chat/${room.name}?password=${inputPassword}`);
-		  return;
-		}
+		// if (room.type === "PROTECTED") {
+		//   const inputPassword = prompt("비밀번호를 입력하세요");
+		//   router.push(`/lobby/chat/${room.name}?password=${inputPassword}`);
+		//   return;
+		// }
 		router.push(`/lobby/chat/${room.name}`);
 	  };
+	
 	  const joinDMRoom = (room: any) => {
 		chatSocket?.emit("enterDirectMessage", {
 			directMessageId: room.id,

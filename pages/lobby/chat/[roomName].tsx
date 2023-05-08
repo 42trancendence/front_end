@@ -123,12 +123,13 @@ const RoomPage: NextPageWithLayout = ({
 	});
 
 	socket?.on("getMessage", function (data) {
-		console.log(data);
-		const newMessage = {
-			message: data.message,
-			user: [data.user.name],
-		};
-		setMessage([...message, newMessage]);
+		console.log("msgdata:", data);
+		// const newMessage = {
+		// 	message: data.message,
+		// 	user: [data.user.name],
+		// 	userImage: data.user.avatarImageUrl,
+		// };
+		setMessage([...message, data]);
 	});
 
 	const handleSendMessage = () => {
@@ -172,27 +173,37 @@ const RoomPage: NextPageWithLayout = ({
                 {message.map((msg: any, index: number) => (
                   <div
                     className={`flex mb-4 ${
-                      msg.user[0] === username ? "justify-end" : "justify-start"
+                      msg.user.name === username ? "justify-end" : "justify-start"
                     }`}
                     key={index}
                   >
+					{msg.user.name !== username && (
+						<div className="mr-2">
+						<img
+							src={msg.user.avatarImageUrl}
+							alt=""
+							className="w-8 h-8 rounded-full"
+						/>
+						</div>
+					)}
                     <div
                       className={`rounded-lg p-3 max-w-xs ${
-                        msg.user[0] === username ? "bg-blue-300 rounded-bl-none" : "bg-yellow-300 rounded-br-none"
+                        msg.user.name === username ? "bg-blue-300 rounded-bl-none" : "bg-yellow-300 rounded-br-none"
                       } ${
-                        msg.user[0] === username ? "self-end justify-self-end" : "self-start justify-self-start"
+                        msg.user.name === username ? "self-end justify-self-end" : "self-start justify-self-start"
                       }`}
                     >
-					{msg.user[0] !== username && (
-         				 <p className="text-sm text-cyan-700 font-bold mb-1">{msg.user[0]}</p>
+					{msg.user.name !== username && (
+         				 <p className="text-sm text-cyan-700 font-bold mb-1">{msg.user.name}</p>
         			)}
                       <p
                         className={`text-sm leading-tight ${
-                          msg.user[0] === username ? "text-black" : "text-black"
+                          msg.user.name === username ? "text-black" : "text-black"
                         }`}
                       >
                         {msg.message}
                       </p>
+        			{/* <p className="text-xs text-gray-500">{msg..toLocaleString()}</p> // 메시지를 보낸 날짜 출력 */}
                     </div>
                     <div ref={messagesEndRef} />
                   </div>
