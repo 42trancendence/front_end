@@ -96,10 +96,10 @@ const RoomPage: NextPageWithLayout = ({
 		// } else {
 		socket?.on("getChatRoomUsers", function (data) {
 			const Users = data.filter((user: any) => {
-				return !(user.user.isBanned);
+				return !(user.isBanned);
 			});
 			const bannedUsers = data.filter((user: any) => {
-				return user.user.isBanned;
+				return user.isBanned;
 			});
 			setUserList(Users);
 			setbannedUserList(bannedUsers);
