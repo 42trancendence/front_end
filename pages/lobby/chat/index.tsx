@@ -1,16 +1,10 @@
 import Layout from "@/components/Layout";
 import Image from "next/image";
 import DefaultAvatar from "@/public/default_avatar.svg";
-import ProfileBackground from "@/public/profile_background.jpg";
-import { NormalButton } from "@/components/ui/NormalButton";
 import Loading from "../../../components/ui/Loading";
-import { toast } from "react-toastify";
-import CloseButton from "@/components/ui/CloseButton"
-import OpenButton from "@/components/ui/OpenButton"
 import SlideButton from "@/components/ui/SlideButton";
 import { ReactElement, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { handleRefresh } from "@/lib/auth-client";
 import {
 	ChatBubbleLeftRightIcon,
 	QueueListIcon
@@ -20,6 +14,7 @@ import {
 	SocketProvider,
 } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
+import { toast } from "react-toastify";
 
 const ChatRooms: NextPageWithLayout = () => {
 	const [loading, setLoading] = useState(true);
@@ -81,10 +76,10 @@ const ChatRooms: NextPageWithLayout = () => {
 			password
 		  }, (callback: any) => {
 			if (!callback.status) {
-				console.log(callback.message); // 서버에서 전달된 에러 메시지 출력
+				toast.error(callback.message); // 서버에서 전달된 에러 메시지 출력
 				setLoading(false);
 			} else {
-				console.log(callback.message); // 서버에서 전달된 메시지 출력
+				toast.success(callback.message); // 서버에서 전달된 메시지 출력
 				router.push(`/lobby/chat/${name}?isProtected=${isPrivate}`);
 			}
 		  });
@@ -106,7 +101,7 @@ const ChatRooms: NextPageWithLayout = () => {
 			directMessageId: room.id,
 		});
 		chatSocket?.on("error", (error) => {
-			console.log(error); // 서버에서 전달된 에러 메시지 출력
+			toast.error(error); // 서버에서 전달된 에러 메시지 출력
 		});
 		router.push(`/lobby/chat/dm/dm: ${room.otherUserName}?dmId=${room.id}`);
 	};
