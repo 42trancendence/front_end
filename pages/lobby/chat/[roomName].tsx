@@ -12,10 +12,10 @@ import Image from "next/image";
 import BannedChatModal from "@/components/BannedChatModal";
 
 const RoomPage: NextPageWithLayout = ({
-	password,
+	isProtected,
 	roomName,
 }: {
-	password: string;
+	isProtected: string;
 	roomName: string;
 }) => {
 	const [message, setMessage] = useState([]);
@@ -25,6 +25,7 @@ const RoomPage: NextPageWithLayout = ({
 	const [userList, setUserList] = useState([]);
 	const [bannedUserList, setbannedUserList] = useState([]);
 	const [username, setUsername] = useState("");
+	const [password, setPassword] = useState("");
 	const messagesEndRef = useRef(null);
 	const inputRef = useRef(null);
 	const router = useRouter();
@@ -57,18 +58,45 @@ const RoomPage: NextPageWithLayout = ({
 		friendSocket?.emit("updateActiveStatus", 2);
 	}, [friendSocket]);
 
+  useEffect(() => {
+    if (password) {
+      socket?.emit(
+        "enterChatRoom",
+        { roomName: roomName, password: password },
+        (error) => {
+          if (!error.status) {
+            console.log(error);
+            router.push(`/lobby/chat/`);
+          }
+        }
+      );
+    }
+  }, [password]);
+
+  useEffect(() => {
+    if (isProtected === 'false')
+    {
+      socket?.emit(
+        "enterChatRoom",
+        { roomName: roomName, password: password },
+        (error) => {
+          if (!error.status) {
+            console.log(error);
+            router.push(`/lobby/chat/`);
+          }
+        }
+      );
+    }
+  }, [router]);
+
 	useEffect(() => {
-		// 채팅방 페이지에 들어왔을 때, 채팅방에 입장하는 이벤트를 서버에 전달
-		socket?.emit(
-			"enterChatRoom",
-			{ roomName: roomName, password: password },
-			(error) => {
-				if (!error.status) {
-					console.log(error); // 서버에서 전달된 에러 메시지 출력
-					router.push(`/lobby/chat/`);
-				}
-			}
-		);
+    if (isProtected == "true")
+    {
+			const inputPassword = prompt("비밀번호를 입력하세요");
+      setPassword(inputPassword);
+    }
+    else
+      setPassword("");
 	}, []);
 
 	// 페이지를 떠날 때 실행되는 이벤트 등록 후 콜백함수 호출
@@ -82,42 +110,26 @@ const RoomPage: NextPageWithLayout = ({
 
 		router.events.on("routeChangeStart", handleRouteChangeStart);
 
-		// socket?.emit('enterChatRoom', {roomName: roomName, password: password}, (error: boolean)=>{
-		//   if(error){
-		//     console.log(error); // 서버에서 전달된 에러 메시지 출력
-		//     router.push(`/lobby/chat/`);
-		//   } else {
-		//       socket?.on('getChatRoomUsers', function(data){
-		//       console.log("users data", data);
-		//       setUserList(data);
-		//       setLoading(false);
-		//     });
-		//   }
-
-		// if(error){
-		//   console.log(error); // 서버에서 전달된 에러 메시지 출력
-		//   router.push(`/lobby/chat/`);
-		// } else {
-		socket?.on("getChatRoomUsers", function (data) {
-			const Users = data.filter((user: any) => {
-				return !user.isBanned;
-			});
-			const bannedUsers = data.filter((user: any) => {
-				return user.isBanned;
-			});
-			setUserList(Users);
-			setbannedUserList(bannedUsers);
-			const me = Users.filter((user: any) => {
-				return user.user.name === username;
-			});
-			setUserMe(me);
-			setLoading(false);
-		});
-
 		return () => {
 			router.events.off("routeChangeStart", handleRouteChangeStart);
 		};
 	}, [router, socket, username]);
+
+  socket?.on("getChatRoomUsers", function (data) {
+    const Users = data.filter((user: any) => {
+      return !user.isBanned;
+    });
+    const bannedUsers = data.filter((user: any) => {
+      return user.isBanned;
+    });
+    setUserList(Users);
+    setbannedUserList(bannedUsers);
+    const me = Users.filter((user: any) => {
+      return user.user.name === username;
+    });
+    setUserMe(me);
+    setLoading(false);
+  });
 
 	const userElements: { [key: string]: HTMLLIElement | null } = {};
 
@@ -358,11 +370,11 @@ const RoomPage: NextPageWithLayout = ({
 	);
 };
 export const getServerSideProps = async ({ query }) => {
-	const { password, roomName } = query;
+	const { isProtected, roomName } = query;
 	// password와 roomName을 사용하여 필요한 데이터를 가져오는 등의 처리를 수행할 수 있습니다.
 	return {
 		props: {
-			password: password ?? null,
+			isProtected,
 			roomName,
 		},
 	};
