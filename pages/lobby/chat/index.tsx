@@ -79,7 +79,6 @@ const ChatRooms: NextPageWithLayout = () => {
 			type: String(roomType),
 			password
 		  }, (callback: any) => {
-			console.log("testing");
 			if (!callback.status) {
 				console.log(callback.message); // 서버에서 전달된 에러 메시지 출력
 				setLoading(false);
@@ -89,7 +88,6 @@ const ChatRooms: NextPageWithLayout = () => {
 			}
 		  });
 		router.push(`/lobby/chat/${name}?password=${password}`);
-		// socket?.emit('enterChatRoom', {name, password});
 		setShowCreateRoomPopup(false);
 	  };
 
@@ -239,35 +237,37 @@ const ChatRooms: NextPageWithLayout = () => {
 					{!showCreateRoomPopup && <SlideButton onClick={() => setShowCreateRoomPopup(true)} />}
 					{showCreateRoomPopup && <SlideButton onClick={() => setShowCreateRoomPopup(false)} />}
 					{showCreateRoomPopup && (
-						<div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 grid rounded bg-zinc-600 gap-4">
-							<p className="text-lg mt-4 text-center text-[#bbc2ff]">방 제목</p>
+						<div className="fixed outline outline-offset-4 outline-cyan-600 top-1/2 left-1/2 justify-items-center transform -translate-x-1/2 -translate-y-1/2 grid rounded bg-zinc-600 bg-opacity-20 gap-4">
+							<p className="text-lg font-medium mt-4 text-center text-white">방 제목</p>
 							<input
 								type="text"
 								value={name}
 								onChange={(e) => setName(e.target.value)}
-								className="bg-black text-white px-3 py-2 rounded-md mb-3"
+								className="bg-black text-white px-2 py-2 rounded-md mb-3"
 							/>
-							<p className="text-lg text-center text-[#bbc2ff]">비밀번호 설정</p>
-							<input
-								type="checkbox"
-								checked={isPrivate}
-								onChange={() => setIsPrivate(prevState => !prevState)}
-								className="mb-3"
-							/>
-							{isPrivate && (
-							<p className="text-lg text-center text-[#bbc2ff]">비밀번호 입력</p>
-							)}
+								<div className="flex grid grid-cols-2">
+									<div className="flex">
+										<input
+										type="checkbox"
+										checked={isPrivate}
+										onChange={() => setIsPrivate(prevState => !prevState)}
+										className="mt-1 ml-2 rounded-md bg-black checked:bg-blue-600 "
+										/>
+									</div>
+									<p className="text-lg -mt-1 -ml-8 font-medium text-white">비밀번호 설정</p>
+
+								</div>
 							{isPrivate &&
 							(
 								<input
 									type="text"
 									value={name}
 									onChange={(e) => setName(e.target.value)}
-									className="rounded-md w-full bg-black px-3 py-2 text-white"
+									className="rounded-md w-48 bg-black px-3 py-2 text-white"
 								/>
 							)
 							}
-							<button onClick={createChatRoom} className="rounded-lg bg-zinc-400 p-3 hover:bg-green-600 transition-colors cursor-pointer">생성</button>
+							<button onClick={createChatRoom} className="w-20 mb-4 rounded-lg place-items-center text-black font-bold bg-white p-3 hover:bg-green-600 transition-colors cursor-pointer">생성</button>
 						</div>
 					)}
 				</div>
