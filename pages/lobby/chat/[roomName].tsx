@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import Loading from "../../../components/ui/Loading";
 import { SocketContext, SocketProvider } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
+import { toast } from "react-toastify";
 import { handleRefresh } from "@/lib/auth-client";
 import ChatModal from "@/components/ChatModal";
 import { useUsersDispatch, useUsersState } from "@/lib/userContext";
@@ -65,8 +66,8 @@ const RoomPage: NextPageWithLayout = ({
         { roomName: roomName, password: password },
         (error) => {
           if (!error.status) {
-            console.log(error);
-            router.push(`/lobby/chat/`);
+            toast.error("비밀번호가 틀렸습니다.");
+            router.push(`/lobby/chat/?error=password`);
           }
         }
       );
@@ -81,8 +82,7 @@ const RoomPage: NextPageWithLayout = ({
         { roomName: roomName, password: password },
         (error) => {
           if (!error.status) {
-            console.log(error);
-            router.push(`/lobby/chat/`);
+            router.push(`/lobby/chat/?error=password`);
           }
         }
       );

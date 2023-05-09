@@ -4,6 +4,7 @@ import DefaultAvatar from "@/public/default_avatar.svg";
 import ProfileBackground from "@/public/profile_background.jpg";
 import { NormalButton } from "@/components/ui/NormalButton";
 import Loading from "../../../components/ui/Loading";
+import { toast } from "react-toastify";
 import CloseButton from "@/components/ui/CloseButton"
 import OpenButton from "@/components/ui/OpenButton"
 import SlideButton from "@/components/ui/SlideButton";
