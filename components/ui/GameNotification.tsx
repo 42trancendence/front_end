@@ -3,21 +3,19 @@ import { Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import Image from "next/image";
 import { SocketContext } from "@/lib/socketContext";
-import usePersistentState from "@/components/canvas/usePersistentState";
 import { useRouter } from "next/router";
 
-interface UserData {
-	id: string;
-	name: string;
-	avatar: string;
-}
+// interface UserData {
+// 	id: string;
+// 	name: string;
+// 	avatar: string;
+// }
 
 export default function GameNotification() {
 	const [showGameNotification, setShowGameNotification] = useState(false);
 	const [userData, setuserData] = useState<any>({});
 	// 소켓 연결
 	const { gameSocket } = useContext(SocketContext);
-	const [onGame, setOnGame] = usePersistentState('onGame', false);
 	const router = useRouter();
 
 	useEffect(() => {
@@ -26,21 +24,32 @@ export default function GameNotification() {
 				console.log("requestMatching", data);
 				setShowGameNotification(true);
 				setuserData(data);
+				// setTimeout(() => {
+				// 	rejectGame();
+				// 	setShowGameNotification(false);
+				// }, 3000);
 			});
 		}
+		// if (!showGameNotification) {
+		// 	rejectGame();
+		// }
 	}, [gameSocket]);
 
+	// useEffect(() => {
+	// 	if (!showGameNotification) {
+	// 		rejectGame();
+	// 	}
+	// }, [showGameNotification]);
+
 	// 게임 요청 수락
-	const acceptGame = (event: React.MouseEvent<HTMLElement>) => {
-		gameSocket?.emit("acceptGameRequest");
-		setOnGame(true);
+	const acceptGame = () => {
+		gameSocket?.emit("acceptMatchingRequest");
+		router.push(`game`);
 		setShowGameNotification(false);
-		router.push(`/`);
 	};
 	// 게임 요청 거절
-	const rejectGame = (event: React.MouseEvent<HTMLElement>) => {
-		gameSocket?.emit("rejectGameRequest");
-		setOnGame(false);
+	const rejectGame = () => {
+		gameSocket?.emit("postLeaveGame");
 		setShowGameNotification(false);
 	};
 	return (

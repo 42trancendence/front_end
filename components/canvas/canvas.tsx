@@ -3,12 +3,6 @@ import { SocketContext } from '@/lib/socketContext';
 import usePersistentState from "@/components/canvas/usePersistentState";
 import router from "next/router";
 
-interface MyComponentProps {
-  startGame: string;
-  setStartGame: boolean;
-}
-
-// const Canvas: React.FC<MyComponentProps> = (startGame, setStartGame) => {
 const Canvas: React.FC = () => {
   const canvasRef: RefObject<HTMLCanvasElement> = useRef(null);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
@@ -33,7 +27,6 @@ const Canvas: React.FC = () => {
     console.log(gameSocket);
     if (gameSocket) {
       gameSocket.on('updateGame', (data) => {
-
         setGameData(data);
       })
       gameSocket.on('setStartGame', (data) => {
@@ -42,16 +35,22 @@ const Canvas: React.FC = () => {
           setStartGame(true);
           canvasRef.current?.focus();
         } else {
-          setStartGame(false);
+          router.push('overview');
           // 결과 모달창 true, false를 여기서 하면 된다
           alert(data);
+          setStartGame(false);
         }
       })
-      // gameSocket.on('getGameHistory', () => {
-			// 	setStartGame(false);
-			// })
+      gameSocket.on('postLeaveGame', (data: string) => {
+        // console.log('getLeaveGame: ', data); 
+        if (data == 'delete') {
+					gameSocket.emit('postLeaveGame');
+				} else if (data == 'leave') {
+					router.push('overview');
+				}
+      })
     }
-  }, [gameSocket, setStartGame, setReady])
+  }, [gameSocket])
 
   // 컨텍스트가 세팅되면 그림 그리기
   useEffect(() => {
@@ -120,8 +119,7 @@ const Canvas: React.FC = () => {
   const handleLeaveGame = () => {
     if (gameSocket) {
       gameSocket.emit('postLeaveGame');
-      // 나갈시 새로고침 -> 게임전적 최신화
-      // router.push("/lobby/overview");
+      router.push('/lobby/overview');
     }
   }
 
