@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import Loading from "../../../components/ui/Loading";
 import { SocketContext, SocketProvider } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
+import { toast } from "react-toastify";
 import { handleRefresh } from "@/lib/auth-client";
 import ChatModal from "@/components/ChatModal";
 import { useUsersDispatch, useUsersState } from "@/lib/userContext";
@@ -12,10 +13,10 @@ import Image from "next/image";
 import BannedChatModal from "@/components/BannedChatModal";
 
 const RoomPage: NextPageWithLayout = ({
-	password,
+	isProtected,
 	roomName,
 }: {
-	password: string;
+	isProtected: string;
 	roomName: string;
 }) => {
 	const [message, setMessage] = useState([]);
@@ -25,6 +26,7 @@ const RoomPage: NextPageWithLayout = ({
 	const [userList, setUserList] = useState([]);
 	const [bannedUserList, setbannedUserList] = useState([]);
 	const [username, setUsername] = useState("");
+	const [password, setPassword] = useState("");
 	const messagesEndRef = useRef(null);
 	const inputRef = useRef(null);
 	const router = useRouter();
@@ -57,18 +59,48 @@ const RoomPage: NextPageWithLayout = ({
 		friendSocket?.emit("updateActiveStatus", 2);
 	}, [friendSocket]);
 
+  useEffect(() => {
+    if (password) {
+      socket?.emit(
+        "enterChatRoom",
+        { roomName: roomName, password: password },
+        (error) => {
+          if (!error.status) {
+            toast.error("비밀번호가 틀렸습니다.");
+            router.push(`/lobby/chat/?`);
+          }
+        }
+      );
+    }
+  }, [password]);
+
+  useEffect(() => {
+    if (isProtected === 'false')
+    {
+      socket?.emit(
+        "enterChatRoom",
+        { roomName: roomName, password: password },
+        (error) => {
+          if (!error.status) {
+            router.push(`/lobby/chat/`);
+          }
+        }
+      );
+    }
+  }, [router]);
+
 	useEffect(() => {
-		// 채팅방 페이지에 들어왔을 때, 채팅방에 입장하는 이벤트를 서버에 전달
-		socket?.emit(
-			"enterChatRoom",
-			{ roomName: roomName, password: password },
-			(error) => {
-				if (!error.status) {
-					console.log(error); // 서버에서 전달된 에러 메시지 출력
-					router.push(`/lobby/chat/`);
-				}
-			}
-		);
+    if (isProtected == "true")
+    {
+			const inputPassword = prompt("비밀번호를 입력하세요");
+      setPassword(inputPassword);
+      if (inputPassword === "") {
+        toast.error("비밀번호가 틀렸습니다.");
+        router.push(`/lobby/chat/`);
+      }
+    }
+    else
+      setPassword("");
 	}, []);
 
 	// 페이지를 떠날 때 실행되는 이벤트 등록 후 콜백함수 호출
@@ -82,42 +114,26 @@ const RoomPage: NextPageWithLayout = ({
 
 		router.events.on("routeChangeStart", handleRouteChangeStart);
 
-		// socket?.emit('enterChatRoom', {roomName: roomName, password: password}, (error: boolean)=>{
-		//   if(error){
-		//     console.log(error); // 서버에서 전달된 에러 메시지 출력
-		//     router.push(`/lobby/chat/`);
-		//   } else {
-		//       socket?.on('getChatRoomUsers', function(data){
-		//       console.log("users data", data);
-		//       setUserList(data);
-		//       setLoading(false);
-		//     });
-		//   }
-
-		// if(error){
-		//   console.log(error); // 서버에서 전달된 에러 메시지 출력
-		//   router.push(`/lobby/chat/`);
-		// } else {
-		socket?.on("getChatRoomUsers", function (data) {
-			const Users = data.filter((user: any) => {
-				return !user.isBanned;
-			});
-			const bannedUsers = data.filter((user: any) => {
-				return user.isBanned;
-			});
-			setUserList(Users);
-			setbannedUserList(bannedUsers);
-			const me = Users.filter((user: any) => {
-				return user.user.name === username;
-			});
-			setUserMe(me);
-			setLoading(false);
-		});
-
 		return () => {
 			router.events.off("routeChangeStart", handleRouteChangeStart);
 		};
 	}, [router, socket, username]);
+
+  socket?.on("getChatRoomUsers", function (data) {
+    const Users = data.filter((user: any) => {
+      return !user.isBanned;
+    });
+    const bannedUsers = data.filter((user: any) => {
+      return user.isBanned;
+    });
+    setUserList(Users);
+    setbannedUserList(bannedUsers);
+    const me = Users.filter((user: any) => {
+      return user.user.name === username;
+    });
+    setUserMe(me);
+    setLoading(false);
+  });
 
 	const userElements: { [key: string]: HTMLLIElement | null } = {};
 
@@ -156,7 +172,7 @@ const RoomPage: NextPageWithLayout = ({
 			{ type: type, password: password },
 			(error: boolean) => {
 				if (error) {
-					console.log(error); // 서버에서 전달된 에러 메시지 출력
+					toast.error(error); // 서버에서 전달된 에러 메시지 출력
 					router.push(`/lobby/chat/`);
 				}
 			}
@@ -165,7 +181,7 @@ const RoomPage: NextPageWithLayout = ({
 	};
 
 	socket?.on("kickUser", function (data) {
-		console.log("당신은 추방당했습니다!");
+    toast.error("관리자가 당신을 내보냈습니다")
 		router.push(`/lobby/chat/`);
 	});
 
@@ -227,8 +243,11 @@ const RoomPage: NextPageWithLayout = ({
 												>
 													{msg.message}
 												</p>
-												{/* <p className="text-xs text-gray-500">{msg..toLocaleString()}</p> // 메시지를 보낸 날짜 출력 */}
+                        <span className="text-sm text-gray-500">
+                          {new Date(msg.timestamp).toLocaleString()}
+                        </span>
 											</div>
+
 											<div ref={messagesEndRef} />
 										</div>
 									))}
@@ -358,11 +377,10 @@ const RoomPage: NextPageWithLayout = ({
 	);
 };
 export const getServerSideProps = async ({ query }) => {
-	const { password, roomName } = query;
-	// password와 roomName을 사용하여 필요한 데이터를 가져오는 등의 처리를 수행할 수 있습니다.
+	const { isProtected, roomName } = query;
 	return {
 		props: {
-			password: password ?? null,
+			isProtected,
 			roomName,
 		},
 	};

@@ -1,5 +1,7 @@
 import { useRouter } from "next/router";
 import { useState, useEffect, useLayoutEffect, useContext } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import NavBar from "./NavBar";
 import Loading from "./ui/Loading";
 import { SocketContext } from "@/lib/socketContext";
@@ -82,6 +84,7 @@ export default function Layout({
 			});
 		}
 	}, [socket, userData]);
+	
 	return (
 		<>
 			{loading ? (
@@ -91,6 +94,18 @@ export default function Layout({
 			) : (
 				<NotifyProvider>
 					<Notifications />
+					<ToastContainer
+					position="top-right"
+					autoClose={5000}
+					hideProgressBar={false}
+					newestOnTop={false}
+					closeOnClick
+					rtl={false}
+					pauseOnFocusLoss
+					draggable
+					pauseOnHover
+					theme="dark"
+					/>
 					<div className="bg-zinc-800 text-white lg:flex">
 						<NavBar userData={userData} />
 						<div className="relative flex w-full flex-1 px-8 py-6">

@@ -1,15 +1,10 @@
 import Layout from "@/components/Layout";
 import Image from "next/image";
 import DefaultAvatar from "@/public/default_avatar.svg";
-import ProfileBackground from "@/public/profile_background.jpg";
-import { NormalButton } from "@/components/ui/NormalButton";
 import Loading from "../../../components/ui/Loading";
-import CloseButton from "@/components/ui/CloseButton"
-import OpenButton from "@/components/ui/OpenButton"
 import SlideButton from "@/components/ui/SlideButton";
 import { ReactElement, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { handleRefresh } from "@/lib/auth-client";
 import {
 	ChatBubbleLeftRightIcon,
 	QueueListIcon
@@ -19,6 +14,7 @@ import {
 	SocketProvider,
 } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
+import { toast } from "react-toastify";
 
 const ChatRooms: NextPageWithLayout = () => {
 	const [loading, setLoading] = useState(true);
@@ -80,24 +76,24 @@ const ChatRooms: NextPageWithLayout = () => {
 			password
 		  }, (callback: any) => {
 			if (!callback.status) {
-				console.log(callback.message); // 서버에서 전달된 에러 메시지 출력
+				toast.error(callback.message); // 서버에서 전달된 에러 메시지 출력
 				setLoading(false);
 			} else {
-				console.log(callback.message); // 서버에서 전달된 메시지 출력
-				router.push(`/lobby/chat/${name}?password=${password}`);
+				toast.success(callback.message); // 서버에서 전달된 메시지 출력
+				router.push(`/lobby/chat/${name}?isProtected=${isPrivate}`);
 			}
 		  });
-		router.push(`/lobby/chat/${name}?password=${password}`);
 		setShowCreateRoomPopup(false);
 	  };
 
 	  const joinChatRoom = (room: any) => {
-		// if (room.type === "PROTECTED") {
-		//   const inputPassword = prompt("비밀번호를 입력하세요");
-		//   router.push(`/lobby/chat/${room.name}?password=${inputPassword}`);
-		//   return;
-		// }
-		router.push(`/lobby/chat/${room.name}`);
+		if (room.type === "PROTECTED") {
+		  router.push(`/lobby/chat/${room.name}?isProtected=true`);
+		}
+		else
+		{
+			router.push(`/lobby/chat/${room.name}?isProtected=false`);
+		}
 	  };
 	
 	  const joinDMRoom = (room: any) => {
@@ -105,7 +101,7 @@ const ChatRooms: NextPageWithLayout = () => {
 			directMessageId: room.id,
 		});
 		chatSocket?.on("error", (error) => {
-			console.log(error); // 서버에서 전달된 에러 메시지 출력
+			toast.error(error); // 서버에서 전달된 에러 메시지 출력
 		});
 		router.push(`/lobby/chat/dm/dm: ${room.otherUserName}?dmId=${room.id}`);
 	};
@@ -237,7 +233,7 @@ const ChatRooms: NextPageWithLayout = () => {
 					{!showCreateRoomPopup && <SlideButton onClick={() => setShowCreateRoomPopup(true)} />}
 					{showCreateRoomPopup && <SlideButton onClick={() => setShowCreateRoomPopup(false)} />}
 					{showCreateRoomPopup && (
-						<div className="fixed outline outline-offset-4 outline-cyan-600 top-1/2 left-1/2 justify-items-center transform -translate-x-1/2 -translate-y-1/2 grid rounded bg-zinc-600 bg-opacity-20 gap-4">
+						<div className="fixed outline outline-offset-4 outline-cyan-600 top-1/2 left-1/2 justify-items-center transform -translate-x-1/2 -translate-y-1/2 grid rounded bg-zinc-900 gap-4">
 							<p className="text-lg font-medium mt-4 text-center text-white">방 제목</p>
 							<input
 								type="text"
@@ -261,8 +257,8 @@ const ChatRooms: NextPageWithLayout = () => {
 							(
 								<input
 									type="text"
-									value={name}
-									onChange={(e) => setName(e.target.value)}
+									value={password}
+									onChange={(e) => setPassword(e.target.value)}
 									className="rounded-md w-48 bg-black px-3 py-2 text-white"
 								/>
 							)
