@@ -2,7 +2,7 @@ export default function Loading() {
   return (
 	<>
 	<div className="absolute z-10 inset-0 bg-zinc-900 bg-opacity-75 transition-opacity" />
-		<div className="abso	lute inset-0 z-10 flex items-center justify-center">
+		<div className="absolute inset-0 z-10 flex items-center justify-center">
 				<svg className="animate-spin h-8 w-8" fill="#ffffff" height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg"
 					viewBox="0 0 330 330">
 				<g id="XMLID_2_">

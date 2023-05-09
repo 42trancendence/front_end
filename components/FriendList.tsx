@@ -27,16 +27,6 @@ export default function FreindList({ userData }: any) {
 		router.push(`/lobby/chat/dm/dm: ${name}`);
 	};
 
-	// const inviteUserForGame = (id: string, name: string) => {
-	// 	gameSocket?.emit("inviteUserForGame", {
-	// 		receiverId: id,
-	// 	});
-	// 	gameSocket?.on("error", (error) => {
-	// 		console.log(error); // 서버에서 전달된 에러 메시지 출력
-	// 	});
-	// 	router.push(`/lobby/overview`);
-	// };
-
 		// 친구 추가 소켓 이벤트
 	const { successed } = useContext(NotifyContext);
 	function onSuccessed() {
@@ -46,9 +36,26 @@ export default function FreindList({ userData }: any) {
 		});
 	}
 
+	// 게임 초대 이벤트
 	const inviteUserForGame = (event: React.MouseEvent<HTMLElement>, item: any) => {
-		socket?.emit("createGame", { userId: item.id });
-		router.push(`/lobby/overview`);
+
+		// console.log('user: ', item)
+
+		gameSocket?.emit("inviteUserForGame", { userName: item.name });
+		gameSocket?.on("error", (error) => {
+			console.log(error); // 서버에서 전달된 에러 메시지 출력
+		});
+		gameSocket?.on('getMatching', (data: string, roomId: string) => {
+			// console.log(`getMatching: ${data}`);
+
+			if (data == 'matching')	{
+				// console.log(data2);
+				router.push(`game/${roomId}`);
+			}	else {
+				alert('매칭 실패');
+			}
+		})
+		// router.push(`game`);
 		onSuccessed();
 	};
 
@@ -123,7 +130,7 @@ export default function FreindList({ userData }: any) {
 													active ? "bg-gray-100 text-gray-700" : "text-white",
 													"block w-full px-4 py-2 text-sm"
 												)}
-												onClick={(e) => { inviteUserForGame(user.id, user.name) }}
+												onClick={(e) => { inviteUserForGame(e, user) }}
 											>
 												게임 초대
 											</button>

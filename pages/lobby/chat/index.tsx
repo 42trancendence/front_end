@@ -41,14 +41,14 @@ const ChatRooms: NextPageWithLayout = () => {
 	}, [friendSocket]);
 
 	function showChatRoomList(data: any) {
-		console.log("chatrooms data : ", data);
+		// console.log("chatrooms data : ", data);
 	}
 
 	useEffect(() => {
 		const handleRouteChangeStart = (url: string) => {
 			if (!url.match(/^\/lobby\/chat(?:\/)?(?:\/.*)?$/)) {
 				chatSocket?.emit("leaveChatPage");
-				console.log("페이지를 떠납니다.");
+				// console.log("페이지를 떠납니다.");
 			}
 		};
 		chatSocket?.emit("enterChatLobby");
@@ -59,77 +59,35 @@ const ChatRooms: NextPageWithLayout = () => {
 	}, [chatSocket, router]);
 
 	chatSocket?.on("showChatRoomList", function (data) {
-		console.log(data);
+		// console.log(data);
 		setChatRooms(data);
 		setLoading(false);
 		showChatRoomList(data);
 	})
 
-
 	chatSocket?.on("showDirectMessageList", function(data) {
-		console.log("dm room list", data);
 		setDMLists(data);
+		console.log("dm room list", data);
 		showChatRoomList(data);
 	})
 
-	function createChatRoomMethod(roomType: string) {
-		return new Promise((resolve, reject) => {
-		  chatSocket?.emit('createChatRoom', {
-			name,
-			type: String(roomType),
-			password
-		  }, (error, response) => {
-			if (error) {
-			  reject(error);
-			} else {
-			  resolve(response);
-			}
-		  });
-		  console.log("test");
-		});
-	  }
-
-	const createChatRoom = () => {
-
-	chatSocket?.on("showDirectMessageList", function(data) {
-		console.log("dm room list", data);
-		setDMLists(data);
-		showChatRoomList(data);
-	});
-
-	function createChatRoomMethod(roomType: string) {
-		return new Promise((resolve, reject) => {
-		  chatSocket?.emit('createChatRoom', {
-			name,
-			type: String(roomType),
-			password
-		  }, (error, response) => {
-			if (error) {
-			  reject(error);
-			} else {
-			  resolve(response);
-			}
-		  });
-		  console.log("test");
-		});
-	  }
-
 	const createChatRoom = () => {
 		const roomType = isPrivate === true ? "PROTECTED" : "PUBLIC";
-		createChatRoomMethod(roomType)
-		.then(chatRoom => {
-		  console.log('Created chat room:', chatRoom);
-		  // do something with the chat room data
-		})
-		.catch(error => {
-		  console.error('Error creating chat room:', error);
-		  // handle the error
-		});
-		chatSocket?.on('error', (error) => {
-			console.log(error); // 서버에서 전달된 에러 메시지 출력
-		});
+		chatSocket?.emit('createChatRoom', {
+			name,
+			type: String(roomType),
+			password
+		  }, (callback: any) => {
+			console.log("testing");
+			if (!callback.status) {
+				console.log(callback.message); // 서버에서 전달된 에러 메시지 출력
+			} else {
+				console.log(callback.message); // 서버에서 전달된 메시지 출력
+				router.push(`/lobby/chat/${name}?password=${password}`);
+			}
+		  });
+		  console.log("testing2");
 		// socket?.emit('enterChatRoom', {name, password});
-		router.push(`/lobby/chat/${name}?password=${password}`);
 		setShowCreateRoomPopup(false);
 	  };
 	  const joinChatRoom = (room: any) => {
@@ -140,7 +98,15 @@ const ChatRooms: NextPageWithLayout = () => {
 		}
 		router.push(`/lobby/chat/${room.name}`);
 	  };
-
+	  const joinDMRoom = (room: any) => {
+		chatSocket?.emit("enterDirectMessage", {
+			directMessageId: room.id,
+		});
+		chatSocket?.on("error", (error) => {
+			console.log(error); // 서버에서 전달된 에러 메시지 출력
+		});
+		router.push(`/lobby/chat/dm/dm: ${room.user1.name}`);
+	};
 
 	  const handleTabClick = (tab: string) => {
 		setActiveTab(tab);
@@ -149,11 +115,11 @@ const ChatRooms: NextPageWithLayout = () => {
 	return (
 		<div className="relative flex flex-1 flex-col gap-4">
 			<div className="grid grid-cols-1 gap-3 p-3 mt-4 -mb-8">
-				<div className="flex divide-zinc-400 content-start">
+				<div className="flex gap-4 divide-zinc-400 content-start">
 					<div className={`${activeTab === "chat"
 							? "bg-white text-zinc-800"
 							: "text-indigo-200 hover:bg-zinc-700 hover:text-white"}
-						group flex gap-x-3 rounded-md p-2 mr-40 text-xl font-semibold leading-6
+						group flex gap-x-3 rounded-md px-3.5 py-2 text-xl font-semibold leading-6
 					`}
 					onClick={() => handleTabClick("chat")}
 					style={{ cursor: "pointer" }}
@@ -163,14 +129,14 @@ const ChatRooms: NextPageWithLayout = () => {
 					</div>
 					<div className={`${activeTab === "DM"
 					? "bg-white text-zinc-800"
-					: "text-indigo-200 hover:bg-zinc-700 hover:text-white"}
-						group flex gap-x-3 rounded-md p-2 text-xl font-semibold leading-6
+					: "text-indigo-200 hover:bg-zinc-700 hover:text-white border"}
+						group flex gap-x-3 rounded-md px-3.5 py-2 text-xl font-semibold leading-6
 					`}
 					onClick={() => handleTabClick("DM")}
 					style={{ cursor: "pointer" }}
 					>
 					<ChatBubbleLeftRightIcon className="h-6 w-6 shrink-0"/>
-						DM
+						1:1 채팅
 					</div>
 				</div>
 			</div>
@@ -224,15 +190,6 @@ const ChatRooms: NextPageWithLayout = () => {
 			) :
 			<div className="container mx-auto py-6">
 			<div className="grid grid-cols-1 gap-3 rounded-lg bg-zinc-600 p-5">
-				<div className="flex divide-x-2 divide-zinc-400 content-start">
-					<div className="flex w-1/4 flex-col items-center justify-center text-base">
-						<p className="text-[#bbc2ff]">이름</p>
-					</div>
-					<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-						<p className="text-[#bbc2ff]">접속상태</p>
-					</div>
-				</div>
-
 						{/* Replace this array with actual game room data */}
 					<>
 					{loading ? (
@@ -243,17 +200,20 @@ const ChatRooms: NextPageWithLayout = () => {
 					DMLists.map((room: any) => (
 					<div key={room.id} className="bg-zinc-800 text-white p-4 rounded-lg shadow">
 						<div className="flex divide-x-4 divide-zinc-800">
-							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-								<p className="font-bold">{room.name}</p>
+							<div className="z-20 flex">
+								<Image
+									className="h-12 w-12 rounded-full bg-zinc-800 shadow ring-8 ring-zinc-800 sm:h-12 sm:w-12"
+									src={room.user2.avatarImageUrl}
+									alt=""
+									width={100}
+									height={100}
+								/>
 							</div>
 							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-								<p className="font-bold">{room.users.length || '---'}</p>
+								<p className="font-bold">{username === room.user1.name ? room.user1.name + "\t님과의 대화방" : room.user2.name + "\t님과의 대화방"}</p>
 							</div>
-							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-								<p className="font-bold">{room.type === "PROTECTED" ? '비공개' : '공개'}</p>
-							</div>
-							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-								<button onClick={() => joinChatRoom(room)} className="rounded-lg bg-zinc-400 p-3 hover:bg-zinc-700 transition-colors cursor-pointer">입장</button>
+							<div className="flex w-1/4 flex-col items-end justify-end space-y-3 text-base flex-grow">
+								<button onClick={() => joinDMRoom(room)} className="rounded-lg bg-zinc-400 p-3 hover:bg-zinc-700 transition-colors cursor-pointer">대화</button>
 							</div>
 						</div>
 					</div>
@@ -264,7 +224,7 @@ const ChatRooms: NextPageWithLayout = () => {
 			</div>}
 			<button className="fixed bottom-[60px] right-[60px] max-w-[200px] min-w-[62px] h-[62px] z-[3] bg-gradient-to-r from-cyan-500 to-blue-500 from-main1 to-main2 rounded-[20px] flex justify-center items-center transition-all duration-300 ease-in-out group px-[17px] hover:pr-[25px]">
 				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" className="text-white w-[1.787rem]​ h-[1.787rem]​">
-				<path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd">
+				<path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd">
 				</path>
 				</svg>
 				<span className="overflow-hidden inline-flex whitespace-nowrap max-w-0 group-hover:!max-w-[140px] text-white font-semibold group-hover:ml-[12px] transition-all duration-300 ease-in-out">채팅방 생성</span>

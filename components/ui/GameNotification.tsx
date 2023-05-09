@@ -3,41 +3,63 @@ import { Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/20/solid";
 import Image from "next/image";
 import { SocketContext } from "@/lib/socketContext";
+import { useRouter } from "next/router";
 
-interface UserData {
-	id: string;
-	name: string;
-	avatar: string;
-}
+// interface UserData {
+// 	id: string;
+// 	name: string;
+// 	avatar: string;
+// }
 
 export default function GameNotification() {
 	const [showGameNotification, setShowGameNotification] = useState(false);
 	const [userData, setuserData] = useState<any>({});
 	// 소켓 연결
 	const { gameSocket } = useContext(SocketContext);
+	const router = useRouter();
+
 	useEffect(() => {
 		if (gameSocket) {
-			gameSocket.on("inviteGameRequest", (data) => {
-				if (data.length > 0) {
-					setShowGameNotification(true);
-					setuserData(data[0]);
-				}
-				if (data.length === 0) {
-					setShowGameNotification(false);
-					setuserData({});
-				}
+			gameSocket.on("requestMatching", (data) => {
+				console.log("requestMatching", data);
+				setShowGameNotification(true);
+				setuserData(data);
+				// setTimeout(() => {
+				// 	rejectGame();
+				// 	setShowGameNotification(false);
+				// }, 3000);
 			});
 		}
+		// if (!showGameNotification) {
+		// 	rejectGame();
+		// }
 	}, [gameSocket]);
 
+	// useEffect(() => {
+	// 	if (!showGameNotification) {
+	// 		rejectGame();
+	// 	}
+	// }, [showGameNotification]);
+
 	// 게임 요청 수락
-	const acceptGame = (event: React.MouseEvent<HTMLElement>) => {
-		gameSocket?.emit("acceptGameRequest");
+	const acceptGame = () => {
+		gameSocket?.emit("acceptMatchingRequest");
+		
+		gameSocket?.on('getMatching', (data: string, roomId: string) => {
+			// console.log(`getMatching: ${data}`);
+
+			if (data == 'matching')	{
+				// console.log(data2);
+				router.push(`game/${roomId}`);
+			}	else {
+				alert('매칭 실패');
+			}
+		})
 		setShowGameNotification(false);
 	};
 	// 게임 요청 거절
-	const rejectGame = (event: React.MouseEvent<HTMLElement>) => {
-		gameSocket?.emit("rejectFriendRequest");
+	const rejectGame = () => {
+		gameSocket?.emit("postLeaveGame");
 		setShowGameNotification(false);
 	};
 	return (

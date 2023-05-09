@@ -55,10 +55,13 @@ const RoomPage: NextPageWithLayout = ({
 
 	useEffect(() => {
 		// 채팅방 페이지에 들어왔을 때, 채팅방에 입장하는 이벤트를 서버에 전달
-		if (username) {
-			socket?.emit("enterChatRoom", { roomName: roomName, password: password });
-		}
-	}, [username]);
+		socket?.emit("enterChatRoom", { roomName: roomName, password: password }, (error: boolean) => {
+			if (error) {
+				console.log(error); // 서버에서 전달된 에러 메시지 출력
+				router.push(`/lobby/chat/`);
+			}
+		});
+	}, []);
 
 
 	// 페이지를 떠날 때 실행되는 이벤트 등록 후 콜백함수 호출
@@ -95,6 +98,7 @@ const RoomPage: NextPageWithLayout = ({
 				return user.user.name === username;
 			});
 			setUserMe(me);
+			console.log("me data", me);
 			setLoading(false);
 			// });
 			// }
@@ -103,7 +107,7 @@ const RoomPage: NextPageWithLayout = ({
 		return () => {
 			router.events.off("routeChangeStart", handleRouteChangeStart);
 		};
-	}, [router, socket]);
+	}, [router, socket, username]);
 
 	const userElements: { [key: string]: HTMLLIElement | null } = {};
 
@@ -136,9 +140,20 @@ const RoomPage: NextPageWithLayout = ({
 		// 채팅방 설정 변경 모달을 띄우는 로직을 구현
 		// type password
 		const type = isPrivate ? "PRIVATE" : "PUBLIC";
-		socket?.emit("updateChatRoom", { type: type, password: password });
+		socket?.emit("updateChatRoom", { type: type, password: password }, (error: boolean) => {
+			if (error) {
+				console.log(error); // 서버에서 전달된 에러 메시지 출력
+				router.push(`/lobby/chat/`);
+			}
+		});
 		setShowCreateRoomPopup(false);
 	};
+
+  socket?.on("kickUser", function(data){
+  
+    console.log("당신은 추방당했습니다!");
+    router.push(`/lobby/chat/`);
+  })
 
 	return (
 		<>
@@ -152,36 +167,33 @@ const RoomPage: NextPageWithLayout = ({
 						<p className="text-left text-4xl text-[#939efb]">{roomName}</p>
 						<div className="grid grid-cols-[1fr,200px] gap-4">
 							<div className="max-h-[calc(100vh-240px)] min-h-[calc(100vh-240px)] overflow-y-auto rounded-[14px] bg-[#616161] p-6">
-								<div className="flex-1 p-6">
-									{message.map((msg: any, index: number) => (
-										<div
-											className={`flex justify-${
-												msg.user === username ? "end" : "start"
-											} mb-4 items-start`}
-											key={index}
-										>
-											<div
-												className={`${
-													msg.user === username
-														? "bg-blue-300"
-														: "bg-yellow-300"
-												}
-                rounded-lg p-3
-                ${msg.user === username ? "rounded-bl-none" : "rounded-br-none"}
-                max-w-xs`}
-											>
-												<p
-													className={`${
-														msg.user === username ? "text-black" : " text-black"
-													} text-sm leading-tight`}
-												>
-													{msg.text}
-												</p>
-											</div>
-											<div ref={messagesEndRef} />
-										</div>
-									))}
-								</div>
+              <div className="flex flex-col">
+                {message.map((msg: any, index: number) => (
+                  <div
+                    className={`flex mb-4 ${
+                      msg.user === username ? "justify-end" : "justify-start"
+                    }`}
+                    key={index}
+                  >
+                    <div
+                      className={`rounded-lg p-3 max-w-xs ${
+                        msg.user === username ? "bg-blue-300 rounded-bl-none" : "bg-yellow-300 rounded-br-none"
+                      } ${
+                        msg.user === username ? "self-end justify-self-end" : "self-start justify-self-start"
+                      }`}
+                    >
+                      <p
+                        className={`text-sm leading-tight ${
+                          msg.user === username ? "text-black" : "text-black"
+                        }`}
+                      >
+                        {msg.text}
+                      </p>
+                    </div>
+                    <div ref={messagesEndRef} />
+                  </div>
+                ))}
+              </div>
 								{userMe[0]?.role === "OWNER" && (
 									<Cog6ToothIcon
 										onClick={() => setShowCreateRoomPopup(true)}

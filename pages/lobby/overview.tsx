@@ -15,7 +15,6 @@ import router from "next/router";
 import Seo from "@/components/Seo";
 import EditProfilePallet from "@/components/EditProfilePallet";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
-import Canvas from "@/components/canvas/canvas";
 import usePersistentState from "@/components/canvas/usePersistentState";
 import moment from "moment";
 import { useUsersDispatch, useUsersState, getUser, refetchUser } from "@/lib/userContext";
@@ -39,11 +38,10 @@ const OverView: NextPageWithLayout = () => {
 	const [isProfileChanged, setisProfileChanged] = useState(false);
 	// const [isUserDataLoaded, setisUserDataLoaded] = useState(false);
 	const [gameHistory, setGameHistory] = useState<GameHistory[]>([]);
-	const [onGame, setOnGame] = usePersistentState('onGame', false);
 	const [startGame, setStartGame] = usePersistentState('startGame', false);
 	const [match, setMatch] = useState('자동 매칭');
 
-	// user 정보 가져오기	
+	// user 정보 가져오기
 	useEffect(() => {
 		setUsername(user.name);
 		setavatarUrl(user.avatarImageUrl);
@@ -89,7 +87,7 @@ const OverView: NextPageWithLayout = () => {
 			}
 		}
 		getGameHistory();
-	}, [username, onGame]);
+	}, [username]);
 
 	const { friendSocket, gameSocket } = useContext(SocketContext);
 	useEffect(() => {
@@ -101,48 +99,24 @@ const OverView: NextPageWithLayout = () => {
 	// socketio 로 게임방 목록 요청
 	useEffect(() => {
 		if (gameSocket) {
-			// console.log('gameSocket: ', socket);
-			gameSocket.on('connect', () => {
-				if (gameSocket.recovered) {
-					console.log('연결이 복구되었습니다.');
-				} else {
-					console.log('새로운 연결이 생성되었습니다.');
-				}
-			})
 			gameSocket.on('getGameHistory', () => {
-				setOnGame(false);
 				setStartGame(false);
 			})
-			gameSocket.on('getMatching', (data1: string, data2: object) => {
-			// gameSocket.on('getGameHistory', (data: []) => {
-			// 	console.log(data);
-			// 	setGameHistory(data);
-			// })
-				console.log(`getMatching: ${data1}`);
+			gameSocket.on('getMatching', (data1: string, roomId: string) => {
+
+				// console.log(`getMatching: ${data1}`);
+
 				if (data1 == 'matching')	{
-					console.log(data2);
-					setOnGame(true);
+					// console.log(data2);
+					router.push(`game/${roomId}`);
 					setMatch('자동 매칭');
 				}	else {
 					alert('매칭 실패');
 					setMatch('자동 매칭');
 				}
 			})
-			gameSocket.on('postLeaveGame', (data: string) => {
-        console.log('getLeaveGame: ', data);
-        if (data == 'delete') {
-			gameSocket.emit('postLeaveGame');
-        } else if (data == 'leave') {
-					setOnGame(false);
-					// gameSocket.emit('getGameHistory');
-        }
-      })
-	  	gameSocket.on('finishGame', () => {
-				setOnGame(false);
-			})
-			// gameSocket.emit('getGameHistory'); // 이거 삭제 해야 하나?
-			}
-		}, [gameSocket, setOnGame, setStartGame])
+		}
+	}, [gameSocket, setStartGame])
 
 		// socketio 로 자동 매칭 요청
 		const handleMatching = () => {
@@ -150,7 +124,7 @@ const OverView: NextPageWithLayout = () => {
 				if (match == '자동 매칭') {
 					console.log('자동 매칭: ', gameSocket, match)
 					gameSocket.emit('postMatching');
-					setMatch('매칭 중~~~');
+					setMatch('매칭 중');
 				} else {
 					gameSocket.emit('postCancelMatching');
 					setMatch('자동 매칭');
@@ -221,9 +195,6 @@ const OverView: NextPageWithLayout = () => {
 						</div>
 					</div>
 				)}
-			{onGame ? (
-			<Canvas></Canvas>
-			) : (
 				<div className="flex h-full w-full flex-col items-center px-8 py-6">
 				{/* 자동 매칭 버튼 */}
 				<button onClick={handleMatching} type="button" className="flex flex-col items-center justify-center w-full bg-zinc-900 hover:bg-zinc-700 shadow rounded-lg py-6 mt-8 text-xl font-bold">
@@ -298,7 +269,6 @@ const OverView: NextPageWithLayout = () => {
 				</div>
 				)}
 			</div>
-			)}
 		</div>
 		</>
 	);
