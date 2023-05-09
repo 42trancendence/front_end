@@ -1,14 +1,12 @@
 import React, { RefObject, useEffect, useRef, useState, useContext } from 'react'
 import { SocketContext } from '@/lib/socketContext';
 import usePersistentState from "@/components/canvas/usePersistentState";
+import Image from "next/image";
+import GameModal from "../GameModal";
 import router from "next/router";
+import { handleRefresh } from "@/lib/auth-client";
+import { UsersProvider } from '@/lib/userContext';
 
-interface MyComponentProps {
-  startGame: string;
-  setStartGame: boolean;
-}
-
-// const Canvas: React.FC<MyComponentProps> = (startGame, setStartGame) => {
 const Canvas: React.FC = () => {
   const canvasRef: RefObject<HTMLCanvasElement> = useRef(null);
   const [ctx, setCtx] = useState<CanvasRenderingContext2D | null>(null);
@@ -16,6 +14,9 @@ const Canvas: React.FC = () => {
   const [ready, setReady] = useState(false);
   const [startGame, setStartGame] = usePersistentState('startGame', false);
   const [difficulty, setDifficulty] = useState(false);
+  const [players, setPlayers] = useState(['player1', 'player2']);
+  const [avatarUrls, setAvatarUrls] = useState(['','']);
+  const [score, setScore] = useState([0, 0]);
 
   // 컨텍스트 세팅
   useEffect(() => {
@@ -25,33 +26,80 @@ const Canvas: React.FC = () => {
 
       setCtx(context);
     }
+
+		let accessToken = localStorage.getItem("token");
+
+		const getGamePlayersInfo =  async (roomId: any) => {
+			try {
+				const res = await fetch(`http://localhost:3000/game/${roomId}`, {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${accessToken}`,
+					},
+				});
+				if (res.ok) {
+					const playersInfo = await res.json();
+
+					console.log(playersInfo);
+
+					setPlayers([playersInfo.player1.name, playersInfo.player2.name]);
+          setScore([playersInfo.player1Score, playersInfo.player2Score])
+					setAvatarUrls([playersInfo.player1?.avatarImageUrl, playersInfo.player2?.avatarImageUrl]);
+
+					return playersInfo;
+				} else if (res.status === 401){
+					// Unauthorized, try to refresh the access token
+					const newAccessToken = await handleRefresh();
+					if (!newAccessToken) {
+						router.push("/");
+					}
+				} else {
+					return null;
+				}
+			} catch (error) {
+				console.log(error);
+			}
+		}
+    const roomId = router.query.roomId;
+    console.log('rromId:', roomId);
+		getGamePlayersInfo(roomId);
   }, []);
 
   // 소켓 연결(컨텍스트 세팅, socket.id 가 초기화 되는지 확인 필요)
 	const { gameSocket } = useContext(SocketContext);
   useEffect(() => {
-    console.log(gameSocket);
+    // console.log(gameSocket);
     if (gameSocket) {
       gameSocket.on('updateGame', (data) => {
-
         setGameData(data);
+        // setPlayer([data.player1Name, data.player2Name]);
+        // console.log(data);
       })
       gameSocket.on('setStartGame', (data) => {
-        console.log(`setStartGame: ${data}`);
         if (data == 'start') {
           setStartGame(true);
           canvasRef.current?.focus();
         } else {
-          setStartGame(false);
+          // router.push('/lobby/overview');
           // 결과 모달창 true, false를 여기서 하면 된다
-          alert(data);
+          // alert(data);
+          // SetShowGameModal 함수 실행
+          console.log(`setStartGame: ${data}`);
+          setShowGameModal(true);
+          setStartGame(false);
         }
       })
-      // gameSocket.on('getGameHistory', () => {
-			// 	setStartGame(false);
-			// })
+      gameSocket.on('postLeaveGame', (data: string) => {
+        // console.log('getLeaveGame: ', data); 
+        if (data == 'delete') {
+					gameSocket.emit('postLeaveGame');
+				} else if (data == 'leave') {
+					router.push('/lobby/overview');
+				}
+      })
     }
-  }, [gameSocket, setStartGame, setReady])
+  }, [gameSocket])
 
   // 컨텍스트가 세팅되면 그림 그리기
   useEffect(() => {
@@ -66,7 +114,7 @@ const Canvas: React.FC = () => {
       drawPaddle(gameData?.paddles_[0]);
       drawPaddle(gameData?.paddles_[1]);
       drawBall(gameData?.ball_.x_, gameData?.ball_.y_);
-      drawText();
+      setScore([gameData?.score_[0], gameData?.score_[1]]);
     }
   }
 
@@ -83,14 +131,6 @@ const Canvas: React.FC = () => {
       ctx.arc(x, y, 10, 0, 2 * Math.PI);
       ctx.fillStyle = 'blue';
       ctx.fill();
-    }
-  }
-
-  const drawText = () => {
-    if (ctx) {
-      ctx.font = '30px Arial';
-      ctx.fillStyle = 'white';
-      ctx.fillText(gameData?.score_, 100, 100);
     }
   }
 
@@ -120,9 +160,15 @@ const Canvas: React.FC = () => {
   const handleLeaveGame = () => {
     if (gameSocket) {
       gameSocket.emit('postLeaveGame');
-      // 나갈시 새로고침 -> 게임전적 최신화
-      // router.push("/lobby/overview");
+      router.push('/lobby/overview');
     }
+  }
+
+  const [showGameModal, setShowGameModal] = usePersistentState('gameModal', false);
+
+  const handleOnClose = () => {
+    router.push('/lobby/overview');
+    setShowGameModal(false);
   }
 
   return (
@@ -132,10 +178,42 @@ const Canvas: React.FC = () => {
         tabIndex={0} // 키보드 포커스를 위한 tabIndex 설정
         style={{ outline: 'none' }} // 선택시 브라우저가 테두리를 그리지 않도록 함
         onKeyDown={handleKeyDown} // 함수 자체를 전달
-        className='flex flex-col justify-center items-center w-full'
-      >
+        className='flex flex-col justify-center items-center w-full'>
+      <nav className="relative px-4 py-4 flex flex-row justify-between items-center bg-black w-full my-4">
+      <div className="flex flex-col items-center mt-2">
+      <Image
+        className="h-10 w-10 rounded-full bg-red-600 ring-zinc-800"
+        src={avatarUrls[0]}
+        alt=""
+        width={300}
+        height={300}
+      />
+        <a className="text-blue-600 text-zinc-300">{players[0]}</a>
+      </div>
+		<ul className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 lg:flex lg:mx-auto lg:flex lg:items-center lg:w-auto lg:space-x-6">
+			<li><a className="text-3xl text-white font-bold">{`${score[0]}  -  ${score[1]}`}</a></li>
+		</ul>
+    <div className="flex flex-col items-center mt-2">
+		  <Image
+        className="h-10 w-10 rounded-full bg-green-400 ring-zinc-800"
+        src={avatarUrls[1]}
+        alt=""
+        width={300}
+        height={300}
+			/>
+      <a className="text-blue-600 text-zinc-300">{players[1]}</a>
+    </div>
+	</nav>
         <canvas
           ref={canvasRef} width={500} height={500}
+        />
+        <GameModal
+          onClose={handleOnClose}
+          visible={showGameModal}
+          player1Name={players[0]}
+          player2Name={players[1]}
+          player1Score={score[0]}
+          player2Score={score[1]}
         />
       </div>
       {startGame ?
@@ -147,16 +225,18 @@ const Canvas: React.FC = () => {
         <div className="absolute w-full flex items-center justify-center m-auto inset-0">
         <div className='mx-auto my-auto space-y-4'>
           <div>
-            <div className='text-center mb-2'>
+            <div className='text-center mb-2 text-2xl font-bold text-indigo-400'>
               난이도
             </div>
+            <div className='text-center space-x-4 my-10'>
             <div className='text-center'>
               <button
                 onClick={() => handleDifficulty()}
-                className='bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'
+                className={`bg-${difficulty ? 'red' : 'zinc'}-400 hover:bg-${difficulty ? 'zinc' : 'red'}-600 w-40 h-60 text-white text-xl font-bold py-2 px-4 rounded`}
               >
-                {difficulty ? 'hard' : 'normal' }
+                {difficulty ? 'hard' : 'normal'}
               </button>
+            </div>
             </div>
           </div>
 
@@ -165,13 +245,13 @@ const Canvas: React.FC = () => {
           >
             <button
               onClick={() => handleReadyGame()}
-              className={'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'}
+              className={'bg-zinc-600 w-40 text-indigo-400 hover:bg-zinc-400 hover:text-zinc-800 py-2 px-4 rounded'}
             >
               {ready ? '준비완료' : '준비' }
             </button>
             <button
               onClick={() => handleLeaveGame()}
-              className={'bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded'}
+              className={'bg-zinc-600 w-40 text-indigo-400 hover:bg-zinc-400 hover:text-zinc-800 py-2 px-4 rounded'}
             >
               나가기
             </button>

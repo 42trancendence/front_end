@@ -19,30 +19,54 @@ export default function ChatModal({
 }) {
 	const { chatSocket: socket } = useContext(SocketContext);
 	const me = userMe[0];
-
+	console.log("chatmodal me data:", me);
+	console.log("chatmodal user data:", userData);
+	// console.log("meid : ", userMe.user.id);
+	// console.log("meid : ", user.user.id);
 	const router = useRouter();
 
 	function KickUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
-		socket?.emit("kickUser", item.name);
+		console.log("kick user name : ", item.name);
+		socket?.emit("kickUser", item.name, (error) => {
+			if (!error.status) {
+				console.log(error); // 서버에서 전달된 에러 메시지 출력
+				router.push(`/lobby/chat/`);
+			}
+		});
 	}
 
 	function BanUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
-		socket?.emit("toggleBanUser", item.name);
+		socket?.emit("toggleBanUser", item.name, (error) => {
+			if (!error.status) {
+				console.log(error); // 서버에서 전달된 에러 메시지 출력
+				router.push(`/lobby/chat/`);
+			}
+		});
 	}
 
 	function MuteUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
-		socket?.emit("setMuteUser", item.name);
+		socket?.emit("setMuteUser", item.name, (error) => {
+			if (!error.status) {
+				console.log(error); // 서버에서 전달된 에러 메시지 출력
+				router.push(`/lobby/chat/`);
+			}
+		});
 	}
 
 	function SetAdmin(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
-		socket?.emit("setAdmin", item.name);
+		socket?.emit("setAdmin", item.name, (error) => {
+			if (!error.status) {
+				console.log(error); // 서버에서 전달된 에러 메시지 출력
+			}
+		});
 	}
 
 	return userData.map((user: any, index: number) => (
+		me ? 
 		<Menu as="li" key={index}>
 			<div className="bg-black"></div>
 			<Menu.Button className="group flex w-full items-center gap-x-4 rounded-md p-2 text-sm font-normal leading-6 text-indigo-200 hover:bg-zinc-700 hover:text-white">
@@ -90,8 +114,9 @@ export default function ChatModal({
 									유저 정보
 								</button>
 							)}
+						
 						</Menu.Item>
-						{me.user.id !== user.user.id && (
+						{me.user.name !== user.user.name && (
 							<Menu.Item>
 								{({ active }) => (
 									<button
@@ -106,9 +131,8 @@ export default function ChatModal({
 								)}
 							</Menu.Item>
 						)}
-
 						{(me.role === "OWNER" || me.role === "ADMIN") &&
-						me.user.id !== user.user.id ? (
+						me.user.name !== user.user.name ? (
 							<>
 								<Menu.Item>
 									{({ active }) => (
@@ -171,5 +195,6 @@ export default function ChatModal({
 				</Menu.Items>
 			</Transition>
 		</Menu>
+		: <></>
 	));
 }

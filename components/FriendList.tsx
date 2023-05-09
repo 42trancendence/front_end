@@ -39,13 +39,23 @@ export default function FreindList({ userData }: any) {
 	// 게임 초대 이벤트
 	const inviteUserForGame = (event: React.MouseEvent<HTMLElement>, item: any) => {
 
-		console.log('user: ', item)
+		// console.log('user: ', item)
 
 		gameSocket?.emit("inviteUserForGame", { userName: item.name });
 		gameSocket?.on("error", (error) => {
 			console.log(error); // 서버에서 전달된 에러 메시지 출력
 		});
-		router.push(`/lobby/overview`);
+		gameSocket?.on('getMatching', (data: string, roomId: string) => {
+			// console.log(`getMatching: ${data}`);
+
+			if (data == 'matching')	{
+				// console.log(data2);
+				router.push(`game/${roomId}`);
+			}	else {
+				alert('매칭 실패');
+			}
+		})
+		// router.push(`game`);
 		onSuccessed();
 	};
 

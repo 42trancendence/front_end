@@ -32,12 +32,20 @@ export default function FriendNotification() {
 
 	// 친구 요청 수락
 	const acceptFriend = (event: React.MouseEvent<HTMLElement>) => {
-		socket?.emit("acceptFriendRequest", { friendName: userData.name });
+		socket?.emit("acceptFriendRequest", { friendName: userData.name }, (error: boolean) => {
+			if (error) {
+				console.log(error); // 서버에서 전달된 에러 메시지 출력
+			}
+		});
 		setShowFriendNotification(false);
 	};
 	// 친구 요청 거절
 	const rejectFriend = (event: React.MouseEvent<HTMLElement>) => {
-		socket?.emit("rejectFriendRequest", { friendName: userData.name });
+		socket?.emit("rejectFriendRequest", { friendName: userData.name }, (error: boolean) => {
+			if (error) {
+				console.log(error); // 서버에서 전달된 에러 메시지 출력
+			}
+		});
 		setShowFriendNotification(false);
 	};
 	return (
