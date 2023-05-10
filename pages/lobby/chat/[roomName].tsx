@@ -94,7 +94,7 @@ const RoomPage: NextPageWithLayout = ({
     {
 			const inputPassword = prompt("비밀번호를 입력하세요");
       setPassword(inputPassword);
-      if (inputPassword === "") {
+      if (inputPassword === null || inputPassword === "") {
         toast.error("비밀번호가 틀렸습니다.");
         router.push(`/lobby/chat/`);
       }
