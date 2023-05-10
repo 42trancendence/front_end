@@ -89,10 +89,18 @@ const RoomPage: NextPageWithLayout = ({
     }
   }, [router]);
 
+  	function handleKick()
+	{
+		toast.error("관리자가 당신을 내보냈습니다");
+		router.push(`/lobby/chat/`);
+	}
 	useEffect(() => {
+
+	socket?.on("kickUser", handleKick);
+
     if (isProtected == "true")
     {
-			const inputPassword = prompt("비밀번호를 입력하세요");
+		const inputPassword = prompt("비밀번호를 입력하세요");
       setPassword(inputPassword);
       if (inputPassword === null || inputPassword === "") {
         toast.error("비밀번호가 틀렸습니다.");
@@ -101,6 +109,9 @@ const RoomPage: NextPageWithLayout = ({
     }
     else
       setPassword("");
+		return () => {
+			socket?.off("kickUser", handleKick);
+		}
 	}, []);
 
 	// 페이지를 떠날 때 실행되는 이벤트 등록 후 콜백함수 호출
@@ -179,11 +190,6 @@ const RoomPage: NextPageWithLayout = ({
 		);
 		setShowCreateRoomPopup(false);
 	};
-
-	socket?.on("kickUser", function (data) {
-    toast.error("관리자가 당신을 내보냈습니다")
-		router.push(`/lobby/chat/`);
-	});
 
 	return (
 		<>

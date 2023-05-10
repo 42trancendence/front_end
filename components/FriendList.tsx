@@ -21,6 +21,7 @@ export default function FreindList({ userData }: any) {
 		chatSocket?.emit("createDirectMessage", {
 			receiverId: id,
 		}, (res) => {
+			console.log("res", res);
 			router.push(`/lobby/chat/dm/dm: ${name}?dmId=${res.directMessageId}`);
 			if (!res.status) {
 				console.log(res); // 서버에서 전달된 에러 메시지 출력

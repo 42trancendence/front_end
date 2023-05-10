@@ -92,8 +92,6 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
     setUserLists(newUserList);
     console.log("console data", userLists);
     setLoading(false);
-    // });
-    // }
   });
 
   useEffect(() => {
