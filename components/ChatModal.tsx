@@ -76,12 +76,12 @@ export default function ChatModal({
 					alt=""
 				/>
 				<span className="mr-auto">{user.user.name}</span>
-				{user.role === "OWNER" ? (
+				{user.role === 0 ? (
 					<FontAwesomeIcon
 						icon={faCrown}
 						className="ml-auto h-4 w-4 text-yellow-500"
 					/>
-				) : user.role === "ADMIN" ? (
+				) : user.role === 1 ? (
 					<FontAwesomeIcon
 						icon={faCertificate}
 						className="ml-auto h-4 w-4 text-green-600"
@@ -131,7 +131,7 @@ export default function ChatModal({
 								)}
 							</Menu.Item>
 						)}
-						{(me.role === "OWNER" || me.role === "ADMIN") &&
+						{(me.role === 0 || me.role === 1) &&
 						me.user.name !== user.user.name ? (
 							<>
 								<Menu.Item>
