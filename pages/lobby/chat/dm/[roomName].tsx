@@ -76,12 +76,12 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
 
     if (socket)
     {
-      socket.on("getMessage", function (data: any) {
-        console.log("send messages: ", data);
-        setMessage(prevMessages => [...prevMessages, data]);
+      socket.on("getMessage", function (data) {
+        if (data.user.name !== user.name)
+          setMessage(prevMessages => [...prevMessages, data]);
       });
     }
-  
+    
     if (socket)
     {
       socket.on("getChatRoomMessages", function (data: any) {
@@ -129,12 +129,21 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
 
 
 
-  const handleSendMessage = () => {
-    const messageText = inputRef.current.value;
-    socket?.emit('sendDirectMessage', messageText);
-
-    inputRef.current.value = "";
-  };
+	const handleSendMessage = () => {
+		const messageText = inputRef.current.value;
+		const newMessage = {
+				id: user.id,
+				message: messageText,
+				timestamp: new Date().toISOString(),
+				user: {
+				  name: user.name,
+				  avatarImageUrl: user.avatarImageUrl
+				}
+			  };
+		setMessage(prevMessages => [...prevMessages, newMessage]);
+		socket?.emit("sendDirectMessage", messageText);
+		inputRef.current.value = "";
+	};
 
   return (
 		<>

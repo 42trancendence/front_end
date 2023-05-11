@@ -102,10 +102,18 @@ const RoomPage: NextPageWithLayout = ({
 	}
 
 	useEffect(() => {
-		if (socket) {
-			socket.on("kickUser", handleKick);
-			socket.on("muteUser", handleMute);
-		}
+	if (socket) {
+		socket.on("kickUser", handleKick);
+		socket.on("muteUser", handleMute);
+	}
+
+	if (socket)
+	{
+		socket.on("getMessage", function (data) {
+			if (data.user.name !== user.name)
+				setMessage(prevMessages => [...prevMessages, data]);
+		});
+	}
 
 		if (socket) {
 			socket.on("getMessage", function (data) {
@@ -179,8 +187,17 @@ const RoomPage: NextPageWithLayout = ({
 
 	const handleSendMessage = () => {
 		const messageText = inputRef.current.value;
+		const newMessage = {
+				id: user.id,
+				message: messageText,
+				timestamp: new Date().toISOString(),
+				user: {
+				  name: user.name,
+				  avatarImageUrl: user.avatarImageUrl
+				}
+			  };
+		setMessage(prevMessages => [...prevMessages, newMessage]);
 		socket?.emit("sendMessage", messageText);
-
 		inputRef.current.value = "";
 	};
 	const changeRoomSettings = () => {
