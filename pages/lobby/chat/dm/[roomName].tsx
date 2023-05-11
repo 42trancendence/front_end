@@ -14,6 +14,7 @@ import Image from "next/image";
 
 const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomName: string}) => {
   const [message, setMessage] = useState([]);
+  const [isBlocked, setIsBlocked] = useState();
 	const [userMe, setUserMe] = useState([]);
 	const [loading, setLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState("");
@@ -89,6 +90,7 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
       return user.name === username;
     });
     setUserMe(me);
+    setIsBlocked(data.isBlocked);
     setUserLists(newUserList);
     console.log("console data", userLists);
     setLoading(false);
@@ -180,7 +182,7 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
           <p className="text-xl text-[#939efb]">유저 목록</p>
           <ul className="mt-4">
           {userLists && (
-            <DirectChatModal userData={userLists} userMe={userMe}/>
+            <DirectChatModal userData={userLists} userMe={userMe} isBlocked={isBlocked}/>
           )}
           {showUserModal && selectedUser.length > 0 && (
             <div

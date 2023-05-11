@@ -7,15 +7,21 @@ import { Menu, Transition } from "@headlessui/react";
 import { SocketContext } from "@/lib/socketContext";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import {useRouter} from "next/router";
+import {
+	NoSymbolIcon
+} from "@heroicons/react/24/outline";
 
 export default function DirectChatModal({
 	userData,
 	userMe,
+	isBlocked,
 }: {
 	userData: any;
 	userMe: any;
+	isBlocked: boolean;
 }) {
 	console.log(userData);
+	console.log(isBlocked);
 	const me = userMe[0];
 	console.log("me", userMe);
 	const newUserList = Object.keys(userData).map((key) => {
@@ -49,6 +55,13 @@ export default function DirectChatModal({
 					alt=""
 				/>
 				<span className="mr-auto">{user.name}</span>
+				{(user.name !== me.name && isBlocked === true) ? (
+					<NoSymbolIcon
+						className="ml-auto h-6 w-6 text-red-500"
+					/>
+				) : (
+					<></>
+				)}
 			</Menu.Button>
 			<Transition
 				as={Fragment}
