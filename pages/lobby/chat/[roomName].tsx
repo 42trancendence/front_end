@@ -11,6 +11,8 @@ import { useUsersDispatch, useUsersState } from "@/lib/userContext";
 import { Cog6ToothIcon } from "@heroicons/react/20/solid";
 import Image from "next/image";
 import BannedChatModal from "@/components/BannedChatModal";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {faCommentSlash} from "@fortawesome/free-solid-svg-icons";
 
 const RoomPage: NextPageWithLayout = ({
 	isProtected,
@@ -27,6 +29,7 @@ const RoomPage: NextPageWithLayout = ({
 	const [bannedUserList, setbannedUserList] = useState([]);
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
+	const [isMuted, setIsMuted] = useState(false);
 	const messagesEndRef = useRef(null);
 	const inputRef = useRef(null);
 	const router = useRouter();
@@ -59,59 +62,75 @@ const RoomPage: NextPageWithLayout = ({
 		friendSocket?.emit("updateActiveStatus", 2);
 	}, [friendSocket]);
 
-  useEffect(() => {
-    if (password) {
-      socket?.emit(
-        "enterChatRoom",
-        { roomName: roomName, password: password },
-        (error) => {
-          if (!error.status) {
-            toast.error("비밀번호가 틀렸습니다.");
-            router.push(`/lobby/chat/?`);
-          }
-        }
-      );
-    }
-  }, [password]);
+	useEffect(() => {
+		if (password) {
+			socket?.emit(
+				"enterChatRoom",
+				{ roomName: roomName, password: password },
+				(error) => {
+					if (!error.status) {
+						toast.error(error.message);
+						router.push(`/lobby/chat/?`);
+					}
+				}
+			);
+		}
+	}, [password]);
 
-  useEffect(() => {
-    if (isProtected === 'false')
-    {
-      socket?.emit(
-        "enterChatRoom",
-        { roomName: roomName, password: password },
-        (error) => {
-          if (!error.status) {
-            router.push(`/lobby/chat/`);
-          }
-        }
-      );
-    }
-  }, [router]);
+	useEffect(() => {
+		if (isProtected === "false") {
+			socket?.emit(
+				"enterChatRoom",
+				{ roomName: roomName, password: password },
+				(error) => {
+					if (!error.status) {
+						toast.error(error.message);
+						router.push(`/lobby/chat/`);
+					}
+				}
+			);
+		}
+	}, [router]);
 
-  	function handleKick()
-	{
+	function handleKick() {
 		toast.error("관리자가 당신을 내보냈습니다");
 		router.push(`/lobby/chat/`);
 	}
+
+	function handleMute() {
+		toast.error("관리자가 당신을 채팅 금지시켰습니다");
+		setIsMuted(true);
+	}
+
 	useEffect(() => {
-
-	socket?.on("kickUser", handleKick);
-
-    if (isProtected == "true")
-    {
-		const inputPassword = prompt("비밀번호를 입력하세요");
-      setPassword(inputPassword);
-      if (inputPassword === null || inputPassword === "") {
-        toast.error("비밀번호가 틀렸습니다.");
-        router.push(`/lobby/chat/`);
-      }
-    }
-    else
-      setPassword("");
-		return () => {
-			socket?.off("kickUser", handleKick);
+		if (socket) {
+			socket.on("kickUser", handleKick);
+			socket.on("muteUser", handleMute);
 		}
+
+		if (socket) {
+			socket.on("getMessage", function (data) {
+				if (data.user.name !== user.name)
+					setMessage((prevMessages) => [...prevMessages, data]);
+			});
+		}
+
+		if (isProtected == "true") {
+			const inputPassword = prompt("비밀번호를 입력하세요");
+			setPassword(inputPassword);
+			if (inputPassword === null || inputPassword === "") {
+				toast.error("비밀번호가 틀렸습니다.");
+				router.push(`/lobby/chat/`);
+			}
+		} else {
+			setPassword("");
+		}
+
+		return () => {
+			socket?.off("getMessage");
+			socket?.off("kickUser", handleKick);
+			socket?.off("muteUser", handleMute);
+		};
 	}, []);
 
 	// 페이지를 떠날 때 실행되는 이벤트 등록 후 콜백함수 호출
@@ -122,58 +141,60 @@ const RoomPage: NextPageWithLayout = ({
 				console.log("페이지를 떠납니다.");
 			}
 		};
+		if (socket) {
+			socket.on("getChatRoomMessages", function (data?) {
+				console.log("msg data", data);
+				if (data) setMessage(data);
+			});
+		}
 
+		if (socket) {
+			socket.on("getChatRoomUsers", function (data) {
+				const Users = data.filter((user: any) => {
+					return !user.isBanned;
+				});
+				const bannedUsers = data.filter((user: any) => {
+					return user.isBanned;
+				});
+				setUserList(Users);
+				setbannedUserList(bannedUsers);
+				const me = Users.filter((user: any) => {
+					return user.user.name === username;
+				});
+				setUserMe(me);
+				setLoading(false);
+			});
+		}
 		router.events.on("routeChangeStart", handleRouteChangeStart);
 
 		return () => {
+			socket?.off("getChatRoomMessages");
+			socket?.off("getChatRoomUsers");
 			router.events.off("routeChangeStart", handleRouteChangeStart);
 		};
 	}, [router, socket, username]);
-
-  socket?.on("getChatRoomUsers", function (data) {
-    const Users = data.filter((user: any) => {
-      return !user.isBanned;
-    });
-    const bannedUsers = data.filter((user: any) => {
-      return user.isBanned;
-    });
-    setUserList(Users);
-    setbannedUserList(bannedUsers);
-    const me = Users.filter((user: any) => {
-      return user.user.name === username;
-    });
-    setUserMe(me);
-    setLoading(false);
-  });
-
-	const userElements: { [key: string]: HTMLLIElement | null } = {};
 
 	const handleCloseUserModal = () => {
 		setSelectedUser("");
 		setShowUserModal(false);
 	};
 
-	socket?.on("getChatRoomMessages", function (data?) {
-		console.log("msg data", data);
-		if (data) setMessage(data);
-	});
-
-	socket?.on("getMessage", function (data) {
-		console.log("msgdata:", data);
-		// const newMessage = {
-		// 	message: data.message,
-		// 	user: [data.user.name],
-		// 	userImage: data.user.avatarImageUrl,
-		// };
-		setMessage([...message, data]);
-	});
-
 	const handleSendMessage = () => {
 		const messageText = inputRef.current.value;
+		const newMessage = {
+			id: user.id,
+			message: messageText,
+			timestamp: new Date().toISOString(),
+			user: {
+				name: user.name,
+				avatarImageUrl: user.avatarImageUrl,
+			},
+		};
+		setMessage((prevMessages) => [...prevMessages, newMessage]);
 		socket?.emit("sendMessage", messageText);
-
 		inputRef.current.value = "";
 	};
+
 	const changeRoomSettings = () => {
 		// 채팅방 설정 변경 모달을 띄우는 로직을 구현
 		// type password
@@ -205,61 +226,60 @@ const RoomPage: NextPageWithLayout = ({
 							<div className="max-h-[calc(100vh-240px)] min-h-[calc(100vh-240px)] overflow-y-auto rounded-[14px] bg-[#616161] p-6">
 								<div className="flex flex-col">
 									{message.map((msg: any, index: number) => (
-										
-									<div
-										className={`mb-4 flex ${
-											msg.user.name === username
-												? "justify-end"
-												: "justify-start"
-										}`}
-										key={index}
-									>
-										<div className="flex flex-col">
-											<div className="flex flex-row">
-												{msg.user.name !== username && (
-													<div className="mr-2">
-														<Image
-															src={msg.user.avatarImageUrl}
-															alt=""
-															width={64}
-															height={64}
-															className="h-8 w-8 rounded-full"
-														/>
-													</div>
-												)}
-												<div
-													className={`max-w-xs rounded-lg p-3 ${
-														msg.user.name === username
-															? "rounded-bl-none bg-blue-300"
-															: "rounded-br-none bg-yellow-300"
-													} ${
-														msg.user.name === username
-															? "self-end justify-self-end"
-															: "self-start justify-self-start"
-													}`}
-												>
+										<div
+											className={`mb-4 flex ${
+												msg.user.name === username
+													? "justify-end"
+													: "justify-start"
+											}`}
+											key={index}
+										>
+											<div className="flex flex-col">
+												<div className="flex flex-row">
 													{msg.user.name !== username && (
-														<p className="mb-1 text-sm font-bold text-cyan-700">
-															{msg.user.name}
-														</p>
+														<div className="mr-2">
+															<Image
+																src={msg.user.avatarImageUrl}
+																alt=""
+																width={64}
+																height={64}
+																className="h-8 w-8 rounded-full"
+															/>
+														</div>
 													)}
-													<p
-														className={`text-sm leading-tight ${
+													<div
+														className={`max-w-xs break-words rounded-lg p-3 text-sm leading-tight ${
 															msg.user.name === username
-																? "text-black"
-																: "text-black"
+																? "rounded-bl-none bg-blue-300"
+																: "rounded-br-none bg-yellow-300"
+														} ${
+															msg.user.name === username
+																? "self-end justify-self-end"
+																: "self-start justify-self-start"
 														}`}
 													>
-														{msg.message}
-													</p>
+														{msg.user.name !== username && (
+															<p className="mb-1 text-sm font-bold text-cyan-700">
+																{msg.user.name}
+															</p>
+														)}
+														<p
+															className={`text-sm leading-tight ${
+																msg.user.name === username
+																	? "text-black"
+																	: "text-black"
+															}`}
+														>
+															{msg.message}
+														</p>
 													</div>
-												<div ref={messagesEndRef} />
+													<div ref={messagesEndRef} />
+												</div>
+												<span className="text-sm text-gray-400">
+													{new Date(msg.timestamp).toLocaleString()}
+												</span>
 											</div>
-											<span className="text-sm text-gray-400">
-												{new Date(msg.timestamp).toLocaleString()}
-											</span>
 										</div>
-									</div>
 									))}
 								</div>
 								{userMe[0]?.role === "OWNER" && (
@@ -280,8 +300,8 @@ const RoomPage: NextPageWithLayout = ({
 										></div>
 									)}
 								</ul>
-								{(userMe[0]?.role === "OWNER" ||
-									userMe[0]?.role === "ADMIN") && (
+								{(userMe[0]?.role === 0 ||
+									userMe[0]?.role === 1) && (
 									<>
 										<p className="mt-auto text-xl text-[#939efb]">
 											차단된 유저
@@ -309,17 +329,29 @@ const RoomPage: NextPageWithLayout = ({
 								placeholder="메시지를 입력하세요."
 								ref={inputRef}
 								onKeyDown={(event) => {
-									if (event.key === "Enter") {
+									if (event.key === "Enter" && isMuted === false) {
 										handleSendMessage();
 									}
 								}}
 							/>
-							<button
-								className="ml-2 w-20 rounded-lg bg-blue-500 px-4 py-2 text-white"
-								onClick={handleSendMessage}
-							>
-								전송
-							</button>
+							{isMuted ? (
+								<button
+									type="button"
+									className="ml-2 w-20 rounded-lg bg-blue-500 px-4 py-2 text-white"
+								>
+									<FontAwesomeIcon
+										className="text-white"
+										icon={faCommentSlash}
+									/>
+								</button>
+							) : (
+								<button
+									className="ml-2 w-20 rounded-lg bg-blue-500 px-4 py-2 text-white"
+									onClick={handleSendMessage}
+								>
+									전송
+								</button>
+							)}
 						</div>
 					</div>
 					{showCreateRoomPopup && (
