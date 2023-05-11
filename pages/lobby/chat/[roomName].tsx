@@ -194,6 +194,7 @@ const RoomPage: NextPageWithLayout = ({
 		socket?.emit("sendMessage", messageText);
 		inputRef.current.value = "";
 	};
+
 	const changeRoomSettings = () => {
 		// 채팅방 설정 변경 모달을 띄우는 로직을 구현
 		// type password
@@ -300,8 +301,8 @@ const RoomPage: NextPageWithLayout = ({
 										></div>
 									)}
 								</ul>
-								{(userMe[0]?.role === "OWNER" ||
-									userMe[0]?.role === "ADMIN") && (
+								{(userMe[0]?.role === 0 ||
+									userMe[0]?.role === 1) && (
 									<>
 										<p className="mt-auto text-xl text-[#939efb]">
 											차단된 유저
