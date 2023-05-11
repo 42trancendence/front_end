@@ -46,16 +46,14 @@ export default function FreindList({ userData }: any) {
 			console.log(error); // 서버에서 전달된 에러 메시지 출력
 		});
 		gameSocket?.on('getMatching', (data: string, roomId: string) => {
-			// console.log(`getMatching: ${data}`);
 
 			if (data == 'matching')	{
 				// console.log(data2);
-				router.push(`game/${roomId}`);
+				router.push(`/lobby/game/${roomId}`);
 			}	else {
 				alert('매칭 실패');
 			}
 		})
-		// router.push(`game`);
 		onSuccessed();
 	};
 
