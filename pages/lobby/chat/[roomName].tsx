@@ -102,22 +102,15 @@ const RoomPage: NextPageWithLayout = ({
 	}
 
 	useEffect(() => {
-	if (socket) {
-		socket.on("kickUser", handleKick);
-		socket.on("muteUser", handleMute);
-	}
-
-	if (socket)
-	{
-		socket.on("getMessage", function (data) {
-			if (data.user.name !== user.name)
-				setMessage(prevMessages => [...prevMessages, data]);
-		});
-	}
+		if (socket) {
+			socket.on("kickUser", handleKick);
+			socket.on("muteUser", handleMute);
+		}
 
 		if (socket) {
 			socket.on("getMessage", function (data) {
-				setMessage((prevMessages) => [...prevMessages, data]);
+				if (data.user.name !== user.name)
+					setMessage((prevMessages) => [...prevMessages, data]);
 			});
 		}
 
@@ -188,15 +181,15 @@ const RoomPage: NextPageWithLayout = ({
 	const handleSendMessage = () => {
 		const messageText = inputRef.current.value;
 		const newMessage = {
-				id: user.id,
-				message: messageText,
-				timestamp: new Date().toISOString(),
-				user: {
-				  name: user.name,
-				  avatarImageUrl: user.avatarImageUrl
-				}
-			  };
-		setMessage(prevMessages => [...prevMessages, newMessage]);
+			id: user.id,
+			message: messageText,
+			timestamp: new Date().toISOString(),
+			user: {
+				name: user.name,
+				avatarImageUrl: user.avatarImageUrl,
+			},
+		};
+		setMessage((prevMessages) => [...prevMessages, newMessage]);
 		socket?.emit("sendMessage", messageText);
 		inputRef.current.value = "";
 	};
@@ -252,8 +245,8 @@ const RoomPage: NextPageWithLayout = ({
 															/>
 														</div>
 													)}
-													<p
-														className={`text-sm leading-tight break-words ${
+													<div
+														className={`max-w-xs break-words rounded-lg p-3 text-sm leading-tight ${
 															msg.user.name === username
 																? "rounded-bl-none bg-blue-300"
 																: "rounded-br-none bg-yellow-300"
@@ -340,8 +333,14 @@ const RoomPage: NextPageWithLayout = ({
 								}}
 							/>
 							{isMuted ? (
-								<button type="button" className="ml-2 w-20 rounded-lg bg-blue-300 px-4 py-2 text-white">
-									<FontAwesomeIcon className="text-white" icon="fa-light fa-message-slash" />
+								<button
+									type="button"
+									className="ml-2 w-20 rounded-lg bg-blue-300 px-4 py-2 text-white"
+								>
+									<FontAwesomeIcon
+										className="text-white"
+										icon="fa-light fa-message-slash"
+									/>
 								</button>
 							) : (
 								<button
