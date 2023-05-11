@@ -12,6 +12,7 @@ import { SocketContext } from "@/lib/socketContext";
 import { handleRefresh } from "@/lib/auth-client";
 import { NotifyContext } from "@/lib/notifyContext";
 import { useRouter } from "next/router";
+import { toast } from "react-toastify";
 
 export default function SearchBox({
 	isOpen,
@@ -66,25 +67,15 @@ export default function SearchBox({
 			  });
 
 	// 친구 추가 소켓 이벤트
-	const { successed, failed } = useContext(NotifyContext);
-	function onSuccessed() {
-		successed({
-			header: "친구요청",
-			message: "친구요청을 성공적으로 보냈습니다.",
-		});
-	}
 
 	const { friendSocket: socket } = useContext(SocketContext);
 	const addFriend = (event: React.MouseEvent<HTMLElement>, item: any) => {
 		socket?.emit("addFriend", { friendName: item.name }, (res) => {
 			if (res.status) {
-				onSuccessed();
+				toast.success("친구요청을 성공적으로 보냈습니다.");
 			}
 			if (!res.status) {
-				failed({
-					header: "친구요청",
-					message: res.message,
-				});
+				toast.error(res.message);
 			}
 		});
 

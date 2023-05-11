@@ -12,7 +12,6 @@ import router from "next/router";
 import Seo from "@/components/Seo";
 import EditProfilePallet from "@/components/EditProfilePallet";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
-import Canvas from "@/components/canvas/canvas";
 import usePersistentState from "@/components/canvas/usePersistentState";
 import moment from "moment";
 import {
@@ -48,6 +47,7 @@ const OverView: NextPageWithLayout = () => {
 	const [isProfileChanged, setisProfileChanged] = useState(false);
 	const [isAchievementsOpen, setisAchievementsOpen] = useState(false);
 	const [gameHistory, setGameHistory] = useState<GameHistory[]>([]);
+
 	const [onGame, setOnGame] = usePersistentState("onGame", false);
 	const [startGame, setStartGame] = usePersistentState("startGame", false);
 	const [match, setMatch] = useState("자동 매칭");
@@ -131,7 +131,7 @@ const OverView: NextPageWithLayout = () => {
 			}
 		};
 		getGameHistory();
-	}, [username, onGame]);
+	}, [username]);
 
 	const { friendSocket, gameSocket } = useContext(SocketContext);
 	useEffect(() => {
@@ -257,7 +257,7 @@ const OverView: NextPageWithLayout = () => {
 									className="cursor-pointer text-lg font-semibold underline"
 									onClick={() => setisAchievementsOpen(true)}
 								>
-									1
+									0
 								</p>
 							</div>
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
@@ -301,8 +301,8 @@ const OverView: NextPageWithLayout = () => {
 																}
 															}}
 															className={clsx(
-																is2faEnabled ? "bg-indigo-600" : "bg-gray-200",
-																"relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
+																is2faEnabled ? "bg-green-600" : "bg-gray-200",
+																"relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out"
 															)}
 														>
 															{is2favalidating && <MiniLoading />}
@@ -343,7 +343,7 @@ const OverView: NextPageWithLayout = () => {
 						</button>
 						{/* 내 전적 목록 */}
 						{gameHistory.length == 0 ? (
-							<div className="mt-8 flex flex-grow flex-col items-center justify-center rounded-lg border border-zinc-500 px-6 py-14 text-center text-sm sm:px-14">
+							<div className="mt-8 w-full flex flex-grow flex-col items-center justify-center rounded-lg border border-zinc-500 px-6 py-14 text-center text-sm sm:px-14">
 								<ExclamationCircleIcon
 									type="outline"
 									name="exclamation-circle"

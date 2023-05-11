@@ -87,7 +87,6 @@ const ChatRooms: NextPageWithLayout = () => {
 		  });
 		setShowCreateRoomPopup(false);
 	  };
-
 	  const joinChatRoom = (room: any) => {
 		if (room.type === "PROTECTED") {
 		  router.push(`/lobby/chat/${room.name}?isProtected=true`);

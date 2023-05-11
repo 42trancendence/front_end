@@ -83,8 +83,16 @@ export default function Layout({
 				RenewFriend(data);
 			});
 		}
+
+		return () => {
+			if (socket) {
+				socket.off("friendList");
+				socket.off("friendActive");
+				socket.off("friendRenew");
+			}
+		}
 	}, [socket, userData]);
-	
+
 	return (
 		<>
 			{loading ? (
