@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 
-function usePersistentState(key: string, defaultValue: boolean) {
+function usePersistentState(key: string, defaultValue: any) {
   const [state, setState] = useState(() => {
     const storedValue = localStorage.getItem(key);
     return storedValue !== null ? JSON.parse(storedValue) : defaultValue;

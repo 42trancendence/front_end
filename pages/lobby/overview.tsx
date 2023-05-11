@@ -12,7 +12,6 @@ import router from "next/router";
 import Seo from "@/components/Seo";
 import EditProfilePallet from "@/components/EditProfilePallet";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
-import Canvas from "@/components/canvas/canvas";
 import usePersistentState from "@/components/canvas/usePersistentState";
 import moment from "moment";
 import {
@@ -48,6 +47,7 @@ const OverView: NextPageWithLayout = () => {
 	const [isProfileChanged, setisProfileChanged] = useState(false);
 	const [isAchievementsOpen, setisAchievementsOpen] = useState(false);
 	const [gameHistory, setGameHistory] = useState<GameHistory[]>([]);
+
 	const [onGame, setOnGame] = usePersistentState("onGame", false);
 	const [startGame, setStartGame] = usePersistentState("startGame", false);
 	const [match, setMatch] = useState("자동 매칭");
@@ -131,7 +131,7 @@ const OverView: NextPageWithLayout = () => {
 			}
 		};
 		getGameHistory();
-	}, [username, onGame]);
+	}, [username]);
 
 	const { friendSocket, gameSocket } = useContext(SocketContext);
 	useEffect(() => {
