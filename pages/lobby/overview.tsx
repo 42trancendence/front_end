@@ -301,8 +301,8 @@ const OverView: NextPageWithLayout = () => {
 																}
 															}}
 															className={clsx(
-																is2faEnabled ? "bg-indigo-600" : "bg-gray-200",
-																"relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:ring-offset-2"
+																is2faEnabled ? "bg-green-600" : "bg-gray-200",
+																"relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out"
 															)}
 														>
 															{is2favalidating && <MiniLoading />}
@@ -343,7 +343,7 @@ const OverView: NextPageWithLayout = () => {
 						</button>
 						{/* 내 전적 목록 */}
 						{gameHistory.length == 0 ? (
-							<div className="mt-8 flex flex-grow flex-col items-center justify-center rounded-lg border border-zinc-500 px-6 py-14 text-center text-sm sm:px-14">
+							<div className="mt-8 w-full flex flex-grow flex-col items-center justify-center rounded-lg border border-zinc-500 px-6 py-14 text-center text-sm sm:px-14">
 								<ExclamationCircleIcon
 									type="outline"
 									name="exclamation-circle"
