@@ -46,7 +46,7 @@ export default function FreindList({ userData }: any) {
 	const { successed } = useContext(NotifyContext);
 	function onSuccessed() {
 		successed({
-			header: "게임요청",
+			header: "게임요청",	
 			message: "게임요청을 성공적으로 보냈습니다.",
 		});
 	}
