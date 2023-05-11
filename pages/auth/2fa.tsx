@@ -13,6 +13,7 @@ import OneLineInform from "@/components/ui/OneLineInform";
 import Loading from "@/components/ui/Loading";
 import Image from "next/image";
 import axios from "axios";
+import Link from "next/link";
 
 export default function TwoFAPage() {
 	const router = useRouter();
@@ -46,7 +47,9 @@ export default function TwoFAPage() {
 	const [qrCodeImg, setqrCodeImg] = useState<any>(null);
 	const [isValidated2fa, setisValidated2fa] = useState<boolean>(false);
 	const [validationCode, setvalidationCode] = useState<string>("");
-	const [validationEmail, setvalidationEmail] = useState<string>("42 intra에 저장된 이메일로 인증코드가 전송됩니다.");
+	const [validationEmail, setvalidationEmail] = useState<string>(
+		"42 intra에 저장된 이메일로 인증코드가 전송됩니다."
+	);
 	// 팝업 State
 	let [isOpen, setIsOpen] = useState(false);
 	let [dialogState, setDialogState] = useState<"success" | "fail">("fail");
@@ -323,6 +326,21 @@ export default function TwoFAPage() {
 															>
 																인증
 															</NormalButton>
+														</div>
+														<div className="relative mt-3 flex flex-col w-full max-w-lg items-center justify-center text-zinc-200">
+															<p>
+																<Link
+																	href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en"
+																	className="font-bold text-indigo-500 underline hover:text-indigo-400"
+																	target="_blank"
+																>
+																	Google Authenticator
+																</Link>{" "}
+																설치가 필요합니다.
+															</p>
+															<p>
+																QR 이미지를 스캔 후 인증번호를 입력해주세요.
+															</p>
 														</div>
 													</div>
 												</Tab.Panel>

@@ -71,8 +71,28 @@ export default function NavBar({ userData }: any) {
 	}
 
 	const logout = () => {
-		localStorage.removeItem("token");
-		router.push("/");
+		const doLogout = async () => {
+			try {
+				const res = await fetch("http://localhost:3000/auth/logout", {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				});
+				if (res.ok) {
+					localStorage.removeItem("token");
+					router.push("/");
+				} else {
+					return null;
+				}
+			} catch (error) {
+				console.log(error);
+				localStorage.removeItem("token");
+				router.push("/");
+			}
+		};
+		doLogout();
+
 	};
 
 	const { friendSocket, chatSocket } = useContext(SocketContext);

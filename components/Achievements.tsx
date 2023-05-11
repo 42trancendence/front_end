@@ -95,7 +95,7 @@ export default function Achievements({
 										Achievements
 									</div>
 								</div>
-								{filteredItems.length === 0 && (
+								{filteredItems.length > 0 && (
 									<div className="px-6 py-4 bg-zinc-800">
 										<div className="flex w-full">
 											<div className="mr-4 flex-shrink-0">
@@ -110,7 +110,7 @@ export default function Achievements({
 										</div>
 									</div>
 								)}
-								{query !== "" && filteredItems.length === 0 && (
+								{query === "" && filteredItems.length === 0 && (
 									<div className="px-6 py-14 text-center text-sm sm:px-14">
 										<ExclamationCircleIcon
 											type="outline"

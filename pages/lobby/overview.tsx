@@ -257,7 +257,7 @@ const OverView: NextPageWithLayout = () => {
 									className="cursor-pointer text-lg font-semibold underline"
 									onClick={() => setisAchievementsOpen(true)}
 								>
-									1
+									0
 								</p>
 							</div>
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
