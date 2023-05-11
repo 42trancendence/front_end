@@ -254,7 +254,7 @@ const RoomPage: NextPageWithLayout = ({
 														</p>
 													)}
 													<p
-														className={`text-sm leading-tight ${
+														className={`text-sm leading-tight break-words ${
 															msg.user.name === username
 																? "text-black"
 																: "text-black"
