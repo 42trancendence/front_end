@@ -10,28 +10,43 @@ import { useRouter } from "next/router";
 import { NotifyContext } from "@/lib/notifyContext";
 
 export default function FreindList({ userData }: any) {
+	console.log(userData);
 	const { friendSocket: socket, chatSocket, gameSocket } = useContext(SocketContext);
+	
 	function deleteFriend(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
 		socket?.emit("deleteFriend", { friendName: item.name });
 	}
 	const router = useRouter();
 
+	function BlockUser(event: React.MouseEvent<HTMLElement>, item: any) {
+		event.preventDefault();
+		chatSocket?.emit("toggleBlockUser", {userId: item.id}, (error) => {
+			if (!error.status) {
+				console.log(error); // 서버에서 전달된 에러 메시지 출력
+			}
+		});
+	}
+
 	const createDirectMessage = (id: string, name: string) => {
 		chatSocket?.emit("createDirectMessage", {
 			receiverId: id,
+		}, (res: any) => {
+			console.log("res", res);
+			router.push(`/lobby/chat/dm/dm: ${name}?dmId=${res.directMessageId}`);
+			if (!res.status) {
+				console.log(res); // 서버에서 전달된 에러 메시지 출력
+				router.push(`/lobby/chat/`);
+			}
 		});
-		chatSocket?.on("error", (error) => {
-			console.log(error); // 서버에서 전달된 에러 메시지 출력
-		});
-		router.push(`/lobby/chat/dm/dm: ${name}`);
+
 	};
 
 		// 친구 추가 소켓 이벤트
 	const { successed } = useContext(NotifyContext);
 	function onSuccessed() {
 		successed({
-			header: "게임요청",
+			header: "게임요청",	
 			message: "게임요청을 성공적으로 보냈습니다.",
 		});
 	}
@@ -133,6 +148,21 @@ export default function FreindList({ userData }: any) {
 												onClick={(e) => { inviteUserForGame(e, user) }}
 											>
 												게임 초대
+											</button>
+										)}
+									</Menu.Item>
+									<Menu.Item>
+										{({ active }) => (
+											<button
+												className={clsx(
+													active
+														? "bg-violet-500 text-white"
+														: "text-white",
+													"block w-full px-4 py-2 text-sm"
+												)}
+												onClick={(e) => BlockUser(e, user)}
+											>
+												차단
 											</button>
 										)}
 									</Menu.Item>

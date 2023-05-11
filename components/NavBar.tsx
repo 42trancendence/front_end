@@ -10,12 +10,11 @@ import {
 	Bars3Icon,
 } from "@heroicons/react/24/outline";
 import { useRouter } from "next/router";
-import { Fragment, useContext, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import SearchBox from "./SerachBox";
 import { NotifyContext } from "@/lib/notifyContext";
 import { SocketContext } from "@/lib/socketContext";
-
 
 function classNames(...classes: string[]) {
 	return classes.filter(Boolean).join(" ");
@@ -71,22 +70,49 @@ export default function NavBar({ userData }: any) {
 	}
 
 	const logout = () => {
-		localStorage.removeItem("token");
-		router.push("/");
+		const doLogout = async () => {
+			try {
+				const res = await fetch("http://localhost:3000/auth/logout", {
+					method: "GET",
+					headers: {
+						"Content-Type": "application/json",
+					},
+				});
+				if (res.ok) {
+					localStorage.removeItem("token");
+					router.push("/");
+				} else {
+					return null;
+				}
+			} catch (error) {
+				console.log(error);
+				localStorage.removeItem("token");
+				router.push("/");
+			}
+		};
+		doLogout();
 	};
 
 	const { friendSocket, chatSocket } = useContext(SocketContext);
 	const { successed } = useContext(NotifyContext);
-	function onSuccessed(name: string, message: string, id: string) {
-		successed({
-			header: name,
-			message: message,
-			id: id
+
+	useEffect(() => {
+		function onSuccessed(name: string, message: string, id: string) {
+			successed({
+				header: name,
+				message: message,
+				id: id,
+			});
+		}
+		chatSocket?.on("newDirectMessage", (data) => {
+			onSuccessed(data.name, data.message, data.id);
 		});
-	}
-	chatSocket?.on("newDirectMessage", (data) => {
-		onSuccessed(data.name, data.message, data.id);
-	});
+
+		return () => {
+			chatSocket?.off("newDirectMessage");
+		};
+	}, [chatSocket, successed]);
+
 	return (
 		<>
 			<SearchBox isOpen={isSerchBoxOpen} setIsOpen={setIsSerchBoxOpen} />
@@ -148,9 +174,7 @@ export default function NavBar({ userData }: any) {
 									role="list"
 									className="-mx-2 mt-2 space-y-1 rounded-md bg-zinc-800 p-2"
 								>
-									<FreindList
-										userData={userData}
-									/>
+									<FreindList userData={userData} />
 								</ul>
 							</li>
 							<li className="mb-4 mt-auto">
@@ -260,9 +284,7 @@ export default function NavBar({ userData }: any) {
 													role="list"
 													className="-mx-2 mt-2 space-y-1 rounded-md bg-zinc-800 p-2"
 												>
-													<FreindList
-														userData={userData}
-													/>
+													<FreindList userData={userData} />
 												</ul>
 											</li>
 											<li className="mb-4 mt-auto">

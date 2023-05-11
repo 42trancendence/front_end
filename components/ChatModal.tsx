@@ -27,9 +27,9 @@ export default function ChatModal({
 
 	function KickUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
-		console.log("kick user name : ", item.name);
-		socket?.emit("kickUser", item.name, (error) => {
-			if (!error.status) {
+		console.log("kick user name : ", item);
+		socket?.emit("kickUser", {userId: item.id}, (error) => {
+			if (!error.status) {	
 				console.log(error); // 서버에서 전달된 에러 메시지 출력
 				router.push(`/lobby/chat/`);
 			}
@@ -38,7 +38,7 @@ export default function ChatModal({
 
 	function BanUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
-		socket?.emit("toggleBanUser", item.name, (error) => {
+		socket?.emit("toggleBanUser", {userId: item.id}, (error) => {
 			if (!error.status) {
 				console.log(error); // 서버에서 전달된 에러 메시지 출력
 				router.push(`/lobby/chat/`);
@@ -48,7 +48,7 @@ export default function ChatModal({
 
 	function MuteUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
-		socket?.emit("setMuteUser", item.name, (error) => {
+		socket?.emit("setMuteUser", {userId: item.id}, (error) => {
 			if (!error.status) {
 				console.log(error); // 서버에서 전달된 에러 메시지 출력
 				router.push(`/lobby/chat/`);
@@ -58,7 +58,7 @@ export default function ChatModal({
 
 	function SetAdmin(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
-		socket?.emit("setAdmin", item.name, (error) => {
+		socket?.emit("setAdmin", {userId: item.id}, (error) => {
 			if (!error.status) {
 				console.log(error); // 서버에서 전달된 에러 메시지 출력
 			}
@@ -182,6 +182,7 @@ export default function ChatModal({
 													: "bg-red-500 text-white",
 												"block w-full rounded-b px-4 py-2 text-sm"
 											)}
+											onClick={(e) => BanUser(e, user.user)}
 										>
 											BAN
 										</button>

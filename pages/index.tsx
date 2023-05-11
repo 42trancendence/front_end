@@ -15,7 +15,7 @@ export default function IndexPage() {
 		const checkLoginStatus = async () => {
 			const token = await checkIsLoggedIn();
 			if (token) {
-				router.replace(process.env.NEXT_PUBLIC_AUTH_URL || "#");
+				router.replace("/lobby/overview");
 			} else {
 				setLoading(false);
 			}

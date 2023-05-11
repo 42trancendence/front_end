@@ -28,6 +28,9 @@ export default function FriendNotification() {
 				}
 			});
 		}
+		return () => {
+			socket?.off("friendRequest");
+		}
 	}, [socket]);
 
 	// 친구 요청 수락
@@ -62,7 +65,7 @@ export default function FriendNotification() {
 						enter="transform ease-out duration-300 transition"
 						enterFrom="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
 						enterTo="translate-y-0 opacity-100 sm:translate-x-0"
-						leave="transition ease-in duration-100"
+						leave="transition ease-in duration-0"
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
 					>
@@ -72,7 +75,7 @@ export default function FriendNotification() {
 									<div className="flex-shrink-0 pt-0.5">
 										<Image
 											className="h-10 w-10 rounded-full"
-											src="/default-avatar.svg"
+											src={userData.avatarImageUrl}
 											width={160}
 											height={160}
 											alt=""
