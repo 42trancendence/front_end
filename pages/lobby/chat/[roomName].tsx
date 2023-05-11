@@ -235,8 +235,8 @@ const RoomPage: NextPageWithLayout = ({
 															/>
 														</div>
 													)}
-													<div
-														className={`max-w-xs rounded-lg p-3 ${
+													<p
+														className={`text-sm leading-tight break-words ${
 															msg.user.name === username
 																? "rounded-bl-none bg-blue-300"
 																: "rounded-br-none bg-yellow-300"
