@@ -90,6 +90,16 @@ export default function SearchBox({
 
 	};
 
+	function blockUser(event: React.MouseEvent<HTMLElement>, item: any) {
+		event.preventDefault();
+		console.log("block user data:", item);
+		chatSocket?.emit("toggleBlockUser", {userId: item.id}, (error) => {
+			if (!error.status) {
+				console.log(error); // 서버에서 전달된 에러 메시지 출력
+			}
+		});
+	}
+
 	// 채팅방으로 이동
 	const { chatSocket } = useContext(SocketContext);
 
@@ -191,6 +201,13 @@ export default function SearchBox({
 														onClick={() => createDirectMessage(item.id, item.name)}
 													>
 														DM
+													</NormalButton>
+													<NormalButton
+														variant="red"
+														className="mr-2 border"
+														onClick={(e) => { blockUser(e, item) }}
+													>
+														차단
 													</NormalButton>
 													<NormalButton
 														variant="bright"

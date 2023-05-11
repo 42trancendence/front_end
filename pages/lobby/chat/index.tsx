@@ -56,7 +56,7 @@ const ChatRooms: NextPageWithLayout = () => {
 	}, [chatSocket, router]);
 
 	chatSocket?.on("showChatRoomList", function (data) {
-		// console.log(data);
+		console.log(data);
 		setChatRooms(data);
 		setLoading(false);
 		showChatRoomList(data);

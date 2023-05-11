@@ -167,7 +167,7 @@ const RoomPage: NextPageWithLayout = ({
 		// };
 		setMessage([...message, data]);
 	});
-	
+
 	const handleSendMessage = () => {
 		const messageText = inputRef.current.value;
 		socket?.emit("sendMessage", messageText);
@@ -205,57 +205,61 @@ const RoomPage: NextPageWithLayout = ({
 							<div className="max-h-[calc(100vh-240px)] min-h-[calc(100vh-240px)] overflow-y-auto rounded-[14px] bg-[#616161] p-6">
 								<div className="flex flex-col">
 									{message.map((msg: any, index: number) => (
-										<div
-											className={`mb-4 flex ${
-												msg.user.name === username
-													? "justify-end"
-													: "justify-start"
-											}`}
-											key={index}
-										>
-											{msg.user.name !== username && (
-												<div className="mr-2">
-													<Image
-														src={msg.user.avatarImageUrl}
-														alt=""
-														width={64}
-														height={64}
-														className="h-8 w-8 rounded-full"
-													/>
-												</div>
-											)}
-											<div
-												className={`max-w-xs rounded-lg p-3 ${
-													msg.user.name === username
-														? "rounded-bl-none bg-blue-300"
-														: "rounded-br-none bg-yellow-300"
-												} ${
-													msg.user.name === username
-														? "self-end justify-self-end"
-														: "self-start justify-self-start"
-												}`}
-											>
+										
+									<div
+										className={`mb-4 flex ${
+											msg.user.name === username
+												? "justify-end"
+												: "justify-start"
+										}`}
+										key={index}
+									>
+										<div className="flex flex-col">
+											<div className="flex flex-row">
 												{msg.user.name !== username && (
-													<p className="mb-1 text-sm font-bold text-cyan-700">
-														{msg.user.name}
-													</p>
+													<div className="mr-2">
+														<Image
+															src={msg.user.avatarImageUrl}
+															alt=""
+															width={64}
+															height={64}
+															className="h-8 w-8 rounded-full"
+														/>
+													</div>
 												)}
-												<p
-													className={`text-sm leading-tight ${
+												<div
+													className={`max-w-xs rounded-lg p-3 ${
 														msg.user.name === username
-															? "text-black"
-															: "text-black"
+															? "rounded-bl-none bg-blue-300"
+															: "rounded-br-none bg-yellow-300"
+													} ${
+														msg.user.name === username
+															? "self-end justify-self-end"
+															: "self-start justify-self-start"
 													}`}
 												>
-													{msg.message}
-												</p>
-                        <span className="text-sm text-gray-500">
-                          {new Date(msg.timestamp).toLocaleString()}
-                        </span>
+													{msg.user.name !== username && (
+														<p className="mb-1 text-sm font-bold text-cyan-700">
+															{msg.user.name}
+														</p>
+													)}
+													<p
+														className={`text-sm leading-tight ${
+															msg.user.name === username
+																? "text-black"
+																: "text-black"
+														}`}
+													>
+														{msg.message}
+													</p>
+													</div>
+												<div ref={messagesEndRef} />
 											</div>
-
-											<div ref={messagesEndRef} />
+											<span className="text-sm text-gray-400">
+												{new Date(msg.timestamp).toLocaleString()}
+											</span>
 										</div>
+									</div>
 									))}
 								</div>
 								{userMe[0]?.role === "OWNER" && (
