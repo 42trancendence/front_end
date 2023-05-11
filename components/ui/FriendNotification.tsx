@@ -28,6 +28,9 @@ export default function FriendNotification() {
 				}
 			});
 		}
+		return () => {
+			socket?.off("friendRequest");
+		}
 	}, [socket]);
 
 	// 친구 요청 수락
