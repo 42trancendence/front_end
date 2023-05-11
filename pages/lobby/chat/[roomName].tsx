@@ -66,7 +66,7 @@ const RoomPage: NextPageWithLayout = ({
         { roomName: roomName, password: password },
         (error) => {
           if (!error.status) {
-            toast.error("비밀번호가 틀렸습니다.");
+            toast.error(error.message);
             router.push(`/lobby/chat/?`);
           }
         }
@@ -82,6 +82,7 @@ const RoomPage: NextPageWithLayout = ({
         { roomName: roomName, password: password },
         (error) => {
           if (!error.status) {
+            toast.error(error.message);
             router.push(`/lobby/chat/`);
           }
         }
@@ -94,9 +95,19 @@ const RoomPage: NextPageWithLayout = ({
 		toast.error("관리자가 당신을 내보냈습니다");
 		router.push(`/lobby/chat/`);
 	}
-	useEffect(() => {
 
-	socket?.on("kickUser", handleKick);
+
+
+	useEffect(() => {
+	if (socket)
+		socket.on("kickUser", handleKick);
+	
+	if (socket)
+	{
+		socket.on("getMessage", function (data) {
+			setMessage(prevMessages => [...prevMessages, data]);
+		});
+	}
 
     if (isProtected == "true")
     {
@@ -107,9 +118,12 @@ const RoomPage: NextPageWithLayout = ({
         router.push(`/lobby/chat/`);
       }
     }
-    else
+    else {
       setPassword("");
+	}
+
 		return () => {
+			socket?.off("getMessage");
 			socket?.off("kickUser", handleKick);
 		}
 	}, []);
@@ -122,51 +136,47 @@ const RoomPage: NextPageWithLayout = ({
 				console.log("페이지를 떠납니다.");
 			}
 		};
+		if (socket)
+		{
+			socket.on("getChatRoomMessages", function (data?) {
+				console.log("msg data", data);
+				if (data)
+					setMessage(data);
+			});
+		}
 
+		if (socket)
+		{
+			socket.on("getChatRoomUsers", function (data) {
+				const Users = data.filter((user: any) => {
+				  return !user.isBanned;
+				});
+				const bannedUsers = data.filter((user: any) => {
+				  return user.isBanned;
+				});
+				setUserList(Users);
+				setbannedUserList(bannedUsers);
+				const me = Users.filter((user: any) => {
+				  return user.user.name === username;
+				});
+				setUserMe(me);
+				setLoading(false);
+			  });
+			}
 		router.events.on("routeChangeStart", handleRouteChangeStart);
 
 		return () => {
+			socket?.off("getChatRoomMessages");
+			socket?.off("getChatRoomUsers");
 			router.events.off("routeChangeStart", handleRouteChangeStart);
 		};
 	}, [router, socket, username]);
 
-  socket?.on("getChatRoomUsers", function (data) {
-    const Users = data.filter((user: any) => {
-      return !user.isBanned;
-    });
-    const bannedUsers = data.filter((user: any) => {
-      return user.isBanned;
-    });
-    setUserList(Users);
-    setbannedUserList(bannedUsers);
-    const me = Users.filter((user: any) => {
-      return user.user.name === username;
-    });
-    setUserMe(me);
-    setLoading(false);
-  });
-
-	const userElements: { [key: string]: HTMLLIElement | null } = {};
 
 	const handleCloseUserModal = () => {
 		setSelectedUser("");
 		setShowUserModal(false);
 	};
-
-	socket?.on("getChatRoomMessages", function (data?) {
-		console.log("msg data", data);
-		if (data) setMessage(data);
-	});
-
-	socket?.on("getMessage", function (data) {
-		console.log("msgdata:", data);
-		// const newMessage = {
-		// 	message: data.message,
-		// 	user: [data.user.name],
-		// 	userImage: data.user.avatarImageUrl,
-		// };
-		setMessage([...message, data]);
-	});
 
 	const handleSendMessage = () => {
 		const messageText = inputRef.current.value;

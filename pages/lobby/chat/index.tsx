@@ -1,7 +1,6 @@
 import Layout from "@/components/Layout";
 import Image from "next/image";
-import DefaultAvatar from "@/public/default_avatar.svg";
-import Loading from "../../../components/ui/Loading";
+import Loading from "@/components/ui/Loading";
 import SlideButton from "@/components/ui/SlideButton";
 import { ReactElement, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
@@ -16,13 +15,11 @@ import {
 } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
 import { toast } from "react-toastify";
+import { Socket } from "socket.io-client";
 
 const ChatRooms: NextPageWithLayout = () => {
 	const [loading, setLoading] = useState(true);
 	const [activeTab, setActiveTab] = useState("chat");
-	const [username, setUsername] = useState("");
-	const [avatar, setavatarUrl] = useState(DefaultAvatar);
-	const [userData, setuserData] = useState({});
 	const [name, setName] = useState("");
 	const [isPrivate, setIsPrivate] = useState(false);
 	const [password, setPassword] = useState("");
@@ -48,25 +45,29 @@ const ChatRooms: NextPageWithLayout = () => {
 				// console.log("페이지를 떠납니다.");
 			}
 		};
+		chatSocket?.on("showChatRoomList", function (data) {
+			console.log(data);
+			setChatRooms(data);
+			setLoading(false);
+			showChatRoomList(data);
+		})
+	
+		chatSocket?.on("showDirectMessageList", function(data) {
+			setDMLists(data);
+			console.log("dm room list", data);
+			showChatRoomList(data);
+		})
+
 		chatSocket?.emit("enterChatLobby");
 		router.events.on("routeChangeStart", handleRouteChangeStart);
 		return () => {
+			chatSocket?.off("showChatRoomList");
+			chatSocket?.off("showDirectMessageList");
 			router.events.off("routeChangeStart", handleRouteChangeStart);
 		};
 	}, [chatSocket, router]);
 
-	chatSocket?.on("showChatRoomList", function (data) {
-		console.log(data);
-		setChatRooms(data);
-		setLoading(false);
-		showChatRoomList(data);
-	})
 
-	chatSocket?.on("showDirectMessageList", function(data) {
-		setDMLists(data);
-		console.log("dm room list", data);
-		showChatRoomList(data);
-	})
 
 	const createChatRoom = () => {
 		setLoading(true);
@@ -100,9 +101,6 @@ const ChatRooms: NextPageWithLayout = () => {
 	  const joinDMRoom = (room: any) => {
 		chatSocket?.emit("enterDirectMessage", {
 			directMessageId: room.id,
-		});
-		chatSocket?.on("error", (error) => {
-			toast.error(error); // 서버에서 전달된 에러 메시지 출력
 		});
 		router.push(`/lobby/chat/dm/dm: ${room.otherUserName}?dmId=${room.id}`);
 	};

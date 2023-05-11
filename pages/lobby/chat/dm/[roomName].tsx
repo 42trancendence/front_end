@@ -54,6 +54,8 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
         }
       });
     }
+    return () => {
+    }
 	}, [router]);
 
   const { friendSocket, chatSocket: socket } = useContext(SocketContext);
@@ -72,26 +74,48 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
 
     router.events.on('routeChangeStart', handleRouteChangeStart);
 
+    if (socket)
+    {
+      socket.on("getMessage", function (data: any) {
+        console.log("send messages: ", data);
+        setMessage(prevMessages => [...prevMessages, data]);
+      });
+    }
+  
+    if (socket)
+    {
+      socket.on("getChatRoomMessages", function (data: any) {
+        console.log("getChatRoomMessages: ", data);
+        setMessage([...data]);
+      });
+    }
 
+    if (socket)
+    {
+    socket.on("getDirectMessageUsers", function (data) {
+      console.log("users data", data);
+      const newUserList = Object.keys(data)
+      .filter(key => key !== 'isBlocked')
+      .map(key => data[key]);
+      const me = newUserList.filter((user: any) => {
+        return user.name === username;
+      });
+      setUserMe(me);
+      setIsBlocked(data.isBlocked);
+      setUserLists(newUserList);
+      console.log("console data", userLists);
+      setLoading(false);
+    });
+  }
+  
     return () => {
+      socket?.off("getDirectMessageUsers");
+      socket?.off("getMessage");
+      socket?.off("getChatRoomMessages");
       router.events.off('routeChangeStart', handleRouteChangeStart);
     };
 	}, [router, socket, username]);
 
-  socket?.on("getDirectMessageUsers", function (data) {
-    console.log("users data", data);
-    const newUserList = Object.keys(data)
-    .filter(key => key !== 'isBlocked')
-    .map(key => data[key]);
-    const me = newUserList.filter((user: any) => {
-      return user.name === username;
-    });
-    setUserMe(me);
-    setIsBlocked(data.isBlocked);
-    setUserLists(newUserList);
-    console.log("console data", userLists);
-    setLoading(false);
-  });
 
   useEffect(() => {
     console.log("usersdata:", userLists);
@@ -103,15 +127,7 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
     setShowUserModal(false);
   };
 
-	socket?.on("getMessage", function (data: any) {
-		console.log("send messages: ", data);
-		setMessage([...message, data]);
-	});
 
-  socket?.on("getChatRoomMessages", function (data: any) {
-    console.log("getChatRoomMessages: ", data);
-    setMessage([...data]);
-  });
 
   const handleSendMessage = () => {
     const messageText = inputRef.current.value;
