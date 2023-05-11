@@ -29,7 +29,7 @@ const RoomPage: NextPageWithLayout = ({
 	const [bannedUserList, setbannedUserList] = useState([]);
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
-	const [isMuted, setIsMuted] = useState(false);
+	const [isMuted, setIsMuted] = useState(true);
 	const messagesEndRef = useRef(null);
 	const inputRef = useRef(null);
 	const router = useRouter();
@@ -329,7 +329,7 @@ const RoomPage: NextPageWithLayout = ({
 								placeholder="메시지를 입력하세요."
 								ref={inputRef}
 								onKeyDown={(event) => {
-									if (event.key === "Enter") {
+									if (event.key === "Enter" && isMuted === false) {
 										handleSendMessage();
 									}
 								}}
