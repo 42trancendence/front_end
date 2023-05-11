@@ -140,10 +140,7 @@ export default function TwoFAPage() {
 			if (res.status === 201) {
 				setis2faNext("after");
 			}
-			if (res.status === 401) {
-				setis2faNext("before");
-				router.push("/");
-			} else {
+			else {
 				setis2faNext("before");
 			}
 		} catch (error) {
@@ -172,10 +169,7 @@ export default function TwoFAPage() {
 				localStorage.setItem("token", data.token);
 				router.replace("/lobby/overview");
 			}
-			if (res.status === 401) {
-				setisValidated2fa(false);
-				router.push("/");
-			} else if (res.status === 404) {
+			else if (res.status === 404) {
 				setisValidated2fa(false);
 				openDialog("2FA 인증 코드가 일치하지 않습니다.", "fail");
 			}
@@ -206,10 +200,7 @@ export default function TwoFAPage() {
 				localStorage.setItem("token", data.token);
 				router.replace("/lobby/overview");
 			}
-			if (res.status === 401) {
-				setisValidated2fa(false);
-				router.push("/");
-			} else if (res.status === 404) {
+			else if (res.status === 404) {
 				setisValidated2fa(false);
 				openDialog("2FA 인증 코드가 일치하지 않습니다.", "fail");
 			}
