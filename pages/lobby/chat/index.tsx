@@ -209,9 +209,11 @@ const ChatRooms: NextPageWithLayout = () => {
 							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
 								<p className="font-bold">{room.otherUserName + "\t님과의 대화방"}</p>
 							</div>
+							{room.isBlocked === true  ? (
 							<div className="flex w-1/4 flex-col items-end justify-end space-y-3 text-base">
 								<NoSymbolIcon className="ml-auto h-12 w-12 text-red-500"/>
 							</div>
+							): <></>}
 							<div className="flex w-1/4 flex-col items-end justify-end space-y-3 text-base flex-grow">
 								<button onClick={() => joinDMRoom(room)} className="rounded-lg bg-zinc-400 p-3 hover:bg-zinc-700 transition-colors cursor-pointer">대화</button>
 							</div>
