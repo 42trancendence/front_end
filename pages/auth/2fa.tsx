@@ -139,6 +139,10 @@ export default function TwoFAPage() {
 			});
 			if (res.status === 201) {
 				setis2faNext("after");
+			}
+			if (res.status === 401) {
+				setis2faNext("before");
+				router.push("/");
 			} else {
 				setis2faNext("before");
 			}
@@ -167,6 +171,10 @@ export default function TwoFAPage() {
 				setisValidated2fa(true);
 				localStorage.setItem("token", data.token);
 				router.replace("/lobby/overview");
+			}
+			if (res.status === 401) {
+				setisValidated2fa(false);
+				router.push("/");
 			} else if (res.status === 404) {
 				setisValidated2fa(false);
 				openDialog("2FA 인증 코드가 일치하지 않습니다.", "fail");
@@ -197,6 +205,10 @@ export default function TwoFAPage() {
 				setisValidated2fa(true);
 				localStorage.setItem("token", data.token);
 				router.replace("/lobby/overview");
+			}
+			if (res.status === 401) {
+				setisValidated2fa(false);
+				router.push("/");
 			} else if (res.status === 404) {
 				setisValidated2fa(false);
 				openDialog("2FA 인증 코드가 일치하지 않습니다.", "fail");
@@ -327,7 +339,7 @@ export default function TwoFAPage() {
 																인증
 															</NormalButton>
 														</div>
-														<div className="relative mt-3 flex flex-col w-full max-w-lg items-center justify-center text-zinc-200">
+														<div className="relative mt-3 flex w-full max-w-lg flex-col items-center justify-center text-zinc-200">
 															<p>
 																<Link
 																	href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2&hl=en"
