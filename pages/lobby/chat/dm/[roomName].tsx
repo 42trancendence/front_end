@@ -80,12 +80,9 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
 
   socket?.on("getDirectMessageUsers", function (data) {
     console.log("users data", data);
-    const newUserList = Object.keys(data).map(key => {
-      return {
-        id: data[key].id,
-        name: data[key].name,
-      };
-    });
+    const newUserList = Object.keys(data)
+    .filter(key => key !== 'isBlocked')
+    .map(key => data[key]);
     const me = newUserList.filter((user: any) => {
       return user.name === username;
     });

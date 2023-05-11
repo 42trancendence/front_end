@@ -167,7 +167,7 @@ const RoomPage: NextPageWithLayout = ({
 		// };
 		setMessage([...message, data]);
 	});
-
+	
 	const handleSendMessage = () => {
 		const messageText = inputRef.current.value;
 		socket?.emit("sendMessage", messageText);
