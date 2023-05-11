@@ -12,6 +12,7 @@ import { Cog6ToothIcon } from "@heroicons/react/20/solid";
 import Image from "next/image";
 import BannedChatModal from "@/components/BannedChatModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {faCommentSlash} from "@fortawesome/free-solid-svg-icons";
 
 const RoomPage: NextPageWithLayout = ({
 	isProtected,
@@ -336,11 +337,11 @@ const RoomPage: NextPageWithLayout = ({
 							{isMuted ? (
 								<button
 									type="button"
-									className="ml-2 w-20 rounded-lg bg-blue-300 px-4 py-2 text-white"
+									className="ml-2 w-20 rounded-lg bg-blue-500 px-4 py-2 text-white"
 								>
 									<FontAwesomeIcon
 										className="text-white"
-										icon="fa-light fa-message-slash"
+										icon={faCommentSlash}
 									/>
 								</button>
 							) : (
