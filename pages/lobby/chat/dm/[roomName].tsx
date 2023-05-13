@@ -157,47 +157,63 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
       <p className="text-4xl text-left text-[#939efb]">{roomName.substring(3) + "님과의 1:1 대화"}</p>
       <div className="grid grid-cols-[1fr,200px] gap-4">
         <div className="p-6 rounded-[14px] bg-[#616161] overflow-y-auto max-h-[calc(100vh-240px)] min-h-[calc(100vh-240px)]">
-          <div className="flex-1 p-6">
-          {message.map((msg: any, index: number) => (
-                  <div
-                    className={`flex mb-4 ${
-                      msg.user.name === username ? "justify-end" : "justify-start"
-                    }`}
-                    key={index}
-                  >
-					{msg.user.name !== username && (
-						<div className="mr-2">
-						<Image
-							src={msg.user.avatarImageUrl ? msg.user.avatarImageUrl : "/default_avatar.svg"}
-							alt=""
-              width={32}
-              height={32}
-							className="w-8 h-8 bg-zinc-900 p-1 rounded-full"
-						/>
-						</div>
-					)}
-                    <div
-                      className={`rounded-lg p-3 max-w-xs ${
-                        msg.user.name === username ? "bg-blue-300 rounded-bl-none" : "bg-yellow-300 rounded-br-none"
-                      } ${
-                        msg.user.name === username ? "self-end justify-self-end" : "self-start justify-self-start"
-                      }`}
-                    >
-					{msg.user.name !== username && (
-         				 <p className="text-sm text-cyan-700 font-bold mb-1">{msg.user.name}</p>
-        			)}
-                      <p
-                        className={`text-sm leading-tight ${
-                          msg.user.name === username ? "text-black" : "text-black"
-                        }`}
-                      >
-                        {msg.message}
-                      </p>
-        			{/* <p className="text-xs text-gray-500">{msg..toLocaleString()}</p> // 메시지를 보낸 날짜 출력 */}
-                    </div>
-                    <div ref={messagesEndRef} />
-                  </div>
-                ))}
+        <div className="flex flex-col">
+									{message.map((msg: any, index: number) => (
+										<div
+											className={`mb-4 flex ${
+												msg.user.name === username
+													? "justify-end"
+													: "justify-start"
+											}`}
+											key={index}
+										>
+											<div className="flex flex-col">
+												<div className="flex flex-row">
+													{msg.user.name !== username && (
+														<div className="mr-2">
+															<Image
+																src={msg.user.avatarImageUrl}
+																alt=""
+																width={64}
+																height={64}
+																className="h-8 w-8 rounded-full"
+															/>
+														</div>
+													)}
+													<div
+														className={`max-w-xs break-words rounded-lg p-3 text-sm leading-tight ${
+															msg.user.name === username
+																? "rounded-br-none bg-blue-300"
+																: "rounded-bl-none bg-yellow-300"
+														} ${
+															msg.user.name === username
+																? "self-end justify-self-end"
+																: "self-start justify-self-start"
+														}`}
+													>
+														{msg.user.name !== username && (
+															<p className="mb-1 text-sm font-bold text-cyan-700">
+																{msg.user.name}
+															</p>
+														)}
+														<p
+															className={`text-sm leading-tight ${
+																msg.user.name === username
+																	? "text-black"
+																	: "text-black"
+															}`}
+														>
+															{msg.message}
+														</p>
+													</div>
+													<div ref={messagesEndRef} />
+												</div>
+												<span className="text-sm text-gray-400">
+													{new Date(msg.timestamp).toLocaleTimeString('ko-KR', { day: 'numeric', hour: 'numeric', minute: 'numeric'})}
+												</span>
+											</div>
+										</div>
+									))}
           </div>
         </div>
         <div className="p-6 h-full rounded-[14px] bg-[#616161]">
