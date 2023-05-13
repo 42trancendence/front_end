@@ -124,7 +124,7 @@ const EditProfilePallet = ({
 			const res = await fetch("http://localhost:3000/users/me", {
 				method: "PUT",
 				headers: {
-					"Content-Type": "application/json",
+					"Content-Type": "multipart/form-data",
 					Authorization: `Bearer ${localStorage.getItem("token")}`,
 				},
 				body: JSON.stringify(data),
