@@ -8,6 +8,7 @@ import { SocketContext } from "@/lib/socketContext";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCertificate, faCrown } from "@fortawesome/free-solid-svg-icons";
+import { NotifyContext } from "@/lib/notifyContext";
 import { useRouter } from "next/router";
 
 export default function ChatModal({
@@ -18,6 +19,7 @@ export default function ChatModal({
 	userMe: any;
 }) {
 	const { chatSocket: socket } = useContext(SocketContext);
+	const { gameSocket: gameSocket } = useContext(SocketContext);
 	const me = userMe[0];
 	console.log("chatmodal me data:", me);
 	console.log("chatmodal user data:", userData);
@@ -64,6 +66,54 @@ export default function ChatModal({
 			}
 		});
 	}
+
+	const { successed } = useContext(NotifyContext);
+	function onSuccessed() {
+		successed({
+			header: "게임요청",	
+			message: "게임요청을 성공적으로 보냈습니다.",
+		});
+	}
+
+	const createDirectMessage = (id: string, name: string) => {
+		console.log("1:1 data: ", id, name);
+		socket?.emit("createDirectMessage", {
+			receiverId: id,
+		}, (res: any) => {
+			console.log("res", res);
+			router.push(`/lobby/chat/dm/dm: ${name}?dmId=${res.directMessageId}`);
+			if (!res.status) {
+				console.log(res); // 서버에서 전달된 에러 메시지 출력
+				router.push(`/lobby/chat/`);
+			}
+		});
+
+	};
+
+	// 게임 초대 이벤트
+	const inviteUserForGame = (event: React.MouseEvent<HTMLElement>, item: any) => {
+
+		// console.log('user: ', item)
+
+		gameSocket?.emit("inviteUserForGame", { userName: item.name });
+		gameSocket?.on("error", (error) => {
+			console.log(error); // 서버에서 전달된 에러 메시지 출력
+		});
+		gameSocket?.on('getMatching', (data: string, roomId: string) => {
+			// console.log(`getMatching: ${data}`);
+
+			if (data == 'matching')	{
+				// console.log(data2);
+				router.push(`/lobby/game/${roomId}`);
+			}	else {
+				alert('매칭 실패');
+			}
+		})
+		// router.push(`game`);
+		onSuccessed();
+	};
+
+
 
 	return userData.map((user: any, index: number) => (
 		me ? 
@@ -114,7 +164,6 @@ export default function ChatModal({
 									유저 정보
 								</button>
 							)}
-						
 						</Menu.Item>
 						{me.user.name !== user.user.name && (
 							<Menu.Item>
@@ -124,7 +173,22 @@ export default function ChatModal({
 											active ? "bg-gray-100 text-gray-700" : "text-white",
 											"block w-full px-4 py-2 text-sm"
 										)}
-										onClick={(e) => MuteUser(e, user.user)}
+										onClick={(e) => createDirectMessage(user.user.id, user.user.name)}
+									>
+										1:1 채팅
+									</button>
+								)}
+							</Menu.Item>
+						)}
+						{me.user.name !== user.user.name && (
+							<Menu.Item>
+								{({ active }) => (
+									<button
+										className={clsx(
+											active ? "bg-gray-100 text-gray-700" : "text-white",
+											"block w-full px-4 py-2 text-sm"
+										)}
+										onClick={(e) => { inviteUserForGame(e, user.user) }}
 									>
 										게임 초대
 									</button>
