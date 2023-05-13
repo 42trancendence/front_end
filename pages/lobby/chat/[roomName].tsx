@@ -309,7 +309,7 @@ const RoomPage: NextPageWithLayout = ({
 													<div ref={messagesEndRef} />
 												</div>
 												<span className="text-sm text-gray-400">
-													{new Date(msg.timestamp).toLocaleString()}
+													{new Date(msg.timestamp).toLocaleTimeString('ko-KR', { day: 'numeric', hour: 'numeric', minute: 'numeric'})}
 												</span>
 											</div>
 										</div>
