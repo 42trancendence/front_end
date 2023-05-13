@@ -14,6 +14,7 @@ const Canvas: React.FC = () => {
   const [ready, setReady] = useState(false);
   const [startGame, setStartGame] = usePersistentState('startGame', false);
   const [difficulty, setDifficulty] = useState(false);
+  const [changeScore, setChangeScore] = useState(false);
   const [players, setPlayers] = useState(['player1', 'player2']);
   const [avatarUrls, setAvatarUrls] = useState(['','']);
   const [score, setScore] = useState([0, 0]);
@@ -41,7 +42,7 @@ const Canvas: React.FC = () => {
 				if (res.ok) {
 					const playersInfo = await res.json();
 
-					console.log(playersInfo);
+					// console.log(playersInfo);
 
 					setPlayers([playersInfo.player1.name, playersInfo.player2.name]);
           setScore([playersInfo.player1Score, playersInfo.player2Score])
@@ -62,7 +63,7 @@ const Canvas: React.FC = () => {
 			}
 		}
     const roomId = router.query.roomId;
-    console.log('rromId:', roomId);
+    // console.log('rromId:', roomId);
 		getGamePlayersInfo(roomId);
   }, []);
 
@@ -81,13 +82,7 @@ const Canvas: React.FC = () => {
           setStartGame(true);
           canvasRef.current?.focus();
         } else {
-          // router.push('/lobby/overview');
-          // 결과 모달창 true, false를 여기서 하면 된다
-          // alert(data);
-          // SetShowGameModal 함수 실행
-          console.log(`setStartGame: ${data}`);
           setShowGameModal(true);
-          setStartGame(false);
         }
       })
       gameSocket.on('postLeaveGame', (data: string) => {
@@ -108,9 +103,9 @@ const Canvas: React.FC = () => {
 
   const render = () => {
     if (ctx && gameData) {
-      ctx.clearRect(0, 0, 500, 500);
+      ctx.clearRect(0, 0, 1000, 700);
       ctx.fillStyle = 'gray';
-      ctx.fillRect(0, 0, 500, 500);
+      ctx.fillRect(0, 0, 1000, 500);
       drawPaddle(gameData?.paddles_[0]);
       drawPaddle(gameData?.paddles_[1]);
       drawBall(gameData?.ball_.x_, gameData?.ball_.y_);
@@ -157,6 +152,13 @@ const Canvas: React.FC = () => {
     }
   }
 
+  const handleChangeScore = () => {
+    if (gameSocket) {
+      gameSocket.emit('postChangeScore', changeScore ? 'normal' : 'hard');
+      setChangeScore(!changeScore);
+    }
+  }
+
   const handleLeaveGame = () => {
     if (gameSocket) {
       gameSocket.emit('postLeaveGame');
@@ -169,6 +171,7 @@ const Canvas: React.FC = () => {
   const handleOnClose = () => {
     router.push('/lobby/overview');
     setShowGameModal(false);
+    setStartGame(false);
   }
 
   return (
@@ -191,7 +194,9 @@ const Canvas: React.FC = () => {
         <a className="text-blue-600 text-zinc-300">{players[0]}</a>
       </div>
 		<ul className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 lg:flex lg:mx-auto lg:flex lg:items-center lg:w-auto lg:space-x-6">
-			<li><a className="text-3xl text-white font-bold">{`${score[0]}  -  ${score[1]}`}</a></li>
+			<li>
+        <a className="text-3xl text-white font-bold">{`${score[0]}  -  ${score[1]}`}</a>
+      </li>
 		</ul>
     <div className="flex flex-col items-center mt-2">
 		  <Image
@@ -204,8 +209,14 @@ const Canvas: React.FC = () => {
       <a className="text-blue-600 text-zinc-300">{players[1]}</a>
     </div>
 	</nav>
+    {startGame ?
+        <div className='mb-2'>
+          {`난이도: ${gameData?.difficulty_ ? gameData?.difficulty_ : 'normal'}, \
+          최종점수: ${gameData?.finalScore_ ? `${gameData?.finalScore_}점` : '5점'}`}
+        </div> : ''
+    }
         <canvas
-          ref={canvasRef} width={500} height={500}
+          ref={canvasRef} width={1000} height={700}
         />
         <GameModal
           onClose={handleOnClose}
@@ -217,46 +228,57 @@ const Canvas: React.FC = () => {
         />
       </div>
       {startGame ?
-        <div>
-          게임 시작
-        </div>
+        ''
         :
         // 가운데 정렬
         <div className="absolute w-full flex items-center justify-center m-auto inset-0">
-        <div className='mx-auto my-auto space-y-4'>
           <div>
-            <div className='text-center mb-2 text-2xl font-bold text-indigo-400'>
-              난이도
+            <div className='flex'>
+              <div className='text-center my-10'>
+                <div className='text-center mb-4 text-2xl font-bold text-indigo-400'>
+                  난이도
+                </div>
+                <div className='text-center'>
+                  <button
+                    onClick={() => handleDifficulty()}
+                    className={`bg-${difficulty ? 'red' : 'zinc'}-400 hover:bg-${difficulty ? 'zinc' : 'red'}-600 w-40 h-60 text-white text-xl font-bold py-2 px-4 rounded`}
+                  >
+                    {difficulty ? 'hard' : 'normal'}
+                  </button>
+                </div>
+              </div>
+              <div className='text-center space-x-4 my-10'>
+                <div className='text-center ml-3 mb-4 text-2xl font-bold text-indigo-400'>
+                  스코어
+                </div>
+                <div className='text-center'>
+                  <button
+                    onClick={() => handleChangeScore()}
+                    className={`bg-${changeScore ? 'red' : 'zinc'}-400 hover:bg-${changeScore ? 'zinc' : 'red'}-600 w-40 h-60 text-white text-xl font-bold py-2 px-4 rounded`}
+                  >
+                    {changeScore ? '10점' : '5점'}
+                  </button>
+                </div>
+              </div>
             </div>
-            <div className='text-center space-x-4 my-10'>
-            <div className='text-center'>
+
+            <div
+                className='space-x-4'
+            >
               <button
-                onClick={() => handleDifficulty()}
-                className={`bg-${difficulty ? 'red' : 'zinc'}-400 hover:bg-${difficulty ? 'zinc' : 'red'}-600 w-40 h-60 text-white text-xl font-bold py-2 px-4 rounded`}
+                onClick={() => handleReadyGame()}
+                className={'bg-zinc-600 w-40 text-indigo-400 hover:bg-zinc-400 hover:text-zinc-800 py-2 px-4 rounded'}
               >
-                {difficulty ? 'hard' : 'normal'}
+                {ready ? '준비완료' : '준비' }
+              </button>
+              <button
+                onClick={() => handleLeaveGame()}
+                className={'bg-zinc-600 w-40 text-indigo-400 hover:bg-zinc-400 hover:text-zinc-800 py-2 px-4 rounded'}
+              >
+                나가기
               </button>
             </div>
-            </div>
           </div>
-
-          <div
-              className='space-x-4'
-          >
-            <button
-              onClick={() => handleReadyGame()}
-              className={'bg-zinc-600 w-40 text-indigo-400 hover:bg-zinc-400 hover:text-zinc-800 py-2 px-4 rounded'}
-            >
-              {ready ? '준비완료' : '준비' }
-            </button>
-            <button
-              onClick={() => handleLeaveGame()}
-              className={'bg-zinc-600 w-40 text-indigo-400 hover:bg-zinc-400 hover:text-zinc-800 py-2 px-4 rounded'}
-            >
-              나가기
-            </button>
-          </div>
-        </div>
         </div>
     }
     </div>
