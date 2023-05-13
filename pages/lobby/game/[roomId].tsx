@@ -5,8 +5,16 @@ import {
 } from "@/lib/socketContext";
 import Seo from "@/components/Seo";
 import Canvas from "@/components/canvas/canvas";
+import { useContext, useEffect } from "react";
+import { SocketContext } from "@/lib/socketContext";
 
 const GameView = () => {
+	const { friendSocket } = useContext(SocketContext);
+	useEffect(() => {
+		if (friendSocket) {
+			friendSocket.emit("updateActiveStatus", 3);
+		}
+	}, [friendSocket]);
 
 	return (
 		<>
