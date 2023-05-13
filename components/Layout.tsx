@@ -32,6 +32,7 @@ export default function Layout({
 }) {
 	const router = useRouter();
 	const [userData, setuserData] = useState<any>([]);
+	const [isNavView, setisNavView] = useState(true);
 	const state = useUsersState();
 	const dispatch = useUsersDispatch();
 
@@ -42,6 +43,12 @@ export default function Layout({
 	const { data: user, loading, error } = state.user;
 
 	useEffect(() => {
+		if (router.asPath.startsWith("/lobby/game")) {
+			setisNavView(false);
+		}
+		else {
+			setisNavView(true);
+		}
 		if (error) {
 			router.push("/");
 		}
@@ -115,7 +122,7 @@ export default function Layout({
 					theme="dark"
 					/>
 					<div className="bg-zinc-800 text-white lg:flex">
-						<NavBar userData={userData} />
+						{isNavView && <NavBar userData={userData} />}
 						<div className="relative flex w-full flex-1 px-8 py-6">
 							{pageProps}
 							{children}
