@@ -30,10 +30,8 @@ const RoomPage: NextPageWithLayout = ({
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [isMuted, setIsMuted] = useState(false);
-	const [isProtectedState, setIsProtectedState] = useState(isProtected);
 	const messagesEndRef = useRef(null);
 	const inputRef = useRef(null);
-	const passInput = useRef(null);
 	const router = useRouter();
 
 	const [userMe, setUserMe] = useState([]);
