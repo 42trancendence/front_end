@@ -7,6 +7,7 @@ import { Menu, Transition } from "@headlessui/react";
 import { SocketContext } from "@/lib/socketContext";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import {useRouter} from "next/router";
+import { NotifyContext } from "@/lib/notifyContext";
 import {
 	NoSymbolIcon
 } from "@heroicons/react/24/outline";
@@ -32,6 +33,7 @@ export default function DirectChatModal({
 	});
 	console.log("modal data:", userData);
 	const { chatSocket: socket } = useContext(SocketContext);
+	const { gameSocket: gameSocket } = useContext(SocketContext);
 	const router = useRouter();
 
 	function BlockUser(event: React.MouseEvent<HTMLElement>, item: any) {
@@ -43,7 +45,38 @@ export default function DirectChatModal({
 			}
 		});
 	}
+
+	const { successed } = useContext(NotifyContext);
+	function onSuccessed() {
+		successed({
+			header: "게임요청",	
+			message: "게임요청을 성공적으로 보냈습니다.",
+		});
+	}
+
+		// 게임 초대 이벤트
+		const inviteUserForGame = (event: React.MouseEvent<HTMLElement>, item: any) => {
+
+			// console.log('user: ', item)
 	
+			gameSocket?.emit("inviteUserForGame", { userName: item.name });
+			gameSocket?.on("error", (error) => {
+				console.log(error); // 서버에서 전달된 에러 메시지 출력
+			});
+			gameSocket?.on('getMatching', (data: string, roomId: string) => {
+				// console.log(`getMatching: ${data}`);
+	
+				if (data == 'matching')	{
+					// console.log(data2);
+					router.push(`/lobby/game/${roomId}`);
+				}	else {
+					alert('매칭 실패');
+				}
+			})
+			// router.push(`game`);
+			onSuccessed();
+		};
+
 	return newUserList.map((user: any, index: number) => (
 		me ?
 		<Menu as="li" key={index}>
@@ -82,7 +115,7 @@ export default function DirectChatModal({
 										active ? "bg-gray-100 text-gray-700" : "text-white",
 										"block w-full rounded-t px-4 py-2 text-sm"
 									)}
-									onClick={() => router.push(`/lobby/users/${user.user.id}`)}
+									onClick={() => router.push(`/lobby/users/${user.id}`)}
 								>
 									유저 정보
 								</button>
@@ -97,6 +130,7 @@ export default function DirectChatModal({
 										active ? "bg-gray-100 text-gray-700" : "text-white",
 										"block w-full px-4 py-2 text-sm"
 									)}
+									onClick={(e) => { inviteUserForGame(e, user) }}
 								>
 									게임 초대
 								</button>
