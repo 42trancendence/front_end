@@ -103,9 +103,9 @@ const Canvas: React.FC = () => {
 
   const render = () => {
     if (ctx && gameData) {
-      ctx.clearRect(0, 0, 1000, 700);
-      ctx.fillStyle = 'gray';
-      ctx.fillRect(0, 0, 1000, 500);
+      ctx.clearRect(0, 0, 1024, 640);
+      ctx.fillStyle = 'white';
+      ctx.fillRect(0, 0, 1024, 640);
       drawPaddle(gameData?.paddles_[0]);
       drawPaddle(gameData?.paddles_[1]);
       drawBall(gameData?.ball_.x_, gameData?.ball_.y_);
@@ -115,7 +115,7 @@ const Canvas: React.FC = () => {
 
   const drawPaddle = (paddle: Object) => {
     if (ctx) {
-      ctx.fillStyle = 'red';
+      ctx.fillStyle = 'blue';
       ctx.fillRect(paddle?.x_, paddle?.y_, paddle?.width_, paddle?.height_);
     }
   }
@@ -124,7 +124,7 @@ const Canvas: React.FC = () => {
     if (ctx) {
       ctx.beginPath();
       ctx.arc(x, y, 10, 0, 2 * Math.PI);
-      ctx.fillStyle = 'blue';
+      ctx.fillStyle = 'red';
       ctx.fill();
     }
   }
@@ -216,7 +216,7 @@ const Canvas: React.FC = () => {
         </div> : ''
     }
         <canvas
-          ref={canvasRef} width={1000} height={700}
+          ref={canvasRef} width={1024} height={640}
         />
         <GameModal
           onClose={handleOnClose}
