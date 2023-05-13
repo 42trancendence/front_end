@@ -41,8 +41,21 @@ const ChatRooms: NextPageWithLayout = () => {
 	useEffect(() => {
 		const handleRouteChangeStart = (url: string) => {
 			if (!url.match(/^\/lobby\/chat(?:\/)?(?:\/.*)?$/)) {
-				chatSocket?.emit("leaveChatPage");
-				// console.log("페이지를 떠납니다.");
+				chatSocket?.emit("leaveChatPage",
+				(error) => {
+					if (error.status === "FATAL") {		
+						toast.error(error.message);
+						router.push(`/lobby/chat/`);
+					}
+					else if (error.status === "ERROR") {	
+						toast.error(error.message);
+						router.push(`/lobby/chat/`);
+					}
+					else if (error.status === "OK")
+					{
+						// 알람 없음
+					}
+				});
 			}
 		};
 		chatSocket?.on("showChatRoomList", function (data) {
@@ -58,7 +71,21 @@ const ChatRooms: NextPageWithLayout = () => {
 			showChatRoomList(data);
 		})
 
-		chatSocket?.emit("enterChatLobby");
+		chatSocket?.emit("enterChatLobby",
+		(error) => {
+			if (error.status === "FATAL") {		
+				toast.error(error.message);
+				router.push(`/lobby/chat/`);
+			}
+			else if (error.status === "WARNING") {	
+				toast.error(error.message);
+				router.push(`/lobby/chat/`);
+			}
+			else if (error.status === "OK")
+			{
+				// 알람없음
+			}
+		});
 		router.events.on("routeChangeStart", handleRouteChangeStart);
 		return () => {
 			chatSocket?.off("showChatRoomList");
@@ -76,15 +103,28 @@ const ChatRooms: NextPageWithLayout = () => {
 			name,
 			type: String(roomType),
 			password
-		  }, (callback: any) => {
-			if (!callback.status) {
-				toast.error(callback.message); // 서버에서 전달된 에러 메시지 출력
+		  },
+		  (error) => {
+			if (error.status === "FATAL") {		
+				toast.error(error.message);
 				setLoading(false);
-			} else {
-				toast.success(callback.message); // 서버에서 전달된 메시지 출력
+				router.push(`/lobby/chat/`);
+			}
+			else if (error.status === "ERROR") {	
+				toast.error(error.message);
+				setLoading(false);
+				router.push(`/lobby/chat/`);
+			}
+			else if (error.status === "WARNING") {	
+				setLoading(false);
+				toast.error(error.message);
+			}
+			else if (error.status === "OK")
+			{
+				toast.success("채팅방이 생성되었습니다.");
 				router.push(`/lobby/chat/${name}?isProtected=${isPrivate}`);
 			}
-		  });
+		});
 		setShowCreateRoomPopup(false);
 	  };
 	  const joinChatRoom = (room: any) => {
@@ -100,7 +140,21 @@ const ChatRooms: NextPageWithLayout = () => {
 	  const joinDMRoom = (room: any) => {
 		chatSocket?.emit("enterDirectMessage", {
 			directMessageId: room.id,
-		});
+		},
+		(error) => {
+			if (error.status === "FATAL") {		
+				toast.error(error.message);
+				router.push(`/lobby/chat/`);
+			}
+			else if (error.status === "WARNING") {	
+				toast.error(error.message);
+			}
+			else if (error.status === "OK")
+			{
+				// 알람 없음
+			}
+		}
+		);
 		router.push(`/lobby/chat/dm/dm: ${room.otherUserName}?dmId=${room.id}`);
 	};
 
