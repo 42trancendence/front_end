@@ -29,12 +29,12 @@ export default function GameNotification() {
 		gameSocket?.on('getMatching', (data: string, roomId: string) => {
 			// console.log(`getMatching: ${data}`);
 
-			if (data == 'matching')	{
-				// console.log(data2);
-				router.push(`game/${roomId}`);
-			}	else {
-				alert('매칭 실패');
-			}
+			// if (data == 'matching')	{
+			// 	// console.log(data2);
+			// 	router.push(`/lobby/game/${roomId}`);
+			// }	else {
+			// 	alert('매칭 실패');
+			// }
 		})
 		setShowGameNotification(false);
 	};

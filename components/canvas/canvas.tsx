@@ -15,8 +15,8 @@ const Canvas: React.FC = () => {
   const [gameData, setGameData] = useState(null);
   const [ready, setReady] = useState(false);
   const [startGame, setStartGame] = usePersistentState('startGame', false);
-  const [difficulty, setDifficulty] = useState(false);
-  const [changeScore, setChangeScore] = useState(false);
+  const [difficulty, setDifficulty] = usePersistentState('difficulty' ,false);
+  const [changeScore, setChangeScore] = usePersistentState('score', false);
   const [players, setPlayers] = useState(['player1', 'player2']);
   const [avatarUrls, setAvatarUrls] = useState(['','']);
   const [score, setScore] = useState([0, 0]);
@@ -89,6 +89,8 @@ const Canvas: React.FC = () => {
       })
       gameSocket.on('setStartGame', (data) => {
         if (data == 'start') {
+          setDifficulty(false);
+          setChangeScore(false);
           setStartGame(true);
           canvasRef.current?.focus();
         } else {
@@ -100,6 +102,8 @@ const Canvas: React.FC = () => {
 					gameSocket.emit('postLeaveGame');
 				} else if (data == 'leave') {
 					router.push('/lobby/overview');
+          setDifficulty(false);
+          setChangeScore(false);
           leaveGame();
 				}
       })
@@ -125,7 +129,7 @@ const Canvas: React.FC = () => {
 
   const drawPaddle = (paddle: Object) => {
     if (ctx) {
-      ctx.fillStyle = 'blue';
+      ctx.fillStyle = 'magenta';
       ctx.fillRect(paddle?.x_, paddle?.y_, paddle?.width_, paddle?.height_);
     }
   }
@@ -225,10 +229,14 @@ const Canvas: React.FC = () => {
       </div>
     </nav>
       {startGame ?
-          <div className='mb-2'>
-            {`난이도: ${gameData?.difficulty_ ? gameData?.difficulty_ : 'normal'}, \
-            최종점수: ${gameData?.finalScore_ ? `${gameData?.finalScore_}점` : '5점'}`}
-          </div> : ''
+        <div className='flex mb-3'>
+          <a className='mr-3 inline-block p-2 border border-green-100 rounded text-gray-500 no-underline'>
+            {`난이도: ${gameData?.difficulty_ ? gameData?.difficulty_ : 'normal'}`}
+          </a>
+          <a className='inline-block p-2 border border-green-100 rounded text-gray-500 no-underline'>
+            {`최종점수: ${gameData?.finalScore_ ? gameData?.finalScore_ : '5'}`}
+          </a>
+        </div> : ''
       }
           <canvas
             ref={canvasRef} width={1024} height={640}
