@@ -18,6 +18,7 @@ import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import usePersistentState from "@/components/canvas/usePersistentState";
 import moment from "moment";
 import { useUsersDispatch, useUsersState, getUser, refetchUser } from "@/lib/userContext";
+import { NotifyContext } from "@/lib/notifyContext";
 
 interface GameHistory {
   createAt: string;
@@ -96,6 +97,15 @@ const OverView: NextPageWithLayout = () => {
 		}
 	}, [friendSocket]);
 
+	// 친구 추가 소켓 이벤트
+	const { successed } = useContext(NotifyContext);
+	function failedMatching() {
+		successed({
+			header: "매칭 요청",
+			message: "매칭요청을 실패하였습니다.",
+		});
+	}
+
 	// socketio 로 게임방 목록 요청
 	useEffect(() => {
 		if (gameSocket) {
@@ -111,26 +121,26 @@ const OverView: NextPageWithLayout = () => {
 					router.push(`game/${roomId}`);
 					setMatch('자동 매칭');
 				}	else {
-					alert('매칭 실패');
+					failedMatching();
 					setMatch('자동 매칭');
 				}
 			})
 		}
 	}, [gameSocket, setStartGame])
 
-		// socketio 로 자동 매칭 요청
-		const handleMatching = () => {
-			if (gameSocket) {
-				if (match == '자동 매칭') {
-					console.log('자동 매칭: ', gameSocket, match)
-					gameSocket.emit('postMatching');
-					setMatch('매칭 중');
-				} else {
-					gameSocket.emit('postCancelMatching');
-					setMatch('자동 매칭');
-				}
+	// socketio 로 자동 매칭 요청
+	const handleMatching = () => {
+		if (gameSocket) {
+			if (match == '자동 매칭') {
+				console.log('자동 매칭: ', gameSocket, match)
+				gameSocket.emit('postMatching');
+				setMatch('매칭 중');
+			} else {
+				gameSocket.emit('postCancelMatching');
+				setMatch('자동 매칭');
 			}
 		}
+	}
 
 	return (
 		<>

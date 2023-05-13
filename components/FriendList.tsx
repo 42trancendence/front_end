@@ -27,7 +27,7 @@ export default function FreindList({ userData }: any) {
 		router.push(`/lobby/chat/dm/dm: ${name}`);
 	};
 
-		// 친구 추가 소켓 이벤트
+	// 친구 추가 소켓 이벤트
 	const { successed } = useContext(NotifyContext);
 	function onSuccessed() {
 		successed({

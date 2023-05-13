@@ -5,12 +5,6 @@ import Image from "next/image";
 import { SocketContext } from "@/lib/socketContext";
 import { useRouter } from "next/router";
 
-// interface UserData {
-// 	id: string;
-// 	name: string;
-// 	avatar: string;
-// }
-
 export default function GameNotification() {
 	const [showGameNotification, setShowGameNotification] = useState(false);
 	const [userData, setuserData] = useState<any>({});
@@ -24,22 +18,9 @@ export default function GameNotification() {
 				console.log("requestMatching", data);
 				setShowGameNotification(true);
 				setuserData(data);
-				// setTimeout(() => {
-				// 	rejectGame();
-				// 	setShowGameNotification(false);
-				// }, 3000);
 			});
 		}
-		// if (!showGameNotification) {
-		// 	rejectGame();
-		// }
 	}, [gameSocket]);
-
-	// useEffect(() => {
-	// 	if (!showGameNotification) {
-	// 		rejectGame();
-	// 	}
-	// }, [showGameNotification]);
 
 	// 게임 요청 수락
 	const acceptGame = () => {
