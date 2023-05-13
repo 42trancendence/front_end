@@ -12,7 +12,7 @@ import { Cog6ToothIcon } from "@heroicons/react/20/solid";
 import Image from "next/image";
 import BannedChatModal from "@/components/BannedChatModal";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {faCommentSlash} from "@fortawesome/free-solid-svg-icons";
+import {faCommentSlash, faEnvelopeOpenText} from "@fortawesome/free-solid-svg-icons";
 
 const RoomPage: NextPageWithLayout = ({
 	isProtected,
@@ -30,6 +30,7 @@ const RoomPage: NextPageWithLayout = ({
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [isMuted, setIsMuted] = useState(false);
+	const [mutedTime, setMutedTime] = useState(new Date);
 	const messagesEndRef = useRef(null);
 	const inputRef = useRef(null);
 	const router = useRouter();
@@ -97,15 +98,32 @@ const RoomPage: NextPageWithLayout = ({
 		router.push(`/lobby/chat/`);
 	}
 
-	function handleMute() {
-		toast.error("관리자가 당신을 채팅 금지시켰습니다");
+	function handleMute(data: any) {
+		console.log("mute data:", data);
+		const unMuteTime = new Date(data);
+		setMutedTime(unMuteTime);
+		const hours = unMuteTime.getHours();
+		const minutes = unMuteTime.getMinutes();
+		const seconds = unMuteTime.getSeconds();
+		toast.error(`관리자가 당신을 ${hours}시 ${minutes}분 ${seconds}초 까지 채팅 금지시켰습니다. `);
 		setIsMuted(true);
 	}
+	
+	useEffect(() => {
+		if (mutedTime) {
+		  const timeout = setTimeout(() => {
+			unMute();
+		  }, mutedTime.getTime() - new Date().getTime());
+		  return () => clearTimeout(timeout);
+		}
+	  }, [mutedTime]);
 
 	useEffect(() => {
 		if (socket) {
 			socket.on("kickUser", handleKick);
-			socket.on("muteUser", handleMute);
+			socket.on("muteUser", function(data){
+				handleMute(data);
+			});
 		}
 
 		if (socket) {
@@ -129,7 +147,7 @@ const RoomPage: NextPageWithLayout = ({
 		return () => {
 			socket?.off("getMessage");
 			socket?.off("kickUser", handleKick);
-			socket?.off("muteUser", handleMute);
+			socket?.off("muteUser");
 		};
 	}, []);
 
@@ -174,6 +192,18 @@ const RoomPage: NextPageWithLayout = ({
 		};
 	}, [router, socket, username]);
 
+	const notifyMuteTime = () => {
+		const now = new Date;
+		const diffInMs = mutedTime.getTime() - now.getTime(); // 차이 계산 (밀리초 단위)
+		const diffInMin = Math.floor(diffInMs / 1000 / 60); // 분 단위로 변환
+		const diffInSec = Math.floor(diffInMs / 1000 % 60)
+		toast.error(`채팅 금지 해제까지 ${diffInMin}분 ${diffInSec}초 남았습니다`);
+	}
+
+	const unMute = () => {
+		setIsMuted(false);
+		// setMutedTime(null);
+	}
 	const handleCloseUserModal = () => {
 		setSelectedUser("");
 		setShowUserModal(false);
@@ -181,27 +211,30 @@ const RoomPage: NextPageWithLayout = ({
 
 	const handleSendMessage = () => {
 		const messageText = inputRef.current.value;
-		const newMessage = {
-			id: user.id,
-			message: messageText,
-			timestamp: new Date().toISOString(),
-			user: {
-				name: user.name,
-				avatarImageUrl: user.avatarImageUrl,
-			},
-		};
-		setMessage((prevMessages) => [...prevMessages, newMessage]);
-		socket?.emit("sendMessage", messageText);
+		if (messageText != "")
+		{
+			const newMessage = {
+				id: user.id,
+				message: messageText,
+				timestamp: new Date().toISOString(),
+				user: {
+					name: user.name,
+					avatarImageUrl: user.avatarImageUrl,
+				},
+			};
+			setMessage((prevMessages) => [...prevMessages, newMessage]);
+			socket?.emit("sendMessage", messageText);
+		}
 		inputRef.current.value = "";
 	};
 
 	const changeRoomSettings = () => {
 		// 채팅방 설정 변경 모달을 띄우는 로직을 구현
 		// type password
-		const type = isPrivate ? "PRIVATE" : "PUBLIC";
+		const type = isPrivate ? "PROTECTED" : "PUBLIC";
 		socket?.emit(
 			"updateChatRoom",
-			{ type: type, password: password },
+			{ type: type, password: newPassword},
 			(error: boolean) => {
 				if (error) {
 					toast.error(error); // 서버에서 전달된 에러 메시지 출력
@@ -250,8 +283,8 @@ const RoomPage: NextPageWithLayout = ({
 													<div
 														className={`max-w-xs break-words rounded-lg p-3 text-sm leading-tight ${
 															msg.user.name === username
-																? "rounded-bl-none bg-blue-300"
-																: "rounded-br-none bg-yellow-300"
+																? "rounded-br-none bg-blue-300"
+																: "rounded-bl-none bg-yellow-300"
 														} ${
 															msg.user.name === username
 																? "self-end justify-self-end"
@@ -276,13 +309,13 @@ const RoomPage: NextPageWithLayout = ({
 													<div ref={messagesEndRef} />
 												</div>
 												<span className="text-sm text-gray-400">
-													{new Date(msg.timestamp).toLocaleString()}
+													{new Date(msg.timestamp).toLocaleTimeString('ko-KR', { day: 'numeric', hour: 'numeric', minute: 'numeric'})}
 												</span>
 											</div>
 										</div>
 									))}
 								</div>
-								{userMe[0]?.role === "OWNER" && (
+								{userMe[0]?.role === 0 && (
 									<Cog6ToothIcon
 										onClick={() => setShowCreateRoomPopup(true)}
 										className="absolute bottom-0 right-0 m-4 h-6 w-6 cursor-pointer text-zinc-200 hover:text-zinc-400"
@@ -332,12 +365,16 @@ const RoomPage: NextPageWithLayout = ({
 									if (event.key === "Enter" && isMuted === false) {
 										handleSendMessage();
 									}
+									else if (event.key === "Enter" && isMuted === true) {
+										notifyMuteTime();
+									}
 								}}
 							/>
 							{isMuted ? (
 								<button
 									type="button"
 									className="ml-2 w-20 rounded-lg bg-blue-500 px-4 py-2 text-white"
+									onClick={notifyMuteTime}
 								>
 									<FontAwesomeIcon
 										className="text-white"
@@ -380,13 +417,13 @@ const RoomPage: NextPageWithLayout = ({
 								</div>
 								{isPrivate && (
 									<>
-										<p className="mt-2 text-center text-sm text-[#939efb]">
+										<p className="mt-2 text-center text-sm text-white">
 											비밀번호 입력
 										</p>
 										<div className="mx-2">
 											<input
 												type="text"
-												value={password}
+												value={newPassword}
 												onChange={(e) => setNewPassword(e.target.value)}
 												className="mb-3 w-full rounded-md bg-black px-3 py-2 text-white"
 											/>
