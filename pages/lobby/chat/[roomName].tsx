@@ -30,8 +30,10 @@ const RoomPage: NextPageWithLayout = ({
 	const [username, setUsername] = useState("");
 	const [password, setPassword] = useState("");
 	const [isMuted, setIsMuted] = useState(false);
+	const [isProtectedState, setIsProtectedState] = useState(isProtected);
 	const messagesEndRef = useRef(null);
 	const inputRef = useRef(null);
+	const passInput = useRef(null);
 	const router = useRouter();
 
 	const [userMe, setUserMe] = useState([]);
@@ -198,10 +200,10 @@ const RoomPage: NextPageWithLayout = ({
 	const changeRoomSettings = () => {
 		// 채팅방 설정 변경 모달을 띄우는 로직을 구현
 		// type password
-		const type = isPrivate ? "PRIVATE" : "PUBLIC";
+		const type = isPrivate ? "PROTECTED" : "PUBLIC";
 		socket?.emit(
 			"updateChatRoom",
-			{ type: type, password: password },
+			{ type: type, password: newPassword},
 			(error: boolean) => {
 				if (error) {
 					toast.error(error); // 서버에서 전달된 에러 메시지 출력
@@ -380,13 +382,13 @@ const RoomPage: NextPageWithLayout = ({
 								</div>
 								{isPrivate && (
 									<>
-										<p className="mt-2 text-center text-sm text-[#939efb]">
+										<p className="mt-2 text-center text-sm text-white">
 											비밀번호 입력
 										</p>
 										<div className="mx-2">
 											<input
 												type="text"
-												value={password}
+												value={newPassword}
 												onChange={(e) => setNewPassword(e.target.value)}
 												className="mb-3 w-full rounded-md bg-black px-3 py-2 text-white"
 											/>
