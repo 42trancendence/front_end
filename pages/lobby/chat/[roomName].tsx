@@ -283,8 +283,8 @@ const RoomPage: NextPageWithLayout = ({
 													<div
 														className={`max-w-xs break-words rounded-lg p-3 text-sm leading-tight ${
 															msg.user.name === username
-																? "rounded-bl-none bg-blue-300"
-																: "rounded-br-none bg-yellow-300"
+																? "rounded-br-none bg-blue-300"
+																: "rounded-bl-none bg-yellow-300"
 														} ${
 															msg.user.name === username
 																? "self-end justify-self-end"
