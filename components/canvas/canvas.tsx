@@ -5,7 +5,9 @@ import Image from "next/image";
 import GameModal from "../GameModal";
 import router from "next/router";
 import { handleRefresh } from "@/lib/auth-client";
-import { UsersProvider } from '@/lib/userContext';
+import ProfileBackground from "@/public/profile_background.jpg";
+import { NotifyContext } from "@/lib/notifyContext";
+
 
 const Canvas: React.FC = () => {
   const canvasRef: RefObject<HTMLCanvasElement> = useRef(null);
@@ -67,6 +69,14 @@ const Canvas: React.FC = () => {
 		getGamePlayersInfo(roomId);
   }, []);
 
+  const { successed } = useContext(NotifyContext);
+	function leaveGame() {
+		successed({
+			header: "게임요청",
+			message: "게임에서 퇴장되었습니다.",
+		});
+	}
+
   // 소켓 연결(컨텍스트 세팅, socket.id 가 초기화 되는지 확인 필요)
 	const { gameSocket } = useContext(SocketContext);
   useEffect(() => {
@@ -86,11 +96,11 @@ const Canvas: React.FC = () => {
         }
       })
       gameSocket.on('postLeaveGame', (data: string) => {
-        // console.log('getLeaveGame: ', data); 
         if (data == 'delete') {
 					gameSocket.emit('postLeaveGame');
 				} else if (data == 'leave') {
 					router.push('/lobby/overview');
+          leaveGame();
 				}
       })
     }
@@ -104,7 +114,7 @@ const Canvas: React.FC = () => {
   const render = () => {
     if (ctx && gameData) {
       ctx.clearRect(0, 0, 1024, 640);
-      ctx.fillStyle = 'white';
+      ctx.fillStyle = 'black';
       ctx.fillRect(0, 0, 1024, 640);
       drawPaddle(gameData?.paddles_[0]);
       drawPaddle(gameData?.paddles_[1]);
@@ -176,112 +186,117 @@ const Canvas: React.FC = () => {
 
   return (
     <>
-    <div className='relative w-full'>
-      <div
-        tabIndex={0} // 키보드 포커스를 위한 tabIndex 설정
-        style={{ outline: 'none' }} // 선택시 브라우저가 테두리를 그리지 않도록 함
-        onKeyDown={handleKeyDown} // 함수 자체를 전달
-        className='flex flex-col justify-center items-center w-full'>
-      <nav className="relative px-4 py-4 flex flex-row justify-between items-center bg-black w-full my-4">
-      <div className="flex flex-col items-center mt-2">
       <Image
-        className="h-10 w-10 rounded-full bg-red-600 ring-zinc-800"
-        src={avatarUrls[0]}
-        alt=""
-        width={300}
-        height={300}
-      />
-        <a className="text-blue-600 text-zinc-300">{players[0]}</a>
-      </div>
-		<ul className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 lg:flex lg:mx-auto lg:flex lg:items-center lg:w-auto lg:space-x-6">
-			<li>
-        <a className="text-3xl text-white font-bold">{`${score[0]}  -  ${score[1]}`}</a>
-      </li>
-		</ul>
-    <div className="flex flex-col items-center mt-2">
-		  <Image
-        className="h-10 w-10 rounded-full bg-green-400 ring-zinc-800"
-        src={avatarUrls[1]}
-        alt=""
-        width={300}
-        height={300}
-			/>
-      <a className="text-blue-600 text-zinc-300">{players[1]}</a>
-    </div>
-	</nav>
-    {startGame ?
-        <div className='mb-2'>
-          {`난이도: ${gameData?.difficulty_ ? gameData?.difficulty_ : 'normal'}, \
-          최종점수: ${gameData?.finalScore_ ? `${gameData?.finalScore_}점` : '5점'}`}
-        </div> : ''
-    }
-        <canvas
-          ref={canvasRef} width={1024} height={640}
+        className='absolute top-0 left-0 z-0 w-full h-full object-cover'
+        src={ProfileBackground}
+        alt=''
+      ></Image>
+      <div className='relative w-full'>
+        <div
+          tabIndex={0} // 키보드 포커스를 위한 tabIndex 설정
+          style={{ outline: 'none' }} // 선택시 브라우저가 테두리를 그리지 않도록 함
+          onKeyDown={handleKeyDown} // 함수 자체를 전달
+          className='flex flex-col justify-center items-center w-full'>
+        <nav className="relative px-4 py-4 flex flex-row justify-between items-center bg-black w-full my-4">
+        <div className="flex flex-col items-center mt-2">
+        <Image
+          className="h-10 w-10 rounded-full bg-red-600 ring-zinc-800"
+          src={avatarUrls[0]}
+          alt=""
+          width={300}
+          height={300}
         />
-        <GameModal
-          onClose={handleOnClose}
-          visible={showGameModal}
-          player1Name={players[0]}
-          player2Name={players[1]}
-          player1Score={score[0]}
-          player2Score={score[1]}
+          <a className="text-blue-600 text-zinc-300">{players[0]}</a>
+        </div>
+      <ul className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 lg:flex lg:mx-auto lg:flex lg:items-center lg:w-auto lg:space-x-6">
+        <li>
+          <a className="text-3xl text-white font-bold">{`${score[0]}  -  ${score[1]}`}</a>
+        </li>
+      </ul>
+      <div className="flex flex-col items-center mt-2">
+        <Image
+          className="h-10 w-10 rounded-full bg-green-400 ring-zinc-800"
+          src={avatarUrls[1]}
+          alt=""
+          width={300}
+          height={300}
         />
+        <a className="text-blue-600 text-zinc-300">{players[1]}</a>
       </div>
+    </nav>
       {startGame ?
-        ''
-        :
-        // 가운데 정렬
-        <div className="absolute w-full flex items-center justify-center m-auto inset-0">
-          <div>
-            <div className='flex'>
-              <div className='text-center my-10'>
-                <div className='text-center mb-4 text-2xl font-bold text-indigo-400'>
-                  난이도
+          <div className='mb-2'>
+            {`난이도: ${gameData?.difficulty_ ? gameData?.difficulty_ : 'normal'}, \
+            최종점수: ${gameData?.finalScore_ ? `${gameData?.finalScore_}점` : '5점'}`}
+          </div> : ''
+      }
+          <canvas
+            ref={canvasRef} width={1024} height={640}
+          />
+          <GameModal
+            onClose={handleOnClose}
+            visible={showGameModal}
+            player1Name={players[0]}
+            player2Name={players[1]}
+            player1Score={score[0]}
+            player2Score={score[1]}
+          />
+        </div>
+        {startGame ?
+          ''
+          :
+          // 가운데 정렬
+          <div className="absolute w-full flex items-center justify-center m-auto inset-0">
+            <div>
+              <div className='flex'>
+                <div className='text-center my-10'>
+                  <div className='text-center mb-4 text-2xl font-bold text-indigo-400'>
+                    난이도
+                  </div>
+                  <div className='text-center'>
+                    <button
+                      onClick={() => handleDifficulty()}
+                      className={`bg-${difficulty ? 'red' : 'zinc'}-400 hover:bg-${difficulty ? 'zinc' : 'red'}-600 w-40 h-60 text-white text-xl font-bold py-2 px-4 rounded`}
+                    >
+                      {difficulty ? 'hard' : 'normal'}
+                    </button>
+                  </div>
                 </div>
-                <div className='text-center'>
-                  <button
-                    onClick={() => handleDifficulty()}
-                    className={`bg-${difficulty ? 'red' : 'zinc'}-400 hover:bg-${difficulty ? 'zinc' : 'red'}-600 w-40 h-60 text-white text-xl font-bold py-2 px-4 rounded`}
-                  >
-                    {difficulty ? 'hard' : 'normal'}
-                  </button>
+                <div className='text-center space-x-4 my-10'>
+                  <div className='text-center ml-3 mb-4 text-2xl font-bold text-indigo-400'>
+                    스코어
+                  </div>
+                  <div className='text-center'>
+                    <button
+                      onClick={() => handleChangeScore()}
+                      className={`bg-${changeScore ? 'red' : 'zinc'}-400 hover:bg-${changeScore ? 'zinc' : 'red'}-600 w-40 h-60 text-white text-xl font-bold py-2 px-4 rounded`}
+                    >
+                      {changeScore ? '10점' : '5점'}
+                    </button>
+                  </div>
                 </div>
               </div>
-              <div className='text-center space-x-4 my-10'>
-                <div className='text-center ml-3 mb-4 text-2xl font-bold text-indigo-400'>
-                  스코어
-                </div>
-                <div className='text-center'>
-                  <button
-                    onClick={() => handleChangeScore()}
-                    className={`bg-${changeScore ? 'red' : 'zinc'}-400 hover:bg-${changeScore ? 'zinc' : 'red'}-600 w-40 h-60 text-white text-xl font-bold py-2 px-4 rounded`}
-                  >
-                    {changeScore ? '10점' : '5점'}
-                  </button>
-                </div>
-              </div>
-            </div>
 
-            <div
-                className='space-x-4'
-            >
-              <button
-                onClick={() => handleReadyGame()}
-                className={'bg-zinc-600 w-40 text-indigo-400 hover:bg-zinc-400 hover:text-zinc-800 py-2 px-4 rounded'}
+              <div
+                  className='space-x-4'
               >
-                {ready ? '준비완료' : '준비' }
-              </button>
-              <button
-                onClick={() => handleLeaveGame()}
-                className={'bg-zinc-600 w-40 text-indigo-400 hover:bg-zinc-400 hover:text-zinc-800 py-2 px-4 rounded'}
-              >
-                나가기
-              </button>
+                <button
+                  onClick={() => handleReadyGame()}
+                  className={'bg-zinc-600 w-40 text-indigo-400 hover:bg-zinc-400 hover:text-zinc-800 py-2 px-4 rounded'}
+                >
+                  {ready ? '준비완료' : '준비' }
+                </button>
+                <button
+                  onClick={() => handleLeaveGame()}
+                  className={'bg-zinc-600 w-40 text-indigo-400 hover:bg-zinc-400 hover:text-zinc-800 py-2 px-4 rounded'}
+                >
+                  나가기
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-    }
-    </div>
+      }
+      </div>
     </>
   )
 }

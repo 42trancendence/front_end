@@ -106,19 +106,48 @@ const OverView: NextPageWithLayout = () => {
 		});
 	}
 
+	function successedMatching() {
+		successed({
+			header: "매칭 요청",
+			message: "매칭을 성공했습니다.",
+		});
+	}
+
+	function successedInvite() {
+		successed({
+			header: "매칭 요청",
+			message: "1:1매칭을 성공적으로 보냈습니다.",
+		});
+	}
+
+	function okInvite() {
+		successed({
+			header: "매칭 요청",
+			message: "상대방이 수락했습니다.",
+		});
+	}
+
 	// socketio 로 게임방 목록 요청
 	useEffect(() => {
 		if (gameSocket) {
 			gameSocket.on('getGameHistory', () => {
 				setStartGame(false);
 			})
-			gameSocket.on('getMatching', (data1: string, roomId: string) => {
+			gameSocket.on('getMatching', (data1: string, data2, roomId: string) => {
 
 				// console.log(`getMatching: ${data1}`);
 
 				if (data1 == 'matching')	{
-					// console.log(data2);
-					router.push(`game/${roomId}`);
+					if (data2 == 'matching') {
+						successedMatching();
+					} else if (data2 == 'invite') {
+						successedInvite();
+					}
+					if (data2 == 'okInvite') {
+						okInvite();
+					} else {
+						router.push(`/lobby/game/${roomId}`); // 이게 2번 되는 듯
+					}
 					setMatch('자동 매칭');
 				}	else {
 					failedMatching();
@@ -251,7 +280,7 @@ const OverView: NextPageWithLayout = () => {
 						</div>
 						{gameHistory.map((room, index) => {
 							const date = moment(room.createAt);
-							const formattedDateTime = date.format('YYYY-MM-DD HH:mm:ss');
+							const formattedDateTime = date.format(`YYYY-MM-DD HH:mm`);
 
 							return (
 								<div key={index} className="bg-zinc-800 text-white p-4 rounded-lg shadow">
