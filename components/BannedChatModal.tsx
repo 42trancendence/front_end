@@ -42,12 +42,12 @@ export default function BannedChatModal({
 					alt=""
 				/>
 				<span className="mr-auto">{user.user.name}</span>
-				{user.role === "OWNER" ? (
+				{user.role === 0 ? (
 					<FontAwesomeIcon
 						icon={faCrown}
 						className="ml-auto h-4 w-4 text-yellow-500"
 					/>
-				) : user.role === "ADMIN" ? (
+				) : user.role === 1 ? (
 					<FontAwesomeIcon
 						icon={faCertificate}
 						className="ml-auto h-4 w-4 text-green-600"
@@ -67,7 +67,7 @@ export default function BannedChatModal({
 			>
 				<Menu.Items className="absolute right-4 z-10 mt-2 w-48 origin-top-right rounded bg-zinc-950 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
 					<div>
-						{(me.role === "OWNER" || me.role === "ADMIN") &&
+						{(me.role === 0 || me.role === 1) &&
 						me.user.name !== user.user.name ? (
 							<>
 								<Menu.Item>
@@ -75,7 +75,7 @@ export default function BannedChatModal({
 										<button
 											className={clsx(
 												active
-													? "bg-red-400 text-white"
+													? "bg-red-400 text-white"	
 													: "bg-red-500 text-white",
 												"block w-full rounded-b px-4 py-2 text-sm"
 											)}
