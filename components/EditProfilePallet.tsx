@@ -116,7 +116,9 @@ const EditProfilePallet = ({
 	// submit
 	const onSubmit = async (data: MyFormData) => {
 		const formData = new FormData();
-		formData.append("name", data.name);
+		if (data.name) {
+			formData.append("name", data.name);
+		}
 		formData.append("avatarImageUrl", data.avatarImageUrl[0]);
 
 		console.log(formData);

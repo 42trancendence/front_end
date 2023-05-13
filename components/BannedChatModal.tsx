@@ -24,16 +24,16 @@ export default function BannedChatModal({
 
 	function BanUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
-		socket?.emit("toggleBanUser", {userId: item.id}, (error) => {
-			if (error.status === "FATAL") {		
+		socket?.emit("toggleBanUser", {userId: item.id}, (error: any) => {
+			if (error.status === "FATAL") {
 				toast.error(error.message);
 				router.push(`/lobby/chat/`);
 			}
-			else if (error.status === "ERROR") {	
+			else if (error.status === "ERROR") {
 				toast.error(error.message);
 				router.push(`/lobby/chat/`);
 			}
-			else if (error.status === "WARNING") {	
+			else if (error.status === "WARNING") {
 				toast.error(error.message);
 			}
 			else if (error.status === "OK")
