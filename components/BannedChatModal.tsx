@@ -77,7 +77,7 @@ export default function BannedChatModal({
 												active
 													? "bg-red-400 text-white"	
 													: "bg-red-500 text-white",
-												"block w-full rounded-b px-4 py-2 text-sm"
+												"block w-full rounded px-4 py-2 text-sm"
 											)}
 											onClick={(e) => BanUser(e, user.user)}
 										>
