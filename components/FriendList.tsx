@@ -65,7 +65,7 @@ export default function FreindList({ userData }: any) {
 
 			if (data == 'matching')	{
 				// console.log(data2);
-				router.push(`game/${roomId}`);
+				router.push(`/lobby/game/${roomId}`);
 			}	else {
 				alert('매칭 실패');
 			}

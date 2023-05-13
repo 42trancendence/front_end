@@ -329,9 +329,6 @@ const OverView: NextPageWithLayout = () => {
 						</div>
 					</div>
 				)}
-				{onGame ? (
-					<Canvas></Canvas>
-				) : (
 					<div className="flex h-full w-full flex-col items-center px-8 py-6">
 						{/* 자동 매칭 버튼 */}
 						<button
@@ -414,7 +411,6 @@ const OverView: NextPageWithLayout = () => {
 							</div>
 						)}
 					</div>
-				)}
 			</div>
 		</>
 	);

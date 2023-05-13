@@ -194,8 +194,8 @@ const RoomPage: NextPageWithLayout = ({
 
 	const notifyMuteTime = () => {
 		const now = new Date;
-		const diffInMs = mutedTime.getTime() - now.getTime(); // 차이 계산 (밀리초 단위)
-		const diffInMin = Math.floor(diffInMs / 1000 / 60); // 분 단위로 변환
+		const diffInMs = mutedTime.getTime() - now.getTime();
+		const diffInMin = Math.floor(diffInMs / 1000 / 60);
 		const diffInSec = Math.floor(diffInMs / 1000 % 60)
 		toast.error(`채팅 금지 해제까지 ${diffInMin}분 ${diffInSec}초 남았습니다`);
 	}
@@ -373,7 +373,7 @@ const RoomPage: NextPageWithLayout = ({
 							{isMuted ? (
 								<button
 									type="button"
-									className="ml-2 w-20 rounded-lg bg-blue-500 px-4 py-2 text-white"
+									className="ml-2 w-20 rounded-lg bg-red-500 px-4 py-2 text-white"
 									onClick={notifyMuteTime}
 								>
 									<FontAwesomeIcon
