@@ -12,7 +12,7 @@ import { NotifyContext } from "@/lib/notifyContext";
 export default function FreindList({ userData }: any) {
 	console.log(userData);
 	const { friendSocket: socket, chatSocket, gameSocket } = useContext(SocketContext);
-	
+
 	function deleteFriend(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
 		socket?.emit("deleteFriend", { friendName: item.name });
@@ -21,7 +21,7 @@ export default function FreindList({ userData }: any) {
 
 	function BlockUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
-		chatSocket?.emit("toggleBlockUser", {userId: item.id}, (error) => {
+		chatSocket?.emit("toggleBlockUser", {userId: item.id}, (error: any) => {
 			if (!error.status) {
 				console.log(error); // 서버에서 전달된 에러 메시지 출력
 			}
@@ -46,7 +46,7 @@ export default function FreindList({ userData }: any) {
 	const { successed } = useContext(NotifyContext);
 	function onSuccessed() {
 		successed({
-			header: "게임요청",	
+			header: "게임요청",
 			message: "게임요청을 성공적으로 보냈습니다.",
 		});
 	}

@@ -38,8 +38,8 @@ export default function DirectChatModal({
 
 	function BlockUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
-		
-		socket?.emit("toggleBlockUser", {userId: item.id}, (error) => {
+
+		socket?.emit("toggleBlockUser", {userId: item.id}, (error: any) => {
 			if (!error.status) {
 				console.log(error); // 서버에서 전달된 에러 메시지 출력
 			}
@@ -49,7 +49,7 @@ export default function DirectChatModal({
 	const { successed } = useContext(NotifyContext);
 	function onSuccessed() {
 		successed({
-			header: "게임요청",	
+			header: "게임요청",
 			message: "게임요청을 성공적으로 보냈습니다.",
 		});
 	}
@@ -58,14 +58,14 @@ export default function DirectChatModal({
 		const inviteUserForGame = (event: React.MouseEvent<HTMLElement>, item: any) => {
 
 			// console.log('user: ', item)
-	
+
 			gameSocket?.emit("inviteUserForGame", { userName: item.name });
 			gameSocket?.on("error", (error) => {
 				console.log(error); // 서버에서 전달된 에러 메시지 출력
 			});
 			gameSocket?.on('getMatching', (data: string, roomId: string) => {
 				// console.log(`getMatching: ${data}`);
-	
+
 				if (data == 'matching')	{
 					// console.log(data2);
 					router.push(`/lobby/game/${roomId}`);

@@ -23,7 +23,7 @@ export default function BannedChatModal({
 
 	function BanUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
-		socket?.emit("toggleBanUser", {userId: item.id}, (error) => {
+		socket?.emit("toggleBanUser", {userId: item.id}, (error: any) => {
 			if (!error.status) {
 				console.log(error); // 서버에서 전달된 에러 메시지 출력
 				router.push(`/lobby/chat/`);
@@ -75,7 +75,7 @@ export default function BannedChatModal({
 										<button
 											className={clsx(
 												active
-													? "bg-red-400 text-white"	
+													? "bg-red-400 text-white"
 													: "bg-red-500 text-white",
 												"block w-full rounded px-4 py-2 text-sm"
 											)}
