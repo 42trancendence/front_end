@@ -1,31 +1,25 @@
 import Layout from "@/components/Layout";
 import Image from "next/image";
-import DefaultAvatar from "@/public/default_avatar.svg";
-import ProfileBackground from "@/public/profile_background.jpg";
-import { NormalButton } from "@/components/ui/NormalButton";
-import Loading from "../../../components/ui/Loading";
-import CloseButton from "@/components/ui/CloseButton"
-import OpenButton from "@/components/ui/OpenButton"
+import Loading from "@/components/ui/Loading";
 import SlideButton from "@/components/ui/SlideButton";
 import { ReactElement, useContext, useEffect, useState } from "react";
 import { useRouter } from "next/router";
-import { handleRefresh } from "@/lib/auth-client";
 import {
 	ChatBubbleLeftRightIcon,
-	QueueListIcon
+	QueueListIcon,
+	NoSymbolIcon
 } from "@heroicons/react/24/outline";
 import {
 	SocketContext,
 	SocketProvider,
 } from "@/lib/socketContext";
 import { NextPageWithLayout } from "@/pages/_app";
+import { toast } from "react-toastify";
+import { Socket } from "socket.io-client";
 
 const ChatRooms: NextPageWithLayout = () => {
 	const [loading, setLoading] = useState(true);
 	const [activeTab, setActiveTab] = useState("chat");
-	const [username, setUsername] = useState("");
-	const [avatar, setavatarUrl] = useState(DefaultAvatar);
-	const [userData, setuserData] = useState({});
 	const [name, setName] = useState("");
 	const [isPrivate, setIsPrivate] = useState(false);
 	const [password, setPassword] = useState("");
@@ -51,61 +45,63 @@ const ChatRooms: NextPageWithLayout = () => {
 				// console.log("페이지를 떠납니다.");
 			}
 		};
+		chatSocket?.on("showChatRoomList", function (data) {
+			console.log(data);
+			setChatRooms(data);
+			setLoading(false);
+			showChatRoomList(data);
+		})
+	
+		chatSocket?.on("showDirectMessageList", function(data) {
+			setDMLists(data);
+			console.log("dm room list", data);
+			showChatRoomList(data);
+		})
+
 		chatSocket?.emit("enterChatLobby");
 		router.events.on("routeChangeStart", handleRouteChangeStart);
 		return () => {
+			chatSocket?.off("showChatRoomList");
+			chatSocket?.off("showDirectMessageList");
 			router.events.off("routeChangeStart", handleRouteChangeStart);
 		};
 	}, [chatSocket, router]);
 
-	chatSocket?.on("showChatRoomList", function (data) {
-		// console.log(data);
-		setChatRooms(data);
-		setLoading(false);
-		showChatRoomList(data);
-	})
 
-	chatSocket?.on("showDirectMessageList", function(data) {
-		setDMLists(data);
-		console.log("dm room list", data);
-		showChatRoomList(data);
-	})
 
 	const createChatRoom = () => {
+		setLoading(true);
 		const roomType = isPrivate === true ? "PROTECTED" : "PUBLIC";
 		chatSocket?.emit('createChatRoom', {
 			name,
 			type: String(roomType),
 			password
 		  }, (callback: any) => {
-			console.log("testing");
 			if (!callback.status) {
-				console.log(callback.message); // 서버에서 전달된 에러 메시지 출력
+				toast.error(callback.message); // 서버에서 전달된 에러 메시지 출력
+				setLoading(false);
 			} else {
-				console.log(callback.message); // 서버에서 전달된 메시지 출력
-				router.push(`/lobby/chat/${name}?password=${password}`);
+				toast.success(callback.message); // 서버에서 전달된 메시지 출력
+				router.push(`/lobby/chat/${name}?isProtected=${isPrivate}`);
 			}
 		  });
-		  console.log("testing2");
-		// socket?.emit('enterChatRoom', {name, password});
 		setShowCreateRoomPopup(false);
 	  };
 	  const joinChatRoom = (room: any) => {
 		if (room.type === "PROTECTED") {
-		  const inputPassword = prompt("비밀번호를 입력하세요");
-		  router.push(`/lobby/chat/${room.name}?password=${inputPassword}`);
-		  return;
+		  router.push(`/lobby/chat/${room.name}?isProtected=true`);
 		}
-		router.push(`/lobby/chat/${room.name}`);
+		else
+		{
+			router.push(`/lobby/chat/${room.name}?isProtected=false`);
+		}
 	  };
+	
 	  const joinDMRoom = (room: any) => {
 		chatSocket?.emit("enterDirectMessage", {
 			directMessageId: room.id,
 		});
-		chatSocket?.on("error", (error) => {
-			console.log(error); // 서버에서 전달된 에러 메시지 출력
-		});
-		router.push(`/lobby/chat/dm/dm: ${room.user1.name}`);
+		router.push(`/lobby/chat/dm/dm: ${room.otherUserName}?dmId=${room.id}`);
 	};
 
 	  const handleTabClick = (tab: string) => {
@@ -157,8 +153,6 @@ const ChatRooms: NextPageWithLayout = () => {
 						<p className="text-[#bbc2ff]">입장</p>
 					</div>
 				</div>
-
-						{/* Replace this array with actual game room data */}
 					<>
 					{loading ? (
 					<>
@@ -203,15 +197,20 @@ const ChatRooms: NextPageWithLayout = () => {
 							<div className="z-20 flex">
 								<Image
 									className="h-12 w-12 rounded-full bg-zinc-800 shadow ring-8 ring-zinc-800 sm:h-12 sm:w-12"
-									src={room.user2.avatarImageUrl}
+									src={room.otherUserAvatarImageUrl}
 									alt=""
 									width={100}
 									height={100}
 								/>
 							</div>
 							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-								<p className="font-bold">{username === room.user1.name ? room.user1.name + "\t님과의 대화방" : room.user2.name + "\t님과의 대화방"}</p>
+								<p className="font-bold">{room.otherUserName + "\t님과의 대화방"}</p>
 							</div>
+							{room.isBlocked === true  ? (
+							<div className="flex w-1/4 flex-col items-end justify-end space-y-3 text-base">
+								<NoSymbolIcon className="ml-auto h-12 w-12 text-red-500"/>
+							</div>
+							): <></>}
 							<div className="flex w-1/4 flex-col items-end justify-end space-y-3 text-base flex-grow">
 								<button onClick={() => joinDMRoom(room)} className="rounded-lg bg-zinc-400 p-3 hover:bg-zinc-700 transition-colors cursor-pointer">대화</button>
 							</div>
@@ -235,35 +234,37 @@ const ChatRooms: NextPageWithLayout = () => {
 					{!showCreateRoomPopup && <SlideButton onClick={() => setShowCreateRoomPopup(true)} />}
 					{showCreateRoomPopup && <SlideButton onClick={() => setShowCreateRoomPopup(false)} />}
 					{showCreateRoomPopup && (
-						<div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 grid rounded bg-zinc-600 gap-4">
-							<p className="text-lg mt-4 text-center text-[#bbc2ff]">방 제목</p>
+						<div className="fixed outline outline-offset-4 outline-cyan-600 top-1/2 left-1/2 justify-items-center transform -translate-x-1/2 -translate-y-1/2 grid rounded bg-zinc-900 gap-4">
+							<p className="text-lg font-medium mt-4 text-center text-white">방 제목</p>
 							<input
 								type="text"
 								value={name}
 								onChange={(e) => setName(e.target.value)}
-								className="bg-black text-white px-3 py-2 rounded-md mb-3"
+								className="bg-black text-white px-2 py-2 rounded-md mb-3"
 							/>
-							<p className="text-lg text-center text-[#bbc2ff]">비밀번호 설정</p>
-							<input
-								type="checkbox"
-								checked={isPrivate}
-								onChange={() => setIsPrivate(prevState => !prevState)}
-								className="mb-3"
-							/>
-							{isPrivate && (
-							<p className="text-lg text-center text-[#bbc2ff]">비밀번호 입력</p>
-							)}
+								<div className="flex grid grid-cols-2">
+									<div className="flex">
+										<input
+										type="checkbox"
+										checked={isPrivate}
+										onChange={() => setIsPrivate(prevState => !prevState)}
+										className="mt-1 ml-2 rounded-md bg-black checked:bg-blue-600 "
+										/>
+									</div>
+									<p className="text-lg -mt-1 -ml-8 font-medium text-white">비밀번호 설정</p>
+
+								</div>
 							{isPrivate &&
 							(
 								<input
 									type="text"
-									value={name}
-									onChange={(e) => setName(e.target.value)}
-									className="rounded-md w-full bg-black px-3 py-2 text-white"
+									value={password}
+									onChange={(e) => setPassword(e.target.value)}
+									className="rounded-md w-48 bg-black px-3 py-2 text-white"
 								/>
 							)
 							}
-							<button onClick={createChatRoom} className="rounded-lg bg-zinc-400 p-3 hover:bg-green-600 transition-colors cursor-pointer">생성</button>
+							<button onClick={createChatRoom} className="w-20 mb-4 rounded-lg place-items-center text-black font-bold bg-white p-3 hover:bg-green-600 transition-colors cursor-pointer">생성</button>
 						</div>
 					)}
 				</div>

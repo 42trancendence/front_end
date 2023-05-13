@@ -1,15 +1,12 @@
-import {
-	checkIsLoggedIn,
-	isTwoFactorAuthEnabled,
-} from "@/utils/Authentication";
 import { useRouter } from "next/router";
 import { useState, useEffect, useLayoutEffect, useContext } from "react";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import NavBar from "./NavBar";
 import Loading from "./ui/Loading";
 import { SocketContext } from "@/lib/socketContext";
 import FriendNotification from "./ui/FriendNotification";
-import { handleRefresh } from "@/lib/auth-client";
-import { NotifyContext, NotifyProvider } from "@/lib/notifyContext";
+import { NotifyProvider } from "@/lib/notifyContext";
 import GlobalNotification from "@/components/ui/GlobalNotification";
 import ChatNotification from "./ui/ChatNotification";
 import GameNotification from "./ui/GameNotification";
@@ -35,6 +32,7 @@ export default function Layout({
 }) {
 	const router = useRouter();
 	const [userData, setuserData] = useState<any>([]);
+	const [isNavView, setisNavView] = useState(true);
 	const state = useUsersState();
 	const dispatch = useUsersDispatch();
 
@@ -45,6 +43,12 @@ export default function Layout({
 	const { data: user, loading, error } = state.user;
 
 	useEffect(() => {
+		if (router.asPath.startsWith("/lobby/game")) {
+			setisNavView(false);
+		}
+		else {
+			setisNavView(true);
+		}
 		if (error) {
 			router.push("/");
 		}
@@ -86,7 +90,16 @@ export default function Layout({
 				RenewFriend(data);
 			});
 		}
+
+		return () => {
+			if (socket) {
+				socket.off("friendList");
+				socket.off("friendActive");
+				socket.off("friendRenew");
+			}
+		}
 	}, [socket, userData]);
+
 	return (
 		<>
 			{loading ? (
@@ -96,8 +109,20 @@ export default function Layout({
 			) : (
 				<NotifyProvider>
 					<Notifications />
+					<ToastContainer
+					position="top-right"
+					autoClose={5000}
+					hideProgressBar={false}
+					newestOnTop={false}
+					closeOnClick
+					rtl={false}
+					pauseOnFocusLoss
+					draggable
+					pauseOnHover
+					theme="dark"
+					/>
 					<div className="bg-zinc-800 text-white lg:flex">
-						<NavBar userData={userData} />
+						{isNavView && <NavBar userData={userData} />}
 						<div className="relative flex w-full flex-1 px-8 py-6">
 							{pageProps}
 							{children}

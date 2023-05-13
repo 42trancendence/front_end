@@ -7,26 +7,78 @@ import { Menu, Transition } from "@headlessui/react";
 import { SocketContext } from "@/lib/socketContext";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import {useRouter} from "next/router";
+import { NotifyContext } from "@/lib/notifyContext";
+import {
+	NoSymbolIcon
+} from "@heroicons/react/24/outline";
 
-export default function DirectChatModal({ userData }: any) {
+export default function DirectChatModal({
+	userData,
+	userMe,
+	isBlocked,
+}: {
+	userData: any;
+	userMe: any;
+	isBlocked: boolean;
+}) {
+	console.log(userData);
+	console.log(isBlocked);
+	const me = userMe[0];
+	console.log("me", userMe);
+	const newUserList = Object.keys(userData).map((key) => {
+        return {
+          id: userData[key].id,
+          name: userData[key].name,
+        };
+	});
+	console.log("modal data:", userData);
 	const { chatSocket: socket } = useContext(SocketContext);
+	const { gameSocket: gameSocket } = useContext(SocketContext);
 	const router = useRouter();
-	function KickUser(event: React.MouseEvent<HTMLElement>, item: any) {
+
+	function BlockUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
-		socket?.emit("kickUser", item.name);
+		
+		socket?.emit("toggleBlockUser", {userId: item.id}, (error) => {
+			if (!error.status) {
+				console.log(error); // 서버에서 전달된 에러 메시지 출력
+			}
+		});
 	}
 
-	function BanUser(event: React.MouseEvent<HTMLElement>, item: any) {
-		event.preventDefault();
-		socket?.emit("toggleBanUser", item.name);
+	const { successed } = useContext(NotifyContext);
+	function onSuccessed() {
+		successed({
+			header: "게임요청",	
+			message: "게임요청을 성공적으로 보냈습니다.",
+		});
 	}
 
-	function MuteUser(event: React.MouseEvent<HTMLElement>, item: any) {
-		event.preventDefault();
-		socket?.emit("setMuteUser", item.name);
-	}
+		// 게임 초대 이벤트
+		const inviteUserForGame = (event: React.MouseEvent<HTMLElement>, item: any) => {
 
-	return userData.map((user: any, index: number) => (
+			// console.log('user: ', item)
+	
+			gameSocket?.emit("inviteUserForGame", { userName: item.name });
+			gameSocket?.on("error", (error) => {
+				console.log(error); // 서버에서 전달된 에러 메시지 출력
+			});
+			gameSocket?.on('getMatching', (data: string, roomId: string) => {
+				// console.log(`getMatching: ${data}`);
+	
+				if (data == 'matching')	{
+					// console.log(data2);
+					router.push(`/lobby/game/${roomId}`);
+				}	else {
+					alert('매칭 실패');
+				}
+			})
+			// router.push(`game`);
+			onSuccessed();
+		};
+
+	return newUserList.map((user: any, index: number) => (
+		me ?
 		<Menu as="li" key={index}>
 			<div className="bg-black"></div>
 			<Menu.Button className="group flex w-full items-center gap-x-4 rounded-md p-2 text-sm font-normal leading-6 text-indigo-200 hover:bg-zinc-700 hover:text-white">
@@ -35,7 +87,14 @@ export default function DirectChatModal({ userData }: any) {
 					src={DefaultAvatarPic}
 					alt=""
 				/>
-				<span className="mr-auto">{user.user.name}</span>
+				<span className="mr-auto">{user.name}</span>
+				{(user.name !== me.name && isBlocked === true) ? (
+					<NoSymbolIcon
+						className="ml-auto h-6 w-6 text-red-500"
+					/>
+				) : (
+					<></>
+				)}
 			</Menu.Button>
 			<Transition
 				as={Fragment}
@@ -56,12 +115,14 @@ export default function DirectChatModal({ userData }: any) {
 										active ? "bg-gray-100 text-gray-700" : "text-white",
 										"block w-full rounded-t px-4 py-2 text-sm"
 									)}
-									onClick={() => router.push(`/lobby/users/${user.user.id}`)}
+									onClick={() => router.push(`/lobby/users/${user.id}`)}
 								>
 									유저 정보
 								</button>
 							)}
 						</Menu.Item>
+						{me.name !== user.name ? (
+							<>
 						<Menu.Item>
 							{({ active }) => (
 								<button
@@ -69,7 +130,7 @@ export default function DirectChatModal({ userData }: any) {
 										active ? "bg-gray-100 text-gray-700" : "text-white",
 										"block w-full px-4 py-2 text-sm"
 									)}
-									onClick={(e) => MuteUser(e, user.user)}
+									onClick={(e) => { inviteUserForGame(e, user) }}
 								>
 									게임 초대
 								</button>
@@ -82,14 +143,20 @@ export default function DirectChatModal({ userData }: any) {
 										active ? "bg-red-400 text-white" : "bg-red-500 text-white",
 										"block w-full rounded-b px-4 py-2 text-sm"
 									)}
+									onClick={(e) => BlockUser(e, user)}
 								>
 									BLOCK
 								</button>
 							)}
 						</Menu.Item>
+						</>
+						) : (
+							<></>
+						)}
 					</div>
 				</Menu.Items>
 			</Transition>
 		</Menu>
+		: <></>
 	));
 }

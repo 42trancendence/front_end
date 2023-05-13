@@ -6,10 +6,17 @@ export async function isTwoFactorAuthEnabled(token: string) {
 				Authorization: `Bearer ${token}`,
 			}, // This is the token
 		});
-
-		return res.status;
+		const data = await res.json();
+		return ({
+			status: res.status,
+			token: data.token,
+		});
 	} catch (err) {
 		console.log(err);
+		return ({
+			status: 500,
+			token: "",
+		});
 	}
 }
 

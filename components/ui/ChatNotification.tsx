@@ -26,13 +26,13 @@ export default function ChatNotification() {
 
 	const { chatSocket } = useContext(SocketContext);
 	const moveToDirectMessage = () => {
-		chatSocket?.emit("enterDirectMessage", {
-			directMessageId: id,
-		});
+		// chatSocket?.emit("enterDirectMessage", {
+		// 	directMessageId: id,
+		// });
 		chatSocket?.on("error", (error) => {
 			console.log(error); // 서버에서 전달된 에러 메시지 출력
 		});
-		router.push(`/lobby/chat/dm/dm: ${header}`);
+		router.push(`/lobby/chat/dm/dm: ${header}?dmId=${id}`);
 	};
 
 	return (
@@ -54,13 +54,13 @@ export default function ChatNotification() {
 						leaveFrom="opacity-100"
 						leaveTo="opacity-0"
 					>
-						<div onClick={moveToDirectMessage} className="pointer-events-auto flex w-full max-w-md rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
+						<div onClick={moveToDirectMessage} className="pointer-events-auto cursor-pointer flex w-full max-w-md rounded-lg bg-white shadow-lg ring-1 ring-black ring-opacity-5">
 							<div className="w-0 flex-1 p-4">
 								<div className="flex items-start">
 									<div className="flex-shrink-0 pt-0.5">
 										<Image
-											className="h-10 w-10 rounded-full"
-											src="/default-avatar.svg"
+											className="h-10 w-10 rounded-full bg-zinc-800 p-2"
+											src="/default_avatar.svg"
 											width={160}
 											height={160}
 											alt=""

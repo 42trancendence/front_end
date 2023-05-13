@@ -29,6 +29,7 @@ export async function handleRefresh() {
   let accessToken = await refreshAccessToken();
 
   if (!accessToken) {
+    localStorage.removeItem("token");
     return null;
   }
 
