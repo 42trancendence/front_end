@@ -135,7 +135,7 @@ const RoomPage: NextPageWithLayout = ({
 		const minutes = unMuteTime.getMinutes();
 		const seconds = unMuteTime.getSeconds();
 		toast.error(`관리자가 당신을 ${hours}시 ${minutes}분 ${seconds}초 까지 채팅 금지시켰습니다. `);
-		setIsMuted(true);
+		setIsMuted(prevMuted => true);
 	}
 	
 	useEffect(() => {
@@ -223,6 +223,11 @@ const RoomPage: NextPageWithLayout = ({
 					return user.user.name === username;
 				});
 				setUserMe(me);
+				if (userMe) {
+					if (me[0]?.role !== 2){
+						setIsMuted(prevIsMuted => false)
+					}
+				}
 				setLoading(false);
 			});
 		}
@@ -245,7 +250,6 @@ const RoomPage: NextPageWithLayout = ({
 
 	const unMute = () => {
 		setIsMuted(false);
-		// setMutedTime(null);
 	}
 	const handleCloseUserModal = () => {
 		setSelectedUser("");
@@ -441,7 +445,7 @@ const RoomPage: NextPageWithLayout = ({
 									}
 								}}
 							/>
-							{isMuted ? (
+							{isMuted && userMe[0].role === 2  ? (
 								<button
 									type="button"
 									className="ml-2 w-20 rounded-lg bg-red-500 px-4 py-2 text-white"
