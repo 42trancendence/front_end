@@ -75,21 +75,25 @@ const FriendNotifyMessage = ({ socket, userData, closeToast }: { socket:any, use
 
 
 export default function FriendNotification() {
-	const [userData, setuserData] = useState<any>({});
+	const [userData, setuserData] = useState<any>([]);
 	// 소켓 연결
 	const { friendSocket: socket } = useContext(SocketContext);
 	useEffect(() => {
 		if (socket) {
 			socket.on("friendRequest", (data) => {
 				if (data.length > 0) {
-					toast(<FriendNotifyMessage socket={socket} userData={data[0]} />, {
-						autoClose: false,
-						closeOnClick: false,
+					setuserData([]);
+					data.map((user: any, index: any) => {
+						toast(<FriendNotifyMessage key={index} socket={socket} userData={user[index]} />,
+						{
+							autoClose: false,
+							closeOnClick: false,
+						});
 					});
-					setuserData(data[0]);
+					setuserData(data);
 				}
 				if (data.length === 0) {
-					setuserData({});
+					setuserData([]);
 				}
 			});
 		}
