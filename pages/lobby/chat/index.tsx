@@ -73,11 +73,13 @@ const ChatRooms: NextPageWithLayout = () => {
 
 		chatSocket?.emit("enterChatLobby",
 		(error) => {
-			if (error.status === "FATAL") {		
+			if (error.status === "FATAL") {	
+				setLoading(false);	
 				toast.error(error.message);
 				router.push(`/lobby/chat/`);
 			}
 			else if (error.status === "WARNING") {	
+				setLoading(false);
 				toast.error(error.message);
 				router.push(`/lobby/chat/`);
 			}
@@ -106,11 +108,6 @@ const ChatRooms: NextPageWithLayout = () => {
 		  },
 		  (error) => {
 			if (error.status === "FATAL") {		
-				toast.error(error.message);
-				setLoading(false);
-				router.push(`/lobby/chat/`);
-			}
-			else if (error.status === "ERROR") {	
 				toast.error(error.message);
 				setLoading(false);
 				router.push(`/lobby/chat/`);

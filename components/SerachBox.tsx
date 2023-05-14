@@ -95,7 +95,7 @@ export default function SearchBox({
 			}
 			else if (error.status === "OK")
 			{
-				router.push(`/lobby/chat/dm/dm: ${name}?dmId=${error.directMessageId}`);
+				toast.success("요청을 성공적으로 처리했습니다!")
 			}
 		});
 	}

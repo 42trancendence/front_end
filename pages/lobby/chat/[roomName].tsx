@@ -73,6 +73,11 @@ const RoomPage: NextPageWithLayout = ({
 						toast.error(error.message);
 						router.push(`/lobby/chat/`);
 					}
+					else if (error.status === "ERROR") {	
+						toast.error(error.message);
+						setLoading(false);
+						router.push(`/lobby/chat/`);
+					}
 					else if (error.status === "WARNING") {	
 						toast.error(error.message);
 						router.push(`/lobby/chat/`);
@@ -100,9 +105,17 @@ const RoomPage: NextPageWithLayout = ({
 						toast.error(error.message);
 						router.push(`/lobby/chat/`);
 					}
+					else if (error.status === "ERROR") {	
+						toast.error(error.message);
+						router.push(`/lobby/chat/`);
+					}
 					else if (error.status === "OK")
 					{
 						// 알람 없음
+					}
+					else
+					{
+						console.log("error", error);
 					}
 				}
 			);
