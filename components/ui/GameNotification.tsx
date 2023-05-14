@@ -26,21 +26,21 @@ export default function GameNotification() {
 	const acceptGame = () => {
 		gameSocket?.emit("acceptMatchingRequest");
 		
-		gameSocket?.on('getMatching', (data: string, roomId: string) => {
+		// gameSocket?.on('getMatching', (data: string, roomId: string) => {
 			// console.log(`getMatching: ${data}`);
 
-			if (data == 'matching')	{
-				// console.log(data2);
-				router.push(`game/${roomId}`);
-			}	else {
-				alert('매칭 실패');
-			}
-		})
+			// if (data == 'matching')	{
+			// 	// console.log(data2);
+			// 	router.push(`/lobby/game/${roomId}`);
+			// }	else {
+			// 	alert('매칭 실패');
+			// }
+		// })
 		setShowGameNotification(false);
 	};
 	// 게임 요청 거절
 	const rejectGame = () => {
-		gameSocket?.emit("postLeaveGame");
+		gameSocket?.emit("postDeleteGame");
 		setShowGameNotification(false);
 	};
 	return (
