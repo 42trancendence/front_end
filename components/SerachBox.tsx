@@ -86,11 +86,11 @@ export default function SearchBox({
 		console.log("block user data:", item);
 		chatSocket?.emit("toggleBlockUser", {userId: item.id},
 		(error: any) => {
-			if (error.status === "FATAL") {		
+			if (error.status === "FATAL") {
 				toast.error(error.message);
 				router.push(`/lobby/chat/`);
 			}
-			else if (error.status === "WARNING") {	
+			else if (error.status === "WARNING") {
 				toast.error(error.message);
 			}
 			else if (error.status === "OK")
@@ -107,15 +107,15 @@ export default function SearchBox({
 		chatSocket?.emit("createDirectMessage", {
 			receiverId: id,
 		}, (error: any) => {
-			if (error.status === "FATAL") {		
+			if (error.status === "FATAL") {
 				toast.error(error.message);
 				router.push(`/lobby/chat/`);
 			}
-			else if (error.status === "ERROR") {	
+			else if (error.status === "ERROR") {
 				toast.error(error.message);
 				router.push(`/lobby/chat/`);
 			}
-			else if (error.status === "WARNING") {	
+			else if (error.status === "WARNING") {
 				toast.error(error.message);
 			}
 			else if (error.status === "OK")
@@ -184,11 +184,13 @@ export default function SearchBox({
 												value={item}
 												className="flex cursor-default select-none items-center justify-center rounded-xl p-3"
 											>
-												<div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-zinc-800">
+												<div className="flex h-10 w-10 flex-none items-center justify-center rounded-full shadow-md">
 													<Image
-														src={item.avatar || DefaultAvatarPic}
-														className="h-6 w-6 text-white"
+														src={item.avatarImageUrl || DefaultAvatarPic}
+														className="h-10 w-10 text-white rounded-full shadow"
 														alt=""
+														width={32}
+														height={32}
 													/>
 												</div>
 												<div className="ml-4 mr-auto flex-auto">
