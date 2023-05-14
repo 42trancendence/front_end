@@ -83,8 +83,9 @@ export default function FriendNotification() {
 			socket.on("friendRequest", (data) => {
 				if (data.length > 0) {
 					setuserData([]);
+					toast.dismiss();
 					data.map((user: any, index: any) => {
-						toast(<FriendNotifyMessage key={index} socket={socket} userData={user[index]} />,
+						return toast(<FriendNotifyMessage key={index} socket={socket} userData={user} />,
 						{
 							autoClose: false,
 							closeOnClick: false,
