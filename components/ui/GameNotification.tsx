@@ -26,7 +26,7 @@ export default function GameNotification() {
 	const acceptGame = () => {
 		gameSocket?.emit("acceptMatchingRequest");
 		
-		gameSocket?.on('getMatching', (data: string, roomId: string) => {
+		// gameSocket?.on('getMatching', (data: string, roomId: string) => {
 			// console.log(`getMatching: ${data}`);
 
 			// if (data == 'matching')	{
@@ -35,7 +35,7 @@ export default function GameNotification() {
 			// }	else {
 			// 	alert('매칭 실패');
 			// }
-		})
+		// })
 		setShowGameNotification(false);
 	};
 	// 게임 요청 거절

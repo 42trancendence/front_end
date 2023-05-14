@@ -20,7 +20,8 @@ const Canvas: React.FC = () => {
   const [players, setPlayers] = useState(['player1', 'player2']);
   const [avatarUrls, setAvatarUrls] = useState(['','']);
   const [score, setScore] = useState([0, 0]);
-
+  const [showGameModal, setShowGameModal] = usePersistentState('gameModal', false);
+  
   // 컨텍스트 세팅
   useEffect(() => {
     if (canvasRef?.current) {
@@ -43,8 +44,6 @@ const Canvas: React.FC = () => {
 				});
 				if (res.ok) {
 					const playersInfo = await res.json();
-
-					// console.log(playersInfo);
 
 					setPlayers([playersInfo.player1.name, playersInfo.player2.name]);
           setScore([playersInfo.player1Score, playersInfo.player2Score])
@@ -92,20 +91,20 @@ const Canvas: React.FC = () => {
           setDifficulty(false);
           setChangeScore(false);
           setStartGame(true);
-          canvasRef.current?.focus();
+          canvasRef.current?.focus(); // 포커스 해결 필요
         } else {
           setShowGameModal(true);
         }
       })
-      gameSocket.on('postLeaveGame', (data: string) => {
-        if (data == 'delete') {
-					gameSocket.emit('postLeaveGame');
-				} else if (data == 'leave') {
-					router.push('/lobby/overview');
-          setDifficulty(false);
-          setChangeScore(false);
-          leaveGame();
-				}
+      gameSocket.on('postDeleteGame', () => {
+        gameSocket.emit('postLeaveGame');
+      })
+
+      gameSocket.on('postLeaveGame', () => {
+        router.push('/lobby/overview');
+        setDifficulty(false);
+        setChangeScore(false);
+        leaveGame();
       })
     }
   }, [gameSocket])
@@ -175,12 +174,11 @@ const Canvas: React.FC = () => {
 
   const handleLeaveGame = () => {
     if (gameSocket) {
-      gameSocket.emit('postLeaveGame');
+      gameSocket.emit('postDeleteGame');
       router.push('/lobby/overview');
     }
   }
 
-  const [showGameModal, setShowGameModal] = usePersistentState('gameModal', false);
 
   const handleOnClose = () => {
     router.push('/lobby/overview');
