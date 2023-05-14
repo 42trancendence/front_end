@@ -68,7 +68,7 @@ const OverView: NextPageWithLayout = () => {
 				if (res.ok) {
 					const historyData = await res.json();
 
-					// console.log(historyData);
+					console.log(historyData);
 
 					setGameHistory(historyData);
 
@@ -201,15 +201,15 @@ const OverView: NextPageWithLayout = () => {
 						<div className="flex divide-x divide-zinc-400">
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
 								<p className="text-zinc-200">Total</p>
-								<p className="text-lg font-semibold">100</p>
+								<p className="text-lg font-semibold">{gameHistory[1][0] + gameHistory[1][1]}</p>
 							</div>
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
 								<p className="text-zinc-200">Win</p>
-								<p className="text-lg font-semibold">50</p>
+								<p className="text-lg font-semibold">{gameHistory[1][0]}</p>
 							</div>
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
 								<p className="text-zinc-200">Lose</p>
-								<p className="text-lg font-semibold">50</p>
+								<p className="text-lg font-semibold">{gameHistory[1][1]}</p>
 							</div>
 						</div>
 						<div className="m-auto flex">
@@ -278,7 +278,7 @@ const OverView: NextPageWithLayout = () => {
 							<p className="text-[#bbc2ff]">패자 점수</p>
 							</div>
 						</div>
-						{gameHistory.map((room, index) => {
+						{gameHistory[0].map((room: any, index: number) => {
 							const date = moment(room.createAt);
 							const formattedDateTime = date.format(`YYYY-MM-DD HH:mm`);
 
