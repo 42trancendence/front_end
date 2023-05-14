@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import DefaultAvatarPic from "@/public/default_avatar.svg";
 import clsx from "clsx";
+import { toast } from "react-toastify";
 import { Fragment, useContext } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { SocketContext } from "@/lib/socketContext";
@@ -12,7 +13,7 @@ import { NotifyContext } from "@/lib/notifyContext";
 export default function FreindList({ userData }: any) {
 	console.log(userData);
 	const { friendSocket: socket, chatSocket, gameSocket } = useContext(SocketContext);
-	
+
 	function deleteFriend(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
 		socket?.emit("deleteFriend", { friendName: item.name });
@@ -21,9 +22,18 @@ export default function FreindList({ userData }: any) {
 
 	function BlockUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
-		chatSocket?.emit("toggleBlockUser", {userId: item.id}, (error) => {
-			if (!error.status) {
-				console.log(error); // 서버에서 전달된 에러 메시지 출력
+		chatSocket?.emit("toggleBlockUser", {userId: item.id},
+		(error: any) => {
+			if (error.status === "FATAL") {		
+				toast.error(error.message);
+				router.push(`/lobby/chat/`);
+			}
+			else if (error.status === "WARNING") {	
+				toast.error(error.message);
+			}
+			else if (error.status === "OK")
+			{
+				router.push(`/lobby/chat/dm/dm: ${name}?dmId=${error.directMessageId}`);
 			}
 		});
 	}
@@ -31,15 +41,24 @@ export default function FreindList({ userData }: any) {
 	const createDirectMessage = (id: string, name: string) => {
 		chatSocket?.emit("createDirectMessage", {
 			receiverId: id,
-		}, (res: any) => {
-			console.log("res", res);
-			router.push(`/lobby/chat/dm/dm: ${name}?dmId=${res.directMessageId}`);
-			if (!res.status) {
-				console.log(res); // 서버에서 전달된 에러 메시지 출력
+			},
+			(error: any) => {
+			if (error.status === "FATAL") {		
+				toast.error(error.message);
 				router.push(`/lobby/chat/`);
 			}
+			else if (error.status === "ERROR") {	
+				toast.error(error.message);
+				router.push(`/lobby/chat/`);
+			}
+			else if (error.status === "WARNING") {	
+				toast.error(error.message);
+			}
+			else if (error.status === "OK")
+			{
+				router.push(`/lobby/chat/dm/dm: ${name}?dmId=${error.directMessageId}`);
+			}
 		});
-
 	};
 
 	// 게임 초대 이벤트

@@ -24,6 +24,7 @@ const EditProfilePallet = ({
 		handleSubmit,
 		getValues,
 		formState: { errors },
+		reset,
 	} = useForm<MyFormData>();
 	// input State
 	const [avatarUrl, setavatarUrl] = useState<string | null>(null);
@@ -115,8 +116,15 @@ const EditProfilePallet = ({
 
 	// submit
 	const onSubmit = async (data: MyFormData) => {
+		const formData = new FormData();
+		if (data.name) {
+			formData.append("name", data.name);
+		}
+		formData.append("avatarImageUrl", data.avatarImageUrl[0]);
+
+		console.log(formData);
 		try {
-			if (isNameDuplicatedPass === false) {
+			if (data.name && isNameDuplicatedPass === false) {
 				let text = "- 이름 중복 확인을 해주세요.";
 				openDialog(text, "fail");
 				return;
@@ -124,22 +132,24 @@ const EditProfilePallet = ({
 			const res = await fetch("http://localhost:3000/users/me", {
 				method: "PUT",
 				headers: {
-					"Content-Type": "application/json",
 					Authorization: `Bearer ${localStorage.getItem("token")}`,
 				},
-				body: JSON.stringify(data),
+				body: formData,
 			});
 			if (res.status === 200) {
 				openDialog("프로필 업데이트에 성공했습니다!", "success");
+				reset();
 				setIsOpen(false);
 				setisProfileChanged((prev: boolean) => !prev);
 			} else {
 				const errorData = await res.json();
 				openDialog(errorData.message, "fail");
+				reset();
 				setIsOpen(true);
 			}
 		} catch (err) {
 			openDialog("프로필 업데이트에 실패했습니다.", "fail");
+			reset();
 		}
 	};
 	return (
@@ -192,9 +202,7 @@ const EditProfilePallet = ({
 											이름
 										</label>
 										<input
-											{...register("name", {
-												required: "이름을 입력해주세요.",
-											})}
+											{...register("name")}
 											type="text"
 											id="name"
 											className="block w-full border-0 bg-zinc-950 px-8 py-6 text-xl text-white shadow-darkbox placeholder:text-lg placeholder:text-zinc-300"

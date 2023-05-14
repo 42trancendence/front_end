@@ -55,6 +55,7 @@ const OverView: NextPageWithLayout = () => {
 
 	// user 정보 가져오기
 	useEffect(() => {
+		console.log("game status: ", user)
 		setUsername(user.name);
 		setavatarUrl(user.avatarImageUrl);
 		setis2faEnabled(user.isVerified);

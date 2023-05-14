@@ -16,7 +16,7 @@ const SlideButton: FC<Props> = ({ onClick }) => {
     aria-hidden="true"
     className="text-white w-6 h-6"
     >
-    <path fill-rule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clip-rule="evenodd"/>
+    <path fillRule="evenodd" d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z" clipRule="evenodd"/>
     </svg>
     <span className="overflow-hidden inline-flex whitespace-nowrap max-w-0 group-hover:!max-w-[140px] font-semibold group-hover:ml-[12px] transition-all duration-300 ease-in-out">채팅방 생성</span>
   </button>
