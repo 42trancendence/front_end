@@ -15,12 +15,14 @@ const Canvas: React.FC = () => {
   const [gameData, setGameData] = useState(null);
   const [ready, setReady] = useState(false);
   const [startGame, setStartGame] = usePersistentState('startGame', false);
-  const [difficulty, setDifficulty] = useState(false);
-  const [changeScore, setChangeScore] = useState(false);
+  const [difficulty, setDifficulty] = usePersistentState('difficulty' ,false);
+  const [changeScore, setChangeScore] = usePersistentState('score', false);
   const [players, setPlayers] = useState(['player1', 'player2']);
   const [avatarUrls, setAvatarUrls] = useState(['','']);
   const [score, setScore] = useState([0, 0]);
-
+  const [showGameModal, setShowGameModal] = usePersistentState('gameModal', false);
+  const [viewReady, setViewReady] = useState([]);
+  
   // 컨텍스트 세팅
   useEffect(() => {
     if (canvasRef?.current) {
@@ -43,8 +45,6 @@ const Canvas: React.FC = () => {
 				});
 				if (res.ok) {
 					const playersInfo = await res.json();
-
-					// console.log(playersInfo);
 
 					setPlayers([playersInfo.player1.name, playersInfo.player2.name]);
           setScore([playersInfo.player1Score, playersInfo.player2Score])
@@ -89,20 +89,39 @@ const Canvas: React.FC = () => {
       })
       gameSocket.on('setStartGame', (data) => {
         if (data == 'start') {
+          setDifficulty(false);
+          setChangeScore(false);
           setStartGame(true);
-          canvasRef.current?.focus();
+          canvasRef.current?.focus(); // 포커스 해결 필요
         } else {
           setShowGameModal(true);
         }
       })
-      gameSocket.on('postLeaveGame', (data: string) => {
-        if (data == 'delete') {
-					gameSocket.emit('postLeaveGame');
-				} else if (data == 'leave') {
-					router.push('/lobby/overview');
-          leaveGame();
-				}
+      gameSocket.on('postDeleteGame', () => {
+        gameSocket.emit('postLeaveGame');
+        console.log(111111);
       })
+
+      gameSocket.on('postLeaveGame', (data: string) => {
+        router.push('/lobby/overview');
+        setDifficulty(false);
+        setChangeScore(false);
+        if (data !== 'finishGame') {
+          leaveGame();
+        }
+      })
+
+      gameSocket.on('getWhoReady', (data) => {
+        console.log(data);
+        setViewReady(data);
+      })
+    }
+    return () => {
+      gameSocket?.off('updateGame');
+      gameSocket?.off('setStartGame');
+      gameSocket?.off('postDeleteGame');
+      gameSocket?.off('postLeaveGame')
+      gameSocket?.off('readyPlayer');
     }
   }, [gameSocket])
 
@@ -125,7 +144,7 @@ const Canvas: React.FC = () => {
 
   const drawPaddle = (paddle: Object) => {
     if (ctx) {
-      ctx.fillStyle = 'blue';
+      ctx.fillStyle = 'magenta';
       ctx.fillRect(paddle?.x_, paddle?.y_, paddle?.width_, paddle?.height_);
     }
   }
@@ -171,15 +190,14 @@ const Canvas: React.FC = () => {
 
   const handleLeaveGame = () => {
     if (gameSocket) {
-      gameSocket.emit('postLeaveGame');
-      router.push('/lobby/overview');
+      gameSocket.emit('postDeleteGame');
+      // router.push('/lobby/overview');
     }
   }
 
-  const [showGameModal, setShowGameModal] = usePersistentState('gameModal', false);
 
-  const handleOnClose = () => {
-    router.push('/lobby/overview');
+  const handleNotifyClose = () => {
+    gameSocket?.emit('postLeaveGame', 'finishGame')
     setShowGameModal(false);
     setStartGame(false);
   }
@@ -198,43 +216,57 @@ const Canvas: React.FC = () => {
           onKeyDown={handleKeyDown} // 함수 자체를 전달
           className='flex flex-col justify-center items-center w-full'>
         <nav className="relative px-4 py-4 flex flex-row justify-between items-center bg-black w-full my-4">
-        <div className="flex flex-col items-center mt-2">
-        <Image
-          className="h-10 w-10 rounded-full bg-red-600 ring-zinc-800"
-          src={avatarUrls[0]}
-          alt=""
-          width={300}
-          height={300}
-        />
-          <a className="text-blue-600 text-zinc-300">{players[0]}</a>
+        <div className='flex'>
+          <div className="flex flex-col items-center mt-2">
+            <Image
+              className="h-10 w-10 rounded-full bg-red-600 ring-zinc-800"
+              src={avatarUrls[0]}
+              alt=""
+              width={300}
+              height={300}
+            />
+            <a className="text-blue-600 text-zinc-300">{players[0]}</a>
+          </div>
+          <a className='ml-5 text-6xl'>
+            { startGame ? '' : viewReady[0] ? 'READY' : '' }
+          </a>
         </div>
       <ul className="absolute top-1/2 left-1/2 transform -translate-y-1/2 -translate-x-1/2 lg:flex lg:mx-auto lg:flex lg:items-center lg:w-auto lg:space-x-6">
         <li>
           <a className="text-3xl text-white font-bold">{`${score[0]}  -  ${score[1]}`}</a>
         </li>
       </ul>
-      <div className="flex flex-col items-center mt-2">
-        <Image
-          className="h-10 w-10 rounded-full bg-green-400 ring-zinc-800"
-          src={avatarUrls[1]}
-          alt=""
-          width={300}
-          height={300}
-        />
-        <a className="text-blue-600 text-zinc-300">{players[1]}</a>
+      <div className='flex'>
+        <a className='mr-5 text-6xl'>
+          { startGame ? '' : viewReady[1] ? 'READY' : '' }
+        </a>
+        <div className="flex flex-col items-center mt-2">
+          <Image
+            className="h-10 w-10 rounded-full bg-green-400 ring-zinc-800"
+            src={avatarUrls[1]}
+            alt=""
+            width={300}
+            height={300}
+          />
+          <a className="text-blue-600 text-zinc-300">{players[1]}</a>
+        </div>
       </div>
     </nav>
       {startGame ?
-          <div className='mb-2'>
-            {`난이도: ${gameData?.difficulty_ ? gameData?.difficulty_ : 'normal'}, \
-            최종점수: ${gameData?.finalScore_ ? `${gameData?.finalScore_}점` : '5점'}`}
-          </div> : ''
+        <div className='flex mb-3'>
+          <a className='mr-3 inline-block p-2 border border-green-100 rounded text-gray-500 no-underline'>
+            {`난이도: ${gameData?.difficulty_ ? gameData?.difficulty_ : 'normal'}`}
+          </a>
+          <a className='inline-block p-2 border border-green-100 rounded text-gray-500 no-underline'>
+            {`최종점수: ${gameData?.finalScore_ ? gameData?.finalScore_ : '5'}`}
+          </a>
+        </div> : ''
       }
           <canvas
             ref={canvasRef} width={1024} height={640}
           />
           <GameModal
-            onClose={handleOnClose}
+            onClose={handleNotifyClose}
             visible={showGameModal}
             player1Name={players[0]}
             player2Name={players[1]}
