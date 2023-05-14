@@ -40,7 +40,7 @@ export default function GameNotification() {
 	};
 	// 게임 요청 거절
 	const rejectGame = () => {
-		gameSocket?.emit("postLeaveGame");
+		gameSocket?.emit("postDeleteGame");
 		setShowGameNotification(false);
 	};
 	return (
