@@ -47,7 +47,7 @@ const OverView: NextPageWithLayout = () => {
 	const [isEditOpen, setisEditOpen] = useState(false);
 	const [isProfileChanged, setisProfileChanged] = useState(false);
 	const [isAchievementsOpen, setisAchievementsOpen] = useState(false);
-	const [gameHistory, setGameHistory] = useState<GameHistory[]>([]);
+	const [gameHistory, setGameHistory] = useState<[GameHistory[], number[]]>([[], [0, 0]]);
 
 	const [onGame, setOnGame] = usePersistentState("onGame", false);
 	const [startGame, setStartGame] = usePersistentState("startGame", false);
