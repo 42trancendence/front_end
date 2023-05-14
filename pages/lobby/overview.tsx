@@ -231,7 +231,15 @@ const OverView: NextPageWithLayout = () => {
 	return (
 		<>
 			<Seo title="Overview" />
-			<EditProfilePallet isOpen={isEditOpen} setIsOpen={setisEditOpen} setisProfileChanged={setisProfileChanged} />
+			<Achievements
+				isOpen={isAchievementsOpen}
+				setIsOpen={setisAchievementsOpen}
+			/>
+			<EditProfilePallet
+				isOpen={isEditOpen}
+				setIsOpen={setisEditOpen}
+				setisProfileChanged={setisProfileChanged}
+			/>
 			<div className="relative flex flex-1 flex-col">
 				<div>
 					<Image
@@ -254,7 +262,7 @@ const OverView: NextPageWithLayout = () => {
 				{isUserDataLoaded ? (
 					<OverviewSkeleton /> // 로딩중일때
 				) : (
-					<div className="z-10 -mt-6 grid w-full sm:w-3/4 grid-cols-1 gap-3 self-center rounded bg-zinc-800 p-6 text-center shadow-neumreverse lg:grid-cols-3">
+					<div className="z-10 -mt-6 grid w-full grid-cols-1 gap-3 self-center rounded bg-zinc-800 p-6 text-center shadow-neumreverse sm:w-3/4 lg:grid-cols-3">
 						<div className="flex divide-x divide-zinc-400">
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
 								<p className="text-zinc-200">Total</p>
@@ -274,19 +282,81 @@ const OverView: NextPageWithLayout = () => {
 								<p className="font-orbitron text-white">{username}</p>
 							</div>
 						</div>
-						<div className="ml-auto gap-2 flex divide-x divide-zinc-400">
+						<div className="ml-auto flex gap-2 divide-x divide-zinc-400">
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
 								<p className="text-xs text-zinc-200">Achievement</p>
-								<p className="text-lg font-semibold">1</p>
+								<p
+									className="cursor-pointer text-lg font-semibold underline"
+									onClick={() => setisAchievementsOpen(true)}
+								>
+									0
+								</p>
 							</div>
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
-								<NormalButton
-									className="shadow"
-									variant="bright"
-									onClick={() => setisEditOpen(true)}
-								>
-									Edit
-								</NormalButton>
+								<Menu as="div">
+									<Menu.Button className="text-md inline-flex items-center justify-center gap-2 whitespace-nowrap rounded bg-white px-4 py-2.5 text-zinc-800 shadow outline-offset-2 transition active:transition-none">
+										Edit
+									</Menu.Button>
+									<Transition
+										as={Fragment}
+										enter="transition ease-out duration-100"
+										enterFrom="transform opacity-0 scale-95"
+										enterTo="transform opacity-100 scale-100"
+										leave="transition ease-in duration-75"
+										leaveFrom="transform opacity-100 scale-100"
+										leaveTo="transform opacity-0 scale-95"
+									>
+										<Menu.Items className="absolute right-4 z-10 mt-2 w-48 origin-top-right rounded bg-zinc-950 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+											<div>
+												<Menu.Item>
+													{({ active }) => (
+														<button
+															className={clsx(
+																active
+																	? "bg-gray-100 text-gray-700"
+																	: "text-white",
+																"block w-full rounded-t px-4 py-2 text-sm"
+															)}
+															onClick={() => setisEditOpen(true)}
+														>
+															유저 정보 수정
+														</button>
+													)}
+												</Menu.Item>
+												<Menu.Item>
+													<div className="flex items-center px-4 py-4">
+														<Switch
+															checked={is2faEnabled}
+															onChange={() => {
+																if (!is2favalidating) {
+																	toggle2fa();
+																}
+															}}
+															className={clsx(
+																is2faEnabled ? "bg-green-600" : "bg-gray-200",
+																"relative inline-flex h-6 w-11 flex-shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out"
+															)}
+														>
+															{is2favalidating && <MiniLoading />}
+															<span
+																aria-hidden="true"
+																className={clsx(
+																	is2faEnabled
+																		? "translate-x-5"
+																		: "translate-x-0",
+																	"pointer-events-none inline-block h-5 w-5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out"
+																)}
+															/>
+														</Switch>
+														<span className="ml-3 font-medium text-zinc-200">
+															2FA 인증 활성화
+														</span>
+													</div>
+												</Menu.Item>
+											</div>
+										</Menu.Items>
+									</Transition>
+								</Menu>
 							</div>
 						</div>
 					</div>
