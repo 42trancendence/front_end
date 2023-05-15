@@ -22,13 +22,13 @@ export async function isTwoFactorAuthEnabled(token: string) {
 
 export async function isTwoFactorAuthEnabledServer(token: string) {
 	try {
-		const res = await axios(`http://backend:3000/2fa`, {
+		const res = await fetch(`http://backend:3000/2fa`, {
 			method: 'GET',
 			headers: {
 				Authorization: `Bearer ${token}`,
 			}, // This is the token
 		});
-		const data = await res.data;
+		const data = await res.json();
 		return ({
 			status: res.status,
 			token: data.token,
