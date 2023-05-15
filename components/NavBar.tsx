@@ -72,7 +72,7 @@ export default function NavBar({ userData }: any) {
 	const logout = () => {
 		const doLogout = async () => {
 			try {
-				const res = await fetch("http://localhost:3000/auth/logout", {
+				const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/auth/logout`, {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",

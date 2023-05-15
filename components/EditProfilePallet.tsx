@@ -79,7 +79,7 @@ const EditProfilePallet = ({
 		setnameLoading(true);
 		try {
 			const res = await fetch(
-				`http://localhost:3000/users/name?userName=${name}`,
+				`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/users/name?userName=${name}`,
 				{
 					method: "GET",
 					headers: {
@@ -129,7 +129,7 @@ const EditProfilePallet = ({
 				openDialog(text, "fail");
 				return;
 			}
-			const res = await fetch("http://localhost:3000/users/me", {
+			const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/users/me`, {
 				method: "PUT",
 				headers: {
 					Authorization: `Bearer ${localStorage.getItem("token")}`,

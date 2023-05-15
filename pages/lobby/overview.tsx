@@ -68,7 +68,7 @@ const OverView: NextPageWithLayout = () => {
 	const toggle2fa = async () => {
 		try {
 			setis2favalidating(true);
-			const res = await fetch("http://localhost:3000/users/me/2fa", {
+			const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/users/me/2fa`, {
 				method: "PUT",
 				headers: {
 					"Content-Type": "application/json",
@@ -102,7 +102,7 @@ const OverView: NextPageWithLayout = () => {
 
 		const getGameHistory = async () => {
 			try {
-				const res = await fetch("http://localhost:3000/users/game-history", {
+				const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/users/game-history`, {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",

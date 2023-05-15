@@ -47,7 +47,7 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
 	const [notifySocket, setNotifySocket] = useState<Socket | null>(null);
 
 	useEffect(() => {
-		const manager = new Manager("http://localhost:3000", {
+		const manager = new Manager(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}`, {
 			extraHeaders: {
 			  Authorization: `Bearer ${localStorage.getItem("token")}`,
 			  }
@@ -62,13 +62,13 @@ const SocketProvider = ({ children }: SocketProviderProps) => {
 
 		// 토큰 만료시 재발급
 		newFriendSocket.on("tokenError", () => {
-			reconnectSocket("http://localhost:3000/friend", setFriendSocket);
+			reconnectSocket(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/friend`, setFriendSocket);
 		});
 		newChatSocket.on("tokenError", () => {
-			reconnectSocket("http://localhost:3000/chat-room", setChatSocket);
+			reconnectSocket(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/chat-room`, setChatSocket);
 		});
 		newGameSocket.on("tokenError", () => {
-			reconnectSocket("http://localhost:3000/game", setGameSocket);
+			reconnectSocket(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/game`, setGameSocket);
 		});
 
 		setFriendSocket(newFriendSocket);
@@ -106,7 +106,7 @@ const ChatSocketProvider = ({
 	useEffect(() => {
 		if (isOpen === false) return;
 		else {
-			const newSocket = io("http://localhost:3000/chat-room", {
+			const newSocket = io("${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/chat-room", {
 				extraHeaders: {
 					Authorization: `Bearer ${localStorage.getItem("token")}`,
 				},
@@ -120,7 +120,7 @@ const ChatSocketProvider = ({
 						router.push("/");
 					}
 					else {
-						const newSocket = io("http://localhost:3000/chat-room", {
+						const newSocket = io("${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/chat-room", {
 							extraHeaders: {
 								Authorization: `Bearer ${localStorage.getItem("token")}`,
 							},
@@ -158,7 +158,7 @@ const GameSocketProvider = ({
 	useEffect(() => {
 		if (isOpen === false) return;
 		else {
-			const newSocket = io("http://localhost:3000/game", {
+			const newSocket = io("${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/game", {
 				extraHeaders: {
 					Authorization: `Bearer ${localStorage.getItem("token")}`,
 				},
@@ -172,7 +172,7 @@ const GameSocketProvider = ({
 						router.push("/");
 					}
 					else {
-						const newSocket = io("http://localhost:3000/game", {
+						const newSocket = io("${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/game", {
 							extraHeaders: {
 								Authorization: `Bearer ${localStorage.getItem("token")}`,
 							},

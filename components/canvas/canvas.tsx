@@ -36,7 +36,7 @@ const Canvas: React.FC = () => {
 
 		const getGamePlayersInfo =  async (roomId: any) => {
 			try {
-				const res = await fetch(`http://localhost:3000/game/${roomId}`, {
+				const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/game/${roomId}`, {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",

@@ -1,12 +1,34 @@
 export async function isTwoFactorAuthEnabled(token: string) {
 	try {
-		const res = await fetch('http://localhost:3000/2fa', {
+		const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/2fa`, {
 			method: 'GET',
 			headers: {
 				Authorization: `Bearer ${token}`,
 			}, // This is the token
 		});
 		const data = await res.json();
+		return ({
+			status: res.status,
+			token: data.token,
+		});
+	} catch (err) {
+		console.log(err);
+		return ({
+			status: 500,
+			token: "",
+		});
+	}
+}
+
+export async function isTwoFactorAuthEnabledServer(token: string) {
+	try {
+		const res = await axios(`http://backend:3000/2fa`, {
+			method: 'GET',
+			headers: {
+				Authorization: `Bearer ${token}`,
+			}, // This is the token
+		});
+		const data = await res.data;
 		return ({
 			status: res.status,
 			token: data.token,

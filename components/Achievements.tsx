@@ -21,7 +21,7 @@ export default function Achievements({
 	useEffect(() => {
 		const fetchUsers = async () => {
 			try {
-				const res = await fetch("http://localhost:3000/users", {
+				const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/users`, {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",

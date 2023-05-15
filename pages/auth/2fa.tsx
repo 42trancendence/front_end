@@ -64,7 +64,7 @@ export default function TwoFAPage() {
 	useEffect(() => {
 		const createQrCode = async () => {
 			try {
-				let res = await fetch("http://localhost:3000/2fa/qrcode", {
+				let res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/2fa/qrcode`, {
 					method: "POST",
 					headers: {
 						Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -97,7 +97,7 @@ export default function TwoFAPage() {
 	// 이메일 초기화
 	useEffect(() => {
 		const inputEmailValue = async () => {
-			await fetch("http://localhost:3000/users/me", {
+			await fetch("${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/users/me", {
 				method: "GET",
 				headers: {
 					"Content-Type": "application/json",
@@ -130,7 +130,7 @@ export default function TwoFAPage() {
 		event.preventDefault();
 		setis2faNext("loading");
 		try {
-			const res = await fetch("http://localhost:3000/2fa/email", {
+			const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/2fa/email`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -153,7 +153,7 @@ export default function TwoFAPage() {
 	const validate2faValidationCode_email = async (event: any) => {
 		event.preventDefault();
 		try {
-			const res = await axios("http://localhost:3000/2fa/email/turn-on", {
+			const res = await axios(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/2fa/email/turn-on`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -184,7 +184,7 @@ export default function TwoFAPage() {
 	const validate2faValidationCode_qr = async (event: any) => {
 		event.preventDefault();
 		try {
-			const res = await axios("http://localhost:3000/2fa/qrcode/turn-on", {
+			const res = await axios(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/2fa/qrcode/turn-on`, {
 				method: "post",
 				headers: {
 					"Content-Type": "application/json",

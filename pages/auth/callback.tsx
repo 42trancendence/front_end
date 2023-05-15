@@ -1,4 +1,4 @@
-import { isTwoFactorAuthEnabled } from "@/utils/Authentication";
+import { isTwoFactorAuthEnabled, isTwoFactorAuthEnabledServer } from "@/utils/Authentication";
 import { GetServerSideProps } from "next";
 import { useRouter } from "next/router";
 import { useEffect } from "react";
@@ -28,7 +28,7 @@ export default function AuthCallback({ token, isValidated2fa }: { token?: string
 export const getServerSideProps: GetServerSideProps = async (context) => {
 	const token = context.query.token;
 	if (token) {
-		const twofaStauts = await isTwoFactorAuthEnabled(token as string);
+		const twofaStauts = await isTwoFactorAuthEnabledServer(token as string);
 		if (twofaStauts.status === 200) {
 			if (twofaStauts.token === "") {
 				return {

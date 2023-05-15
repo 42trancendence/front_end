@@ -40,7 +40,7 @@ const UserInfo: NextPageWithLayout = () => {
 
 		const getUser = async () => {
 			try {
-				const res = await fetch(`http://localhost:3000/users/${id}`, {
+				const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/users/${id}`, {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",
@@ -75,7 +75,7 @@ const UserInfo: NextPageWithLayout = () => {
 
 		const getGameHistory = async () => {
 			try {
-				const res = await fetch("http://localhost:3000/users/game-history", {
+				const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/users/game-history`, {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",

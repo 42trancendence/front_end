@@ -94,7 +94,7 @@ export async function getUser(dispatch) {
   try {
     const token = await checkIsLoggedIn();
 
-    const res = await fetch("http://localhost:3000/users/me", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/users/me`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -123,7 +123,7 @@ export async function refetchUser(dispatch) {
   try {
     const token = await checkIsLoggedIn();
 
-    const res = await fetch("http://localhost:3000/users/me", {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/users/me`, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
