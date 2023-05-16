@@ -47,7 +47,10 @@ const OverView: NextPageWithLayout = () => {
 	const [isEditOpen, setisEditOpen] = useState(false);
 	const [isProfileChanged, setisProfileChanged] = useState(false);
 	const [isAchievementsOpen, setisAchievementsOpen] = useState(false);
-	const [gameHistory, setGameHistory] = useState<[GameHistory[], number[]]>([[], [0, 0]]);
+	const [gameHistory, setGameHistory] = useState<GameHistory[]>([]);
+	const [rating, setRating] = useState(0);
+	const [winRate, setWinRate] = useState(0);
+	const [loseRate, setloseRate] = useState(0);
 
 
 	// const [startGame, setStartGame] = usePersistentState("startGame", false);
@@ -102,7 +105,7 @@ const OverView: NextPageWithLayout = () => {
 
 		const getGameHistory = async () => {
 			try {
-				const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/users/game-history`, {
+				const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/users/history/me`, {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",
@@ -114,11 +117,14 @@ const OverView: NextPageWithLayout = () => {
 
 					console.log(historyData);
 
-					if (historyData[0][0].status != 'end') {
-						router.push(`/lobby/game/${historyData[0][0].roomId}`);
+					if (historyData.gameHistory[0].status != 'end') {
+						router.push(`/lobby/game/${historyData.gameHistory[0].roomId}`);
 					}
 
-					setGameHistory(historyData);
+					setRating(historyData.user.rating);
+					setWinRate(historyData.countWinLose.win);
+					setloseRate(historyData.countWinLose.lose);
+					setGameHistory(historyData.gameHistory);
 
 					return historyData;
 				} else if (res.status === 401) {
@@ -136,7 +142,7 @@ const OverView: NextPageWithLayout = () => {
 			}
 		};
 		getGameHistory();
-	}, [username]);
+	}, []);
 
 	const { friendSocket, gameSocket } = useContext(SocketContext);
 	useEffect(() => {
@@ -226,15 +232,15 @@ const OverView: NextPageWithLayout = () => {
 						<div className="flex divide-x divide-zinc-400">
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
 								<p className="text-zinc-200">Total</p>
-								<p className="text-lg font-semibold">{gameHistory[1][0] + gameHistory[1][1]}</p>
+								<p className="text-lg font-semibold">{winRate+loseRate}</p>
 							</div>
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
 								<p className="text-zinc-200">Win</p>
-								<p className="text-lg font-semibold">{gameHistory[1][0]}</p>
+								<p className="text-lg font-semibold">{winRate}</p>
 							</div>
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
 								<p className="text-zinc-200">Lose</p>
-								<p className="text-lg font-semibold">{gameHistory[1][1]}</p>
+								<p className="text-lg font-semibold">{loseRate}</p>
 							</div>
 						</div>
 						<div className="m-auto flex">
@@ -244,13 +250,8 @@ const OverView: NextPageWithLayout = () => {
 						</div>
 						<div className="ml-auto flex gap-2 divide-x divide-zinc-400">
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
-								<p className="text-xs text-zinc-200">Achievement</p>
-								<p
-									className="cursor-pointer text-lg font-semibold underline"
-									onClick={() => setisAchievementsOpen(true)}
-								>
-									0
-								</p>
+								<p className="text-xs text-zinc-400">rating</p>
+								<p className="text-lg font-semibold">{rating}</p>
 							</div>
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
 								<Menu as="div">
@@ -365,7 +366,7 @@ const OverView: NextPageWithLayout = () => {
 							<p className="text-[#bbc2ff]">패자 점수</p>
 							</div>
 						</div>
-						{gameHistory[0].map((room: any, index: number) => {
+						{gameHistory.map((room: any, index: number) => {
 							const date = moment(room.createAt);
 							const formattedDateTime = date.format(`YYYY-MM-DD HH:mm`);
 

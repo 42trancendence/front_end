@@ -30,6 +30,9 @@ const UserInfo: NextPageWithLayout = () => {
 	const [isEditOpen, setisEditOpen] = useState(false);
 	const [isUserDataLoaded, setisUserDataLoaded] = useState(false);
 	const [gameHistory, setGameHistory] = useState<GameHistory[]>([]);
+	const [rating, setRating] = useState(0);
+	const [winRate, setWinRate] = useState(0);
+	const [loseRate, setloseRate] = useState(0);
 
 	const router = useRouter();
 	const { id } = router.query;
@@ -40,7 +43,7 @@ const UserInfo: NextPageWithLayout = () => {
 
 		const getUser = async () => {
 			try {
-				const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/users/${id}`, {
+				const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/users/history/${id}`, {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",
@@ -49,8 +52,12 @@ const UserInfo: NextPageWithLayout = () => {
 				});
 				if (res.ok) {
 					const userData = await res.json();
-					setUsername(userData.name);
-					setavatarUrl(userData.avatarImageUrl);
+					setUsername(userData.user.name);
+					setavatarUrl(userData.user.avatarImageUrl);
+					setRating(userData.user.rating);
+					setWinRate(userData.countWinLose.win);
+					setloseRate(userData.countWinLose.lose);
+					setGameHistory(userData.gameHistory);
 					setisUserDataLoaded(true);
 					return userData;
 				} else if (res.status === 401) {
@@ -139,19 +146,19 @@ const UserInfo: NextPageWithLayout = () => {
 				{!isUserDataLoaded ? (
 					<OverviewSkeleton /> // 로딩중일때
 				) : (
-					<div className="z-10 -mt-6 grid w-full grid-cols-1 gap-3 self-center rounded bg-zinc-800 p-6 text-center shadow-neumreverse sm:w-3/4 lg:grid-cols-3 font-orbitron">
+					<div className="z-10 -mt-6 grid w-full grid-cols-1 gap-3 self-center rounded bg-zinc-800 p-6 text-center shadow-neumreverse sm:w-3/4 lg:grid-cols-3">
 						<div className="flex divide-x divide-zinc-400">
-							<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
-								<p className="text-zinc-400">Total</p>
-								<p className="text-lg font-semibold">100</p>
+							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
+								<p className="text-zinc-200">Total</p>
+								<p className="text-lg font-semibold">{winRate+loseRate}</p>
 							</div>
-							<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
-								<p className="text-zinc-400">Win</p>
-								<p className="text-lg font-semibold">50</p>
+							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
+								<p className="text-zinc-200">Win</p>
+								<p className="text-lg font-semibold">{winRate}</p>
 							</div>
-							<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
-								<p className="text-zinc-400">Lose</p>
-								<p className="text-lg font-semibold">50</p>
+							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
+								<p className="text-zinc-200">Lose</p>
+								<p className="text-lg font-semibold">{loseRate}</p>
 							</div>
 						</div>
 						<div className="m-auto flex">
@@ -161,8 +168,8 @@ const UserInfo: NextPageWithLayout = () => {
 						</div>
 						<div className="ml-auto gap-2 flex divide-x divide-zinc-400">
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
-								<p className="text-xs text-zinc-400">Achievement</p>
-								<p className="text-lg font-semibold">0</p>
+								<p className="text-xs text-zinc-400">rating</p>
+								<p className="text-lg font-semibold">{rating}</p>
 							</div>
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm"></div>
 						</div>
