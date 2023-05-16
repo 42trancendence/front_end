@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import DefaultAvatarPic from "@/public/default_avatar.svg";
 import clsx from "clsx";
+import { toast } from "react-toastify";
 import { Fragment, useContext } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { SocketContext } from "@/lib/socketContext";
@@ -24,9 +25,20 @@ export default function BannedChatModal({
 	function BanUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
 		socket?.emit("toggleBanUser", {userId: item.id}, (error: any) => {
-			if (!error.status) {
-				console.log(error); // 서버에서 전달된 에러 메시지 출력
+			if (error.status === "FATAL") {
+				toast.error(error.message);
 				router.push(`/lobby/chat/`);
+			}
+			else if (error.status === "ERROR") {
+				toast.error(error.message);
+				router.push(`/lobby/chat/`);
+			}
+			else if (error.status === "WARNING") {
+				toast.error(error.message);
+			}
+			else if (error.status === "OK")
+			{
+				toast.success("요청을 성공적으로 처리했습니다!")
 			}
 		});
 	}

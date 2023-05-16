@@ -84,9 +84,18 @@ export default function SearchBox({
 	function blockUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
 		console.log("block user data:", item);
-		chatSocket?.emit("toggleBlockUser", {userId: item.id}, (error) => {
-			if (!error.status) {
-				console.log(error); // 서버에서 전달된 에러 메시지 출력
+		chatSocket?.emit("toggleBlockUser", {userId: item.id},
+		(error: any) => {
+			if (error.status === "FATAL") {
+				toast.error(error.message);
+				router.push(`/lobby/chat/`);
+			}
+			else if (error.status === "WARNING") {
+				toast.error(error.message);
+			}
+			else if (error.status === "OK")
+			{
+				router.push(`/lobby/chat/dm/dm: ${name}?dmId=${error.directMessageId}`);
 			}
 		});
 	}
@@ -97,12 +106,21 @@ export default function SearchBox({
 	const createDirectMessage = (id: string, name: string) => {
 		chatSocket?.emit("createDirectMessage", {
 			receiverId: id,
-		}, (res) => {
-			router.replace(`/lobby/chat/dm/dm: ${name}?dmId=${res.directMessageId}`);
-			setIsOpen(false);
-			if (!res.status) {
-				console.log(res); // 서버에서 전달된 에러 메시지 출력
+		}, (error: any) => {
+			if (error.status === "FATAL") {
+				toast.error(error.message);
 				router.push(`/lobby/chat/`);
+			}
+			else if (error.status === "ERROR") {
+				toast.error(error.message);
+				router.push(`/lobby/chat/`);
+			}
+			else if (error.status === "WARNING") {
+				toast.error(error.message);
+			}
+			else if (error.status === "OK")
+			{
+				router.push(`/lobby/chat/dm/dm: ${name}?dmId=${error.directMessageId}`);
 			}
 		});
 
@@ -166,11 +184,13 @@ export default function SearchBox({
 												value={item}
 												className="flex cursor-default select-none items-center justify-center rounded-xl p-3"
 											>
-												<div className="flex h-10 w-10 flex-none items-center justify-center rounded-full bg-zinc-800">
+												<div className="flex h-10 w-10 flex-none items-center justify-center rounded-full shadow-md">
 													<Image
-														src={item.avatar || DefaultAvatarPic}
-														className="h-6 w-6 text-white"
+														src={item.avatarImageUrl || DefaultAvatarPic}
+														className="h-10 w-10 text-white rounded-full shadow"
 														alt=""
+														width={32}
+														height={32}
 													/>
 												</div>
 												<div className="ml-4 mr-auto flex-auto">

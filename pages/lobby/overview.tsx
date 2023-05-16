@@ -14,6 +14,7 @@ import EditProfilePallet from "@/components/EditProfilePallet";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import usePersistentState from "@/components/canvas/usePersistentState";
 import moment from "moment";
+import { NotifyContext } from "@/lib/notifyContext";
 import {
 	useUsersDispatch,
 	useUsersState,
@@ -54,7 +55,6 @@ const OverView: NextPageWithLayout = () => {
 
 	// user 정보 가져오기
 	useEffect(() => {
-		console.log("game status: ", user)
 		setUsername(user.name);
 		setavatarUrl(user.avatarImageUrl);
 		setis2faEnabled(user.isVerified);
@@ -141,6 +141,36 @@ const OverView: NextPageWithLayout = () => {
 		}
 	}, [friendSocket]);
 
+	// 친구 추가 소켓 이벤트
+	const { successed } = useContext(NotifyContext);
+	function failedMatching() {
+		successed({
+			header: "매칭 요청",
+			message: "매칭요청을 실패하였습니다.",
+		});
+	}
+
+	function successedMatching() {
+		successed({
+			header: "매칭 요청",
+			message: "매칭을 성공했습니다.",
+		});
+	}
+
+	function successedInvite() {
+		successed({
+			header: "매칭 요청",
+			message: "1:1매칭을 성공적으로 보냈습니다.",
+		});
+	}
+
+	function okInvite() {
+		successed({
+			header: "매칭 요청",
+			message: "상대방이 수락했습니다.",
+		});
+	}
+
 	// socketio 로 게임방 목록 요청
 	useEffect(() => {
 		if (gameSocket) {
@@ -155,25 +185,26 @@ const OverView: NextPageWithLayout = () => {
 			gameSocket.on("getGameHistory", () => {
 				setOnGame(false);
 				setStartGame(false);
-			});
-			gameSocket.on("getMatching", (data1: string, data2: object) => {
-				console.log(`getMatching: ${data1}`);
+			})
+			gameSocket.on('getMatching', (data1: string, data2, roomId: string) => {
 
-				if (data1 == "matching") {
-					console.log(data2);
-					setOnGame(true);
-					setMatch("자동 매칭");
-				} else {
-					alert("매칭 실패");
-					setMatch("자동 매칭");
-				}
-			});
-			gameSocket.on("postLeaveGame", (data: string) => {
-				console.log("getLeaveGame: ", data);
-				if (data == "delete") {
-					gameSocket.emit("postLeaveGame");
-				} else if (data == "leave") {
-					setOnGame(false);
+				// console.log(`getMatching: ${data1}`);
+
+				if (data1 == 'matching')	{
+					if (data2 == 'matching') {
+						successedMatching();
+					} else if (data2 == 'invite') {
+						successedInvite();
+					}
+					if (data2 == 'okInvite') {
+						okInvite();
+					} else {
+						router.push(`/lobby/game/${roomId}`); // 이게 2번 되는 듯
+					}
+					setMatch('자동 매칭');
+				}	else {
+					failedMatching();
+					setMatch('자동 매칭');
 				}
 			});
 			gameSocket.on("finishGame", () => {
@@ -186,16 +217,16 @@ const OverView: NextPageWithLayout = () => {
 	// socketio 로 자동 매칭 요청
 	const handleMatching = () => {
 		if (gameSocket) {
-			if (match == "자동 매칭") {
-				console.log("자동 매칭: ", gameSocket, match);
-				gameSocket.emit("postMatching");
-				setMatch("매칭 중~~~");
+			if (match == '자동 매칭') {
+				console.log('자동 매칭: ', gameSocket, match)
+				gameSocket.emit('postMatching');
+				setMatch('매칭 중');
 			} else {
-				gameSocket.emit("postCancelMatching");
-				setMatch("자동 매칭");
+				gameSocket.emit('postCancelMatching');
+				setMatch('자동 매칭');
 			}
 		}
-	};
+	}
 
 	return (
 		<>
@@ -330,89 +361,81 @@ const OverView: NextPageWithLayout = () => {
 						</div>
 					</div>
 				)}
-					<div className="flex h-full w-full flex-col items-center px-8 py-6">
-						{/* 자동 매칭 버튼 */}
-						<button
-							onClick={handleMatching}
-							type="button"
-							className="mt-8 flex w-full flex-col items-center justify-center rounded-lg bg-zinc-900 py-6 text-xl font-bold shadow hover:bg-zinc-700"
-						>
-							{match}
-						</button>
-						{/* 내 전적 목록 */}
-						{gameHistory.length == 0 ? (
-							<div className="mt-8 w-full flex flex-grow flex-col items-center justify-center rounded-lg border border-zinc-500 px-6 py-14 text-center text-sm sm:px-14">
-								<ExclamationCircleIcon
-									type="outline"
-									name="exclamation-circle"
-									className="mx-auto h-6 w-6 text-gray-400"
-								/>
-								<p className="mt-4 font-semibold text-zinc-400">
-									전적이 존재하지 않습니다.
-								</p>
-								<p className="mt-2 text-zinc-500">
-									게임을 플레이 하여 전적을 확인할 수 있습니다!
-								</p>
+				<div className="flex h-full w-full flex-col items-center px-8 py-6">
+				{/* 자동 매칭 버튼 */}
+				<button onClick={handleMatching} type="button" className="flex flex-col items-center justify-center w-full bg-zinc-900 hover:bg-zinc-700 shadow rounded-lg py-6 mt-8 text-xl font-bold">
+					{match}
+				</button>
+				{/* 내 전적 목록 */}
+				{gameHistory.length == 0 ? (
+
+				<div className="mt-8 flex flex-grow flex-col items-center justify-center rounded-lg border border-zinc-500 px-6 py-14 text-center text-sm sm:px-14">
+					<ExclamationCircleIcon
+						type="outline"
+						name="exclamation-circle"
+						className="mx-auto h-6 w-6 text-gray-400"
+					/>
+					<p className="mt-4 font-semibold text-zinc-400">
+						전적이 존재하지 않습니다.
+					</p>
+					<p className="mt-2 text-zinc-500">
+						게임을 플레이 하여 전적을 확인할 수 있습니다!
+					</p>
+				</div>
+				) : (
+				<div className="container mx-auto py-6">
+					<div className="text-2xl font-extrabold text-indigo-400 mb-4">
+						최근 전적
+					</div>
+					<div className="grid grid-cols-1 gap-4 rounded-lg bg-zinc-600 p-5">
+						<div className="flex divide-x-4 divide-zinc-400 content-start">
+							<div className="flex w-1/3 flex-col items-center justify-center text-base">
+							<p className="text-[#bbc2ff]">날짜</p>
 							</div>
-						) : (
-							<div className="container mx-auto py-6">
-								<div className="mb-4 text-2xl font-extrabold text-indigo-400">
-									최근 전적
-								</div>
-								<div className="grid grid-cols-1 gap-4 rounded-lg bg-zinc-600 p-5">
-									<div className="flex content-start divide-x-4 divide-zinc-400">
-										<div className="flex w-1/3 flex-col items-center justify-center text-base">
-											<p className="text-[#bbc2ff]">날짜</p>
+							<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+							<p className="text-[#bbc2ff]">승자 이름</p>
+							</div>
+							<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+							<p className="text-[#bbc2ff]">승자 점수</p>
+							</div>
+							<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+							<p className="text-[#bbc2ff]">패자 이름</p>
+							</div>
+							<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
+							<p className="text-[#bbc2ff]">패자 점수</p>
+							</div>
+						</div>
+						{gameHistory.map((room, index) => {
+							const date = moment(room.createAt);
+							const formattedDateTime = date.format(`YYYY-MM-DD HH:mm`);
+
+							return (
+								<div key={index} className="bg-zinc-800 text-white p-4 rounded-lg shadow">
+									<div className="flex divide-x-4 divide-zinc-800">
+										<div className="flex w-1/3 flex-col items-center justify-center space-y-3 text-base">
+											<p className="font-bold">{formattedDateTime}</p>
 										</div>
 										<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
-											<p className="text-[#bbc2ff]">승자 이름</p>
+											<p className="font-bold">{room.winnerName}</p>
 										</div>
 										<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
-											<p className="text-[#bbc2ff]">승자 점수</p>
+											<p className="font-bold">{room.player1Score}</p>
 										</div>
 										<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
-											<p className="text-[#bbc2ff]">패자 이름</p>
+											<p className="font-bold">{room.loserName}</p>
 										</div>
 										<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
-											<p className="text-[#bbc2ff]">패자 점수</p>
+											<p className="font-bold">{room.player2Score}</p>
 										</div>
 									</div>
-									{gameHistory.map((room, index) => {
-										const date = moment(room.createAt);
-										const formattedDateTime = date.format(
-											"YYYY-MM-DD HH:mm:ss"
-										);
-
-										return (
-											<div
-												key={index}
-												className="rounded-lg bg-zinc-800 p-4 text-white shadow"
-											>
-												<div className="flex divide-x-4 divide-zinc-800">
-													<div className="flex w-1/3 flex-col items-center justify-center space-y-3 text-base">
-														<p className="font-bold">{formattedDateTime}</p>
-													</div>
-													<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
-														<p className="font-bold">{room.winnerName}</p>
-													</div>
-													<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
-														<p className="font-bold">{room.player1Score}</p>
-													</div>
-													<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
-														<p className="font-bold">{room.loserName}</p>
-													</div>
-													<div className="flex w-1/5 flex-col items-center justify-center space-y-3 text-base">
-														<p className="font-bold">{room.player2Score}</p>
-													</div>
-												</div>
-											</div>
-										);
-									})}
 								</div>
-							</div>
-						)}
+							);
+							})}
 					</div>
+				</div>
+				)}
 			</div>
+		</div>
 		</>
 	);
 };

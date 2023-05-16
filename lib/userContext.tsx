@@ -19,14 +19,14 @@ const loadingState = {
 };
 
 // 성공했을 때의 상태 만들어주는 함수
-const success = data => ({
+const success = (data: any) => ({
   loading: false,
   data,
   error: null
 });
 
 // 실패했을 때의 상태 만들어주는 함수
-const error = error => ({
+const error = (error: any) => ({
   loading: true,
   data: null,
   error: error

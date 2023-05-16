@@ -24,6 +24,7 @@ const EditProfilePallet = ({
 		handleSubmit,
 		getValues,
 		formState: { errors },
+		reset,
 	} = useForm<MyFormData>();
 	// input State
 	const [avatarUrl, setavatarUrl] = useState<string | null>(null);
@@ -116,7 +117,9 @@ const EditProfilePallet = ({
 	// submit
 	const onSubmit = async (data: MyFormData) => {
 		const formData = new FormData();
-		formData.append("name", data.name);
+		if (data.name) {
+			formData.append("name", data.name);
+		}
 		formData.append("avatarImageUrl", data.avatarImageUrl[0]);
 
 		console.log(formData);
@@ -135,15 +138,18 @@ const EditProfilePallet = ({
 			});
 			if (res.status === 200) {
 				openDialog("프로필 업데이트에 성공했습니다!", "success");
+				reset();
 				setIsOpen(false);
 				setisProfileChanged((prev: boolean) => !prev);
 			} else {
 				const errorData = await res.json();
 				openDialog(errorData.message, "fail");
+				reset();
 				setIsOpen(true);
 			}
 		} catch (err) {
 			openDialog("프로필 업데이트에 실패했습니다.", "fail");
+			reset();
 		}
 	};
 	return (

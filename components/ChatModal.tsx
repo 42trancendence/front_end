@@ -3,6 +3,7 @@ import Image from "next/image";
 import DefaultAvatarPic from "@/public/default_avatar.svg";
 import clsx from "clsx";
 import { Fragment, useContext } from "react";
+import { toast } from "react-toastify";
 import { Menu, Transition } from "@headlessui/react";
 import { SocketContext } from "@/lib/socketContext";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
@@ -21,19 +22,26 @@ export default function ChatModal({
 	const { chatSocket: socket } = useContext(SocketContext);
 	const { gameSocket: gameSocket } = useContext(SocketContext);
 	const me = userMe[0];
-	console.log("chatmodal me data:", me);
-	console.log("chatmodal user data:", userData);
-	// console.log("meid : ", userMe.user.id);
-	// console.log("meid : ", user.user.id);
 	const router = useRouter();
 
 	function KickUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
-		console.log("kick user name : ", item);
-		socket?.emit("kickUser", {userId: item.id}, (error) => {
-			if (!error.status) {	
-				console.log(error); // 서버에서 전달된 에러 메시지 출력
+		socket?.emit("kickUser", {userId: item.id}, (error: any) => {
+			console.log("error status: ", error);
+			if (error.status === "FATAL") {		
+				toast.error(error.message);
 				router.push(`/lobby/chat/`);
+			}
+			else if (error.status === "ERROR") {	
+				toast.error(error.message);
+				router.push(`/lobby/chat/`);
+			}
+			else if (error.status === "WARNING") {	
+				toast.error(error.message);
+			}
+			else if (error.status === "OK")
+			{
+				toast.success("요청을 성공적으로 처리했습니다!")
 			}
 		});
 	}
@@ -41,9 +49,20 @@ export default function ChatModal({
 	function BanUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
 		socket?.emit("toggleBanUser", {userId: item.id}, (error) => {
-			if (!error.status) {
-				console.log(error); // 서버에서 전달된 에러 메시지 출력
+			if (error.status === "FATAL") {		
+				toast.error(error.message);
 				router.push(`/lobby/chat/`);
+			}
+			else if (error.status === "ERROR") {	
+				toast.error(error.message);
+				router.push(`/lobby/chat/`);
+			}
+			else if (error.status === "WARNING") {	
+				toast.error(error.message);
+			}
+			else if (error.status === "OK")
+			{
+				toast.success("요청을 성공적으로 처리했습니다!")
 			}
 		});
 	}
@@ -51,9 +70,20 @@ export default function ChatModal({
 	function MuteUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
 		socket?.emit("setMuteUser", {userId: item.id}, (error) => {
-			if (!error.status) {
-				console.log(error); // 서버에서 전달된 에러 메시지 출력
+			if (error.status === "FATAL") {		
+				toast.error(error.message);
 				router.push(`/lobby/chat/`);
+			}
+			else if (error.status === "ERROR") {	
+				toast.error(error.message);
+				router.push(`/lobby/chat/`);
+			}
+			else if (error.status === "WARNING") {	
+				toast.error(error.message);
+			}
+			else if (error.status === "OK")
+			{
+				toast.success("요청을 성공적으로 처리했습니다!")
 			}
 		});
 	}
@@ -61,8 +91,20 @@ export default function ChatModal({
 	function SetAdmin(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
 		socket?.emit("setAdmin", {userId: item.id}, (error) => {
-			if (!error.status) {
-				console.log(error); // 서버에서 전달된 에러 메시지 출력
+			if (error.status === "FATAL") {		
+				toast.error(error.message);
+				router.push(`/lobby/chat/`);
+			}
+			else if (error.status === "ERROR") {	
+				toast.error(error.message);
+				router.push(`/lobby/chat/`);
+			}
+			else if (error.status === "WARNING") {	
+				toast.error(error.message);
+			}
+			else if (error.status === "OK")
+			{
+				toast.success("요청을 성공적으로 처리했습니다!")
 			}
 		});
 	}
@@ -79,12 +121,21 @@ export default function ChatModal({
 		console.log("1:1 data: ", id, name);
 		socket?.emit("createDirectMessage", {
 			receiverId: id,
-		}, (res: any) => {
-			console.log("res", res);
-			router.push(`/lobby/chat/dm/dm: ${name}?dmId=${res.directMessageId}`);
-			if (!res.status) {
-				console.log(res); // 서버에서 전달된 에러 메시지 출력
+		}, (error: any) => {
+			if (error.status === "FATAL") {		
+				toast.error(error.message);
 				router.push(`/lobby/chat/`);
+			}
+			else if (error.status === "ERROR") {	
+				toast.error(error.message);
+				router.push(`/lobby/chat/`);
+			}
+			else if (error.status === "WARNING") {	
+				toast.error(error.message);
+			}
+			else if (error.status === "OK")
+			{
+				router.push(`/lobby/chat/dm/dm: ${name}?dmId=${error.directMessageId}`);
 			}
 		});
 
@@ -112,8 +163,6 @@ export default function ChatModal({
 		// router.push(`game`);
 		onSuccessed();
 	};
-
-
 
 	return userData.map((user: any, index: number) => (
 		me ? 

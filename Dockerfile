@@ -10,5 +10,9 @@ RUN npm install
 RUN npm run build
 
 # image를 container로 만들 때 실행되는
+<<<<<<< HEAD
 CMD ["sh", "./entrypoint.sh"]
+=======
+CMD ["npm", "run", "start"]
+>>>>>>> 17ab1e744074c676c27c45e1a6b95429053a898a
 # https://nextjs.org/learn/basics/deploying-nextjs-app/other-hosting-options
