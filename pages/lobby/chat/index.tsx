@@ -23,7 +23,7 @@ const ChatRooms: NextPageWithLayout = () => {
 	const [password, setPassword] = useState("");
 	const [showCreateRoomPopup, setShowCreateRoomPopup] = useState(false);
 	const [chatRooms, setChatRooms] = useState([]);
-	const [allChatRooms, setAllChatRooms] = useState([]);
+	const [myChatRooms, setMyChatRooms] = useState([]);
 	const [DMLists, setDMLists] = useState([]);
 	const router = useRouter();
 
@@ -66,6 +66,12 @@ const ChatRooms: NextPageWithLayout = () => {
 			showChatRoomList(data);
 		});
 
+		chatSocket?.on("showMyChatRoomList", function (data) {
+			setMyChatRooms(data);
+			console.log("my chat room list", data);
+			showChatRoomList(data);
+		});
+
 		chatSocket?.emit("enterChatLobby", (error) => {
 			if (error.status === "FATAL") {
 				setLoading(false);
@@ -83,6 +89,7 @@ const ChatRooms: NextPageWithLayout = () => {
 		return () => {
 			chatSocket?.off("showChatRoomList");
 			chatSocket?.off("showDirectMessageList");
+			chatSocket?.off("showMyChatRoomList");
 			router.events.off("routeChangeStart", handleRouteChangeStart);
 		};
 	}, [chatSocket, router]);
@@ -121,6 +128,19 @@ const ChatRooms: NextPageWithLayout = () => {
 		}
 	};
 
+	const exitChatRoom = (room: any) => {
+		//room.chatRoom.id
+		chatSocket?.emit("exitChatRoom", room.chatRoom.id, (error) => {
+			if (error.status === "FATAL") {
+				toast.error(error.message);
+			} else if (error.status === "WARNING") {
+				toast.error(error.message);
+			} else if (error.status === "OK") {
+				toast(error.message);
+			}
+		});
+	};
+
 	const joinDMRoom = (room: any) => {
 		chatSocket?.emit(
 			"enterDirectMessage",
@@ -151,20 +171,6 @@ const ChatRooms: NextPageWithLayout = () => {
 				<div className="flex content-start gap-4 divide-zinc-400">
 					<div
 						className={`${
-							activeTab === "all"
-								? "bg-white text-zinc-800"
-								: "border text-indigo-200 hover:bg-zinc-700 hover:text-white"
-						}
-						group flex gap-x-3 rounded-md px-3.5 py-2 text-lg font-semibold leading-6
-					`}
-						onClick={() => handleTabClick("all")}
-						style={{ cursor: "pointer" }}
-					>
-						<QueueListIcon className="h-6 w-6 shrink-0" />
-						모든 채팅방
-					</div>
-					<div
-						className={`${
 							activeTab === "chat"
 								? "bg-white text-zinc-800"
 								: "border text-indigo-200 hover:bg-zinc-700 hover:text-white"
@@ -172,6 +178,20 @@ const ChatRooms: NextPageWithLayout = () => {
 						group flex gap-x-3 rounded-md px-3.5 py-2 text-lg font-semibold leading-6
 					`}
 						onClick={() => handleTabClick("chat")}
+						style={{ cursor: "pointer" }}
+					>
+						<QueueListIcon className="h-6 w-6 shrink-0" />
+						모든 채팅방
+					</div>
+					<div
+						className={`${
+							activeTab === "my"
+								? "bg-white text-zinc-800"
+								: "border text-indigo-200 hover:bg-zinc-700 hover:text-white"
+						}
+						group flex gap-x-3 rounded-md px-3.5 py-2 text-lg font-semibold leading-6
+					`}
+						onClick={() => handleTabClick("my")}
 						style={{ cursor: "pointer" }}
 					>
 						<ChatBubbleBottomCenterTextIcon className="h-6 w-6 shrink-0" />
@@ -310,7 +330,7 @@ const ChatRooms: NextPageWithLayout = () => {
 								<p className="text-[#bbc2ff]">채팅방 이름</p>
 							</div>
 							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-								<p className="text-[#bbc2ff]">인원</p>
+								<p className="text-[#bbc2ff]">권한한</p>
 							</div>
 							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
 								<p className="text-[#bbc2ff]">공개 채널</p>
@@ -325,23 +345,23 @@ const ChatRooms: NextPageWithLayout = () => {
 									<Loading />
 								</>
 							) : (
-								allChatRooms.map((room: any) => (
+								myChatRooms.map((room: any) => (
 									<div
-										key={room.id}
+										key={room.chatRoom.id}
 										className="rounded-lg bg-zinc-800 p-4 text-white shadow"
 									>
 										<div className="flex divide-x-4 divide-zinc-800">
 											<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-												<p className="font-bold">{room.name}</p>
+												<p className="font-bold">{room.chatRoom.name}</p>
 											</div>
 											<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
 												<p className="font-bold">
-													{room.users.length || "---"}
+													{room.role || "---"}
 												</p>
 											</div>
 											<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
 												<p className="font-bold">
-													{room.type === "PROTECTED" ? "비공개" : "공개"}
+													{room.chatRoom.type === "PROTECTED" ? "비공개" : "공개"}
 												</p>
 											</div>
 											<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
@@ -350,6 +370,12 @@ const ChatRooms: NextPageWithLayout = () => {
 													className="cursor-pointer rounded-lg bg-zinc-400 p-3 transition-colors hover:bg-zinc-700"
 												>
 													입장
+												</button>
+												<button
+													onClick={() => exitChatRoom(room)}
+													className="cursor-pointer rounded-lg bg-red-600 p-3 transition-colors hover:bg-red-700"
+												>
+													퇴장
 												</button>
 											</div>
 										</div>
