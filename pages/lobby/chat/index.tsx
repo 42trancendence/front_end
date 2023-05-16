@@ -130,13 +130,13 @@ const ChatRooms: NextPageWithLayout = () => {
 
 	const exitChatRoom = (room: any) => {
 		//room.chatRoom.id
-		chatSocket?.emit("exitChatRoom", room.chatRoom.id, (error) => {
+		chatSocket?.emit("exitChatRoom", {chatRoomId: room.chatRoom.id}, (error) => {
 			if (error.status === "FATAL") {
 				toast.error(error.message);
 			} else if (error.status === "WARNING") {
 				toast.error(error.message);
 			} else if (error.status === "OK") {
-				toast(error.message);
+				toast("채팅방에서 나왔습니다.");
 			}
 		});
 	};
@@ -330,7 +330,7 @@ const ChatRooms: NextPageWithLayout = () => {
 								<p className="text-[#bbc2ff]">채팅방 이름</p>
 							</div>
 							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
-								<p className="text-[#bbc2ff]">권한한</p>
+								<p className="text-[#bbc2ff]">내 권한</p>
 							</div>
 							<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
 								<p className="text-[#bbc2ff]">공개 채널</p>
@@ -356,17 +356,23 @@ const ChatRooms: NextPageWithLayout = () => {
 											</div>
 											<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
 												<p className="font-bold">
-													{room.role || "---"}
+													{room.role === 0
+														? "방장"
+														: room.role === 1
+														? "관리자"
+														: "일반"}
 												</p>
 											</div>
 											<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
 												<p className="font-bold">
-													{room.chatRoom.type === "PROTECTED" ? "비공개" : "공개"}
+													{room.chatRoom.type === "PROTECTED"
+														? "비공개"
+														: "공개"}
 												</p>
 											</div>
 											<div className="flex w-1/4 flex-col items-center justify-center space-y-3 text-base">
 												<button
-													onClick={() => joinChatRoom(room)}
+													onClick={() => joinChatRoom(room.chatRoom)}
 													className="cursor-pointer rounded-lg bg-zinc-400 p-3 transition-colors hover:bg-zinc-700"
 												>
 													입장
