@@ -11,6 +11,7 @@ interface State {
 	header: string;
 	message: string;
 	id?: string;
+	avatarImageUrl?: string;
 	successed: (info: Info) => void;
 	failed: (info: Info) => void;
 	close: () => void;
@@ -21,6 +22,7 @@ export interface Info {
 	header: string;
 	message: string;
 	id?: string;
+	avatarImageUrl?: string;
 }
 
 const defaultState: State = {
@@ -29,6 +31,7 @@ const defaultState: State = {
 	header: '',
 	message: '',
 	id: '',
+	avatarImageUrl: '',
 	successed: (info: Info) => { },
 	failed: (info: Info) => { },
 	close: () => { },
@@ -48,6 +51,7 @@ const NotifyProvider = ({ children }: NotifyProviderProps) => {
 			header: info.header,
 			message: info.message,
 			id: info.id,
+			avatarImageUrl: info.avatarImageUrl,
 		}));
 	};
 
@@ -60,6 +64,7 @@ const NotifyProvider = ({ children }: NotifyProviderProps) => {
 			header: info.header,
 			message: info.message,
 			id: info.id,
+			avatarImageUrl: info.avatarImageUrl,
 		}));
 	};
 
@@ -74,6 +79,7 @@ const NotifyProvider = ({ children }: NotifyProviderProps) => {
 		header: state.header,
 		message: state.message,
 		id: state.id,
+		avatarImageUrl: state.avatarImageUrl,
 		successed,
 		failed,
 		close,
