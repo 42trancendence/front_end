@@ -114,6 +114,10 @@ const OverView: NextPageWithLayout = () => {
 
 					console.log(historyData);
 
+					if (historyData[0][0].status != 'end') {
+						router.push(`/lobby/game/${historyData[0][0].roomId}`);
+					}
+
 					setGameHistory(historyData);
 
 					return historyData;
