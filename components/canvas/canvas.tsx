@@ -65,7 +65,6 @@ const Canvas: React.FC = () => {
 			}
 		}
     const roomId = router.query.roomId;
-    // console.log('rromId:', roomId);
 		getGamePlayersInfo(roomId);
   }, []);
 
@@ -80,26 +79,22 @@ const Canvas: React.FC = () => {
   // 소켓 연결(컨텍스트 세팅, socket.id 가 초기화 되는지 확인 필요)
 	const { gameSocket } = useContext(SocketContext);
   useEffect(() => {
-    // console.log(gameSocket);
     if (gameSocket) {
       gameSocket.on('updateGame', (data) => {
         setGameData(data);
-        // setPlayer([data.player1Name, data.player2Name]);
-        // console.log(data);
       })
       gameSocket.on('setStartGame', (data) => {
         if (data == 'start') {
           setDifficulty(false);
           setChangeScore(false);
           setStartGame(true);
-          canvasRef.current?.focus(); // 포커스 해결 필요
+          canvasRef.current?.focus(); // 포커스
         } else {
           setShowGameModal(true);
         }
       })
       gameSocket.on('postDeleteGame', () => {
         gameSocket.emit('postLeaveGame');
-        console.log(111111);
       })
 
       gameSocket.on('postLeaveGame', (data: string) => {
@@ -112,7 +107,6 @@ const Canvas: React.FC = () => {
       })
 
       gameSocket.on('getWhoReady', (data) => {
-        console.log(data);
         setViewReady(data);
       })
     }
@@ -121,7 +115,7 @@ const Canvas: React.FC = () => {
       gameSocket?.off('setStartGame');
       gameSocket?.off('postDeleteGame');
       gameSocket?.off('postLeaveGame')
-      gameSocket?.off('readyPlayer');
+      gameSocket?.off('getWhoReady');
     }
   }, [gameSocket])
 

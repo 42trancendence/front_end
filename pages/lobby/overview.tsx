@@ -49,8 +49,8 @@ const OverView: NextPageWithLayout = () => {
 	const [isAchievementsOpen, setisAchievementsOpen] = useState(false);
 	const [gameHistory, setGameHistory] = useState<[GameHistory[], number[]]>([[], [0, 0]]);
 
-	const [onGame, setOnGame] = usePersistentState("onGame", false);
-	const [startGame, setStartGame] = usePersistentState("startGame", false);
+
+	// const [startGame, setStartGame] = usePersistentState("startGame", false);
 	const [match, setMatch] = useState("자동 매칭");
 
 	// user 정보 가져오기
@@ -145,7 +145,6 @@ const OverView: NextPageWithLayout = () => {
 		}
 	}, [friendSocket]);
 
-	// 친구 추가 소켓 이벤트
 	const { successed } = useContext(NotifyContext);
 	function failedMatching() {
 		successed({
@@ -154,75 +153,32 @@ const OverView: NextPageWithLayout = () => {
 		});
 	}
 
-	function successedMatching() {
-		successed({
-			header: "매칭 요청",
-			message: "매칭을 성공했습니다.",
-		});
-	}
-
-	function successedInvite() {
-		successed({
-			header: "매칭 요청",
-			message: "1:1매칭을 성공적으로 보냈습니다.",
-		});
-	}
-
-	function okInvite() {
-		successed({
-			header: "매칭 요청",
-			message: "상대방이 수락했습니다.",
-		});
-	}
-
 	// socketio 로 게임방 목록 요청
 	useEffect(() => {
 		if (gameSocket) {
-			// console.log('gameSocket: ', socket);
-			gameSocket.on("connect", () => {
-				if (gameSocket.recovered) {
-					console.log("연결이 복구되었습니다.");
-				} else {
-					console.log("새로운 연결이 생성되었습니다.");
-				}
+			gameSocket.emit("isMatching");
+			gameSocket.on("isMatching", (data: string) => {
+				setMatch('매칭 중');
 			});
-			gameSocket.on("getGameHistory", () => {
-				setOnGame(false);
-				setStartGame(false);
-			})
-			gameSocket.on('getMatching', (data1: string, data2, roomId: string) => {
 
-				// console.log(`getMatching: ${data1}`);
-
-				if (data1 == 'matching')	{
-					if (data2 == 'matching') {
-						successedMatching();
-					} else if (data2 == 'invite') {
-						successedInvite();
-					}
-					if (data2 == 'okInvite') {
-						okInvite();
-					} else {
-						router.push(`/lobby/game/${roomId}`); // 이게 2번 되는 듯
-					}
-					setMatch('자동 매칭');
-				}	else {
-					failedMatching();
-					setMatch('자동 매칭');
-				}
+			gameSocket.on('failedMatching', (data: string) => {
+				failedMatching();
+				setMatch('자동 매칭');
 			});
-			gameSocket.on("finishGame", () => {
-				setOnGame(false);
-			});
-			// gameSocket.emit('getGameHistory'); // 이거 삭제 해야 하나?
 		}
-	}, [gameSocket, setOnGame, setStartGame]);
+
+		return () => {
+			if (gameSocket) {
+				gameSocket.off('isMatching');
+				gameSocket.off('failedMatching');
+			}
+		}
+	}, [gameSocket, setMatch]);
 
 	// socketio 로 자동 매칭 요청
 	const handleMatching = () => {
 		if (gameSocket) {
 			if (match == '자동 매칭') {
-				console.log('자동 매칭: ', gameSocket, match)
 				gameSocket.emit('postMatching');
 				setMatch('매칭 중');
 			} else {

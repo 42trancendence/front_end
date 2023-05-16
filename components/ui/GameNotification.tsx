@@ -25,17 +25,7 @@ export default function GameNotification() {
 	// 게임 요청 수락
 	const acceptGame = () => {
 		gameSocket?.emit("acceptMatchingRequest");
-		
-		// gameSocket?.on('getMatching', (data: string, roomId: string) => {
-			// console.log(`getMatching: ${data}`);
 
-			// if (data == 'matching')	{
-			// 	// console.log(data2);
-			// 	router.push(`/lobby/game/${roomId}`);
-			// }	else {
-			// 	alert('매칭 실패');
-			// }
-		// })
 		setShowGameNotification(false);
 	};
 	// 게임 요청 거절

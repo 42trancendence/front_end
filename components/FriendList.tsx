@@ -3,16 +3,19 @@ import Image from "next/image";
 import DefaultAvatarPic from "@/public/default_avatar.svg";
 import clsx from "clsx";
 import { toast } from "react-toastify";
-import { Fragment, useContext } from "react";
+import { Fragment, useContext, useEffect } from "react";
 import { Menu, Transition } from "@headlessui/react";
 import { SocketContext } from "@/lib/socketContext";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import { useRouter } from "next/router";
 import { NotifyContext } from "@/lib/notifyContext";
+import usePersistentState from "./canvas/usePersistentState";
 
 export default function FreindList({ userData }: any) {
 	console.log(userData);
 	const { friendSocket: socket, chatSocket, gameSocket } = useContext(SocketContext);
+	// const [match, setMatch] = usePersistentState('onMatching', '자동 매칭');
+	const [onGame, setOnGame] = usePersistentState("onGame", false);
 
 	function deleteFriend(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
@@ -72,6 +75,63 @@ export default function FreindList({ userData }: any) {
 		});
 	};
 
+	const { successed } = useContext(NotifyContext);
+	function failedMatching() {
+		successed({
+			header: "매칭 요청",
+			message: "매칭요청을 실패하였습니다.",
+		});
+	}
+
+	function successedMatching() {
+		successed({
+			header: "매칭 요청",
+			message: "매칭을 성공했습니다.",
+		});
+	}
+
+	function successedInvite() {
+		successed({
+			header: "매칭 요청",
+			message: "1:1매칭을 성공적으로 보냈습니다.",
+		});
+	}
+
+	function okInvite() {
+		successed({
+			header: "매칭 요청",
+			message: "상대방이 수락했습니다.",
+		});
+	}
+
+	useEffect(() => {
+		if (gameSocket) {
+			gameSocket.on("finishGame", () => {
+				setOnGame(false);
+			});
+			gameSocket.on('getMatching', (data1: string, data2, roomId: string) => {
+
+				if (data1 == 'matching')	{
+					if (data2 == 'matching') {
+						successedMatching();
+					} else if (data2 == 'invite') {
+						successedInvite();
+					}
+					if (data2 == 'okInvite') {
+						okInvite();
+					} else {
+						router.push(`/lobby/game/${roomId}`);
+					}
+				}	else {
+					failedMatching();
+				}
+			});
+		}
+		return () => {
+			gameSocket?.off('getMatching');
+			gameSocket?.off('finishGame');
+		}
+	}, [gameSocket]);
 
 	return (
 		<>
