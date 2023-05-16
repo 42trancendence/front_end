@@ -22,14 +22,12 @@ export default function DirectChatModal({
 	userMe: any;
 	isBlocked: boolean;
 }) {
-	console.log(userData);
-	console.log(isBlocked);
 	const me = userMe[0];
-	console.log("me", userMe);
 	const newUserList = Object.keys(userData).map((key) => {
         return {
           id: userData[key].id,
           name: userData[key].name,
+		  avatarImageUrl: userData[key].avatarImageUrl,
         };
 	});
 	console.log("modal data:", userData);
