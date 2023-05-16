@@ -10,7 +10,7 @@ import { SocketContext } from "@/lib/socketContext";
 
 export default function ChatNotification() {
 	// Context 사용
-	const { show, isSuccessed, header, message, id, close } =
+	const { show, isSuccessed, header, message, id, avatarImageUrl, close } =
 		useContext(NotifyContext);
 
 	// 5초 후 알림창 닫기
@@ -60,9 +60,9 @@ export default function ChatNotification() {
 									<div className="flex-shrink-0 pt-0.5">
 										<Image
 											className="h-10 w-10 rounded-full bg-zinc-800 p-2"
-											src="/default_avatar.svg"
-											width={160}
-											height={160}
+											src={avatarImageUrl || "/default_avatar.svg"}
+											width={32}
+											height={32}
 											alt=""
 										/>
 									</div>

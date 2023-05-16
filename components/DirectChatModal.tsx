@@ -22,14 +22,12 @@ export default function DirectChatModal({
 	userMe: any;
 	isBlocked: boolean;
 }) {
-	console.log(userData);
-	console.log(isBlocked);
 	const me = userMe[0];
-	console.log("me", userMe);
 	const newUserList = Object.keys(userData).map((key) => {
         return {
           id: userData[key].id,
           name: userData[key].name,
+		  avatarImageUrl: userData[key].avatarImageUrl,
         };
 	});
 	console.log("modal data:", userData);
@@ -41,11 +39,11 @@ export default function DirectChatModal({
 		event.preventDefault();
 
 		socket?.emit("toggleBlockUser", {userId: item.id}, (error: any) => {
-			if (error.status === "FATAL") {		
+			if (error.status === "FATAL") {
 				toast.error(error.message);
 				router.push(`/lobby/chat/`);
 			}
-			else if (error.status === "WARNING") {	
+			else if (error.status === "WARNING") {
 				toast.error(error.message);
 			}
 			else if (error.status === "OK")
@@ -80,9 +78,11 @@ export default function DirectChatModal({
 			<div className="bg-black"></div>
 			<Menu.Button className="group flex w-full items-center gap-x-4 rounded-md p-2 text-sm font-normal leading-6 text-indigo-200 hover:bg-zinc-700 hover:text-white">
 				<Image
-					className="inline-block h-7 w-7 flex-none rounded-full"
-					src={DefaultAvatarPic}
+					className="inline-block h-6 w-6 flex-none rounded-full"
+					src={user.avatarImageUrl}
 					alt=""
+					width={28}
+					height={28}
 				/>
 				<span className="mr-auto">{user.name}</span>
 				{(user.name !== me.name && isBlocked === true) ? (
