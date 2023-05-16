@@ -45,13 +45,15 @@ export default function BannedChatModal({
 
 	return userData.map((user: any, index: number) => (
 		me ?
-		<Menu as="li" key={index}>
+		<Menu as="li" key={index} className={clsx(!user.isEntered && "opacity-50", "group")}>
 			<div className="bg-black"></div>
 			<Menu.Button className="group flex w-full items-center gap-x-4 rounded-md p-2 text-sm font-normal leading-6 text-indigo-200 hover:bg-zinc-700 hover:text-white">
-				<Image
-					className="inline-block h-7 w-7 flex-none rounded-full"
-					src={DefaultAvatarPic}
+			<Image
+					className="inline-block h-6 w-6 flex-none rounded-full"
+					src={user.user.avatarImageUrl}
 					alt=""
+					width={28}
+					height={28}
 				/>
 				<span className="mr-auto">{user.user.name}</span>
 				{user.role === 0 ? (
