@@ -146,7 +146,7 @@ export default function ChatModal({
 
 	return userData.map((user: any, index: number) => (
 		me ?
-		<Menu as="li" key={index} className={clsx(user.isEntered && "opacity-50", "group")}>
+		<Menu as="li" key={index} className={clsx(!user.isEntered && "opacity-50", "group")}>
 			<div className="bg-black"></div>
 			<Menu.Button className="group flex w-full items-center gap-x-4 rounded-md p-2 text-sm font-normal leading-6 text-indigo-200 hover:bg-zinc-700 hover:text-white">
 				<Image
