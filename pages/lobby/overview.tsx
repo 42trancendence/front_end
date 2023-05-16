@@ -47,10 +47,13 @@ const OverView: NextPageWithLayout = () => {
 	const [isEditOpen, setisEditOpen] = useState(false);
 	const [isProfileChanged, setisProfileChanged] = useState(false);
 	const [isAchievementsOpen, setisAchievementsOpen] = useState(false);
-	const [gameHistory, setGameHistory] = useState<[GameHistory[], number[]]>([[], [0, 0]]);
+	const [gameHistory, setGameHistory] = useState<GameHistory[]>([]);
+	const [rating, setRating] = useState(0);
+	const [winRate, setWinRate] = useState(0);
+	const [loseRate, setloseRate] = useState(0);
 
-	const [onGame, setOnGame] = usePersistentState("onGame", false);
-	const [startGame, setStartGame] = usePersistentState("startGame", false);
+
+	// const [startGame, setStartGame] = usePersistentState("startGame", false);
 	const [match, setMatch] = useState("자동 매칭");
 
 	// user 정보 가져오기
@@ -102,7 +105,7 @@ const OverView: NextPageWithLayout = () => {
 
 		const getGameHistory = async () => {
 			try {
-				const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/users/game-history`, {
+				const res = await fetch(`${process.env.NEXT_PUBLIC_SERVER_ADDRESS}/users/history/me`, {
 					method: "GET",
 					headers: {
 						"Content-Type": "application/json",
@@ -114,7 +117,14 @@ const OverView: NextPageWithLayout = () => {
 
 					console.log(historyData);
 
-					setGameHistory(historyData);
+					if (historyData.gameHistory[0].status != 'end') {
+						router.push(`/lobby/game/${historyData.gameHistory[0].roomId}`);
+					}
+
+					setRating(historyData.user.rating);
+					setWinRate(historyData.countWinLose.win);
+					setloseRate(historyData.countWinLose.lose);
+					setGameHistory(historyData.gameHistory);
 
 					return historyData;
 				} else if (res.status === 401) {
@@ -132,7 +142,7 @@ const OverView: NextPageWithLayout = () => {
 			}
 		};
 		getGameHistory();
-	}, [username]);
+	}, []);
 
 	const { friendSocket, gameSocket } = useContext(SocketContext);
 	useEffect(() => {
@@ -141,7 +151,6 @@ const OverView: NextPageWithLayout = () => {
 		}
 	}, [friendSocket]);
 
-	// 친구 추가 소켓 이벤트
 	const { successed } = useContext(NotifyContext);
 	function failedMatching() {
 		successed({
@@ -150,75 +159,32 @@ const OverView: NextPageWithLayout = () => {
 		});
 	}
 
-	function successedMatching() {
-		successed({
-			header: "매칭 요청",
-			message: "매칭을 성공했습니다.",
-		});
-	}
-
-	function successedInvite() {
-		successed({
-			header: "매칭 요청",
-			message: "1:1매칭을 성공적으로 보냈습니다.",
-		});
-	}
-
-	function okInvite() {
-		successed({
-			header: "매칭 요청",
-			message: "상대방이 수락했습니다.",
-		});
-	}
-
 	// socketio 로 게임방 목록 요청
 	useEffect(() => {
 		if (gameSocket) {
-			// console.log('gameSocket: ', socket);
-			gameSocket.on("connect", () => {
-				if (gameSocket.recovered) {
-					console.log("연결이 복구되었습니다.");
-				} else {
-					console.log("새로운 연결이 생성되었습니다.");
-				}
+			gameSocket.emit("isMatching");
+			gameSocket.on("isMatching", (data: string) => {
+				setMatch('매칭 중');
 			});
-			gameSocket.on("getGameHistory", () => {
-				setOnGame(false);
-				setStartGame(false);
-			})
-			gameSocket.on('getMatching', (data1: string, data2, roomId: string) => {
 
-				// console.log(`getMatching: ${data1}`);
-
-				if (data1 == 'matching')	{
-					if (data2 == 'matching') {
-						successedMatching();
-					} else if (data2 == 'invite') {
-						successedInvite();
-					}
-					if (data2 == 'okInvite') {
-						okInvite();
-					} else {
-						router.push(`/lobby/game/${roomId}`); // 이게 2번 되는 듯
-					}
-					setMatch('자동 매칭');
-				}	else {
-					failedMatching();
-					setMatch('자동 매칭');
-				}
+			gameSocket.on('failedMatching', (data: string) => {
+				failedMatching();
+				setMatch('자동 매칭');
 			});
-			gameSocket.on("finishGame", () => {
-				setOnGame(false);
-			});
-			// gameSocket.emit('getGameHistory'); // 이거 삭제 해야 하나?
 		}
-	}, [gameSocket, setOnGame, setStartGame]);
+
+		return () => {
+			if (gameSocket) {
+				gameSocket.off('isMatching');
+				gameSocket.off('failedMatching');
+			}
+		}
+	}, [gameSocket, setMatch]);
 
 	// socketio 로 자동 매칭 요청
 	const handleMatching = () => {
 		if (gameSocket) {
 			if (match == '자동 매칭') {
-				console.log('자동 매칭: ', gameSocket, match)
 				gameSocket.emit('postMatching');
 				setMatch('매칭 중');
 			} else {
@@ -266,15 +232,15 @@ const OverView: NextPageWithLayout = () => {
 						<div className="flex divide-x divide-zinc-400">
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
 								<p className="text-zinc-200">Total</p>
-								<p className="text-lg font-semibold">{gameHistory[1][0] + gameHistory[1][1]}</p>
+								<p className="text-lg font-semibold">{winRate+loseRate}</p>
 							</div>
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
 								<p className="text-zinc-200">Win</p>
-								<p className="text-lg font-semibold">{gameHistory[1][0]}</p>
+								<p className="text-lg font-semibold">{winRate}</p>
 							</div>
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
 								<p className="text-zinc-200">Lose</p>
-								<p className="text-lg font-semibold">{gameHistory[1][1]}</p>
+								<p className="text-lg font-semibold">{loseRate}</p>
 							</div>
 						</div>
 						<div className="m-auto flex">
@@ -284,13 +250,8 @@ const OverView: NextPageWithLayout = () => {
 						</div>
 						<div className="ml-auto flex gap-2 divide-x divide-zinc-400">
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 font-orbitron text-sm">
-								<p className="text-xs text-zinc-200">Achievement</p>
-								<p
-									className="cursor-pointer text-lg font-semibold underline"
-									onClick={() => setisAchievementsOpen(true)}
-								>
-									0
-								</p>
+								<p className="text-xs text-zinc-400">rating</p>
+								<p className="text-lg font-semibold">{rating}</p>
 							</div>
 							<div className="flex w-24 flex-col items-center justify-center space-y-3 text-sm">
 								<Menu as="div">
@@ -405,7 +366,7 @@ const OverView: NextPageWithLayout = () => {
 							<p className="text-[#bbc2ff]">패자 점수</p>
 							</div>
 						</div>
-						{gameHistory[0].map((room: any, index: number) => {
+						{gameHistory.map((room: any, index: number) => {
 							const date = moment(room.createAt);
 							const formattedDateTime = date.format(`YYYY-MM-DD HH:mm`);
 
