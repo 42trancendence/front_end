@@ -60,7 +60,7 @@ const OverView: NextPageWithLayout = () => {
 	useEffect(() => {
 		setUsername(user.name);
 		setavatarUrl(user.avatarImageUrl);
-		setis2faEnabled(user.is2faEnabled);
+		setis2faEnabled(user.isTwoFactorEnable);
 	}, [user]);
 
 	// console.log(userData);
