@@ -75,10 +75,12 @@ export default function FreindList({ userData }: any) {
 		});
 	};
 
-	const { successed } = useContext(NotifyContext);
+	const { successed, failed } = useContext(NotifyContext);
+
 	function failedMatching() {
-		successed({
+		failed({
 			header: "매칭 요청",
+			type: "game",
 			message: "매칭요청을 실패하였습니다.",
 		});
 	}
@@ -86,6 +88,7 @@ export default function FreindList({ userData }: any) {
 	function successedMatching() {
 		successed({
 			header: "매칭 요청",
+			type: "game",
 			message: "매칭을 성공했습니다.",
 		});
 	}
@@ -93,6 +96,7 @@ export default function FreindList({ userData }: any) {
 	function successedInvite() {
 		successed({
 			header: "매칭 요청",
+			type: "game",
 			message: "1:1매칭을 성공적으로 보냈습니다.",
 		});
 	}
@@ -100,6 +104,7 @@ export default function FreindList({ userData }: any) {
 	function okInvite() {
 		successed({
 			header: "매칭 요청",
+			type: "game",
 			message: "상대방이 수락했습니다.",
 		});
 	}

@@ -4,6 +4,7 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 import Image from "next/image";
 import { SocketContext } from "@/lib/socketContext";
 import { useRouter } from "next/router";
+import { NotifyContext } from "@/lib/notifyContext";
 
 export default function GameNotification() {
 	const [showGameNotification, setShowGameNotification] = useState(false);
@@ -12,16 +13,30 @@ export default function GameNotification() {
 	const { gameSocket } = useContext(SocketContext);
 	const router = useRouter();
 
-	useEffect(() => {
-		if (gameSocket) {
-			gameSocket.on("requestMatching", (data) => {
-				console.log("requestMatching", data);
-				setShowGameNotification(true);
-				setuserData(data);
-			});
-		}
-	}, [gameSocket]);
+	const { show, type, isSuccessed, header, message, id, avatarImageUrl, close } =
+		useContext(NotifyContext);
 
+	// useEffect(() => {
+	// 	console.log("game", type, message);
+	// 	if (gameSocket) {
+	// 		gameSocket.on("requestMatching", (data) => {
+	// 			console.log("requestMatching", data);
+	// 			setShowGameNotification(prevShowGameNotification => true);
+	// 			setuserData(data);
+	// 		});
+	// 	}
+	// }, [gameSocket]);
+
+		// useEffect(() => {
+	console.log("game", type, message);
+	if (gameSocket) {
+		gameSocket.on("requestMatching", (data) => {
+			console.log("requestMatching", data);
+			setShowGameNotification(prevShowGameNotification => true);
+			setuserData(data);
+		});
+	}
+	// }, [gameSocket]);
 	// 게임 요청 수락
 	const acceptGame = () => {
 		gameSocket?.emit("acceptMatchingRequest");
@@ -35,12 +50,12 @@ export default function GameNotification() {
 	};
 	return (
 		<>
+			{/* {type === "game" ? ( */}
 			<div
 				aria-live="assertive"
 				className="pointer-events-none fixed inset-0 z-50 flex items-end px-4 py-6 sm:items-start sm:p-6"
 			>
 				<div className="flex w-full flex-col items-center space-y-4 sm:items-end">
-					{/* Notification panel, dynamically insert this into the live region when it needs to be displayed */}
 					<Transition
 						show={showGameNotification}
 						as={Fragment}
@@ -105,6 +120,10 @@ export default function GameNotification() {
 					</Transition>
 				</div>
 			</div>
+			{/* ) : (
+				<>
+				</>
+			)} */}
 		</>
 	);
 }

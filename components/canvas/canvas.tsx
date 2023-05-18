@@ -72,6 +72,7 @@ const Canvas: React.FC = () => {
 	function leaveGame() {
 		successed({
 			header: "게임요청",
+      type: "global",
 			message: "게임에서 퇴장되었습니다.",
 		});
 	}
