@@ -7,6 +7,7 @@ interface NotifyProviderProps {
 
 interface State {
 	show: boolean;
+	type: string;
 	isSuccessed: boolean;
 	header: string;
 	message: string;
@@ -19,12 +20,14 @@ interface State {
 
 export interface Info {
 	header: string;
+	type: string;
 	message: string;
 	id?: string;
 }
 
 const defaultState: State = {
 	show: false,
+	type: 'chat',
 	isSuccessed: false,
 	header: '',
 	message: '',
@@ -44,6 +47,7 @@ const NotifyProvider = ({ children }: NotifyProviderProps) => {
 		setState((prev) => ({
 			...prev,
 			show: true,
+			type: info.type,
 			isSuccessed: true,
 			header: info.header,
 			message: info.message,
@@ -56,6 +60,7 @@ const NotifyProvider = ({ children }: NotifyProviderProps) => {
 		setState((prev) => ({
 			...prev,
 			show: true,
+			type: info.type,
 			isSuccessed: false,
 			header: info.header,
 			message: info.message,
@@ -70,6 +75,7 @@ const NotifyProvider = ({ children }: NotifyProviderProps) => {
 
 	const noticeCtx: State = {
 		show: state.show,
+		type: state.type,
 		isSuccessed: state.isSuccessed,
 		header: state.header,
 		message: state.message,

@@ -97,15 +97,16 @@ export default function NavBar({ userData }: any) {
 	const { successed } = useContext(NotifyContext);
 
 	useEffect(() => {
-		function onSuccessed(name: string, message: string, id: string) {
+		function onSuccessed(name: string, type:string, message: string, id: string) {
 			successed({
 				header: name,
+				type: type,
 				message: message,
 				id: id,
 			});
 		}
 		chatSocket?.on("newDirectMessage", (data) => {
-			onSuccessed(data.name, data.message, data.id);
+			onSuccessed(data.name, "chat", data.message, data.id);
 		});
 
 		return () => {

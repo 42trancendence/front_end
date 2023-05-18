@@ -4,10 +4,13 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 import Image from "next/image";
 import { SocketContext } from "@/lib/socketContext";
 import { useRouter } from "next/router";
+import { NotifyContext } from "@/lib/notifyContext";
 
 export default function GameNotification() {
 	const [showGameNotification, setShowGameNotification] = useState(false);
 	const [userData, setuserData] = useState<any>({});
+	const { show, type, isSuccessed, header, message, id, close } =
+	useContext(NotifyContext);
 	// 소켓 연결
 	const { gameSocket } = useContext(SocketContext);
 	const router = useRouter();
@@ -25,17 +28,6 @@ export default function GameNotification() {
 	// 게임 요청 수락
 	const acceptGame = () => {
 		gameSocket?.emit("acceptMatchingRequest");
-		
-		// gameSocket?.on('getMatching', (data: string, roomId: string) => {
-			// console.log(`getMatching: ${data}`);
-
-			// if (data == 'matching')	{
-			// 	// console.log(data2);
-			// 	router.push(`/lobby/game/${roomId}`);
-			// }	else {
-			// 	alert('매칭 실패');
-			// }
-		// })
 		setShowGameNotification(false);
 	};
 	// 게임 요청 거절
@@ -45,6 +37,7 @@ export default function GameNotification() {
 	};
 	return (
 		<>
+			{type === "game" ? (
 			<div
 				aria-live="assertive"
 				className="pointer-events-none fixed inset-0 z-50 flex items-end px-4 py-6 sm:items-start sm:p-6"
@@ -115,6 +108,10 @@ export default function GameNotification() {
 					</Transition>
 				</div>
 			</div>
+			) : (
+				<>
+				</>
+			)};
 		</>
 	);
 }

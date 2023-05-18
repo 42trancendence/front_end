@@ -142,37 +142,43 @@ const OverView: NextPageWithLayout = () => {
 	}, [friendSocket]);
 
 	// 친구 추가 소켓 이벤트
-	const { successed } = useContext(NotifyContext);
-	function failedMatching() {
-		successed({
-			header: "매칭 요청",
-			message: "매칭요청을 실패하였습니다.",
-		});
-	}
-
-	function successedMatching() {
-		successed({
-			header: "매칭 요청",
-			message: "매칭을 성공했습니다.",
-		});
-	}
-
-	function successedInvite() {
-		successed({
-			header: "매칭 요청",
-			message: "1:1매칭을 성공적으로 보냈습니다.",
-		});
-	}
-
-	function okInvite() {
-		successed({
-			header: "매칭 요청",
-			message: "상대방이 수락했습니다.",
-		});
-	}
+	const { successed, failed } = useContext(NotifyContext);
 
 	// socketio 로 게임방 목록 요청
 	useEffect(() => {
+
+		function failedMatching() {
+			failed({
+				header: "매칭 요청",
+				type: "global",
+				message: "매칭요청을 실패하였습니다.",
+			});
+		}
+	
+		function successedMatching() {
+			successed({
+				header: "매칭 요청",
+				type: "game",
+				message: "매칭을 성공했습니다.",
+			});
+		}
+	
+		function successedInvite() {
+			successed({
+				header: "매칭 요청",
+				type: "game",
+				message: "1:1매칭을 성공적으로 보냈습니다.",
+			});
+		}
+	
+		function okInvite() {
+			successed({
+				header: "매칭 요청",
+				type: "global",
+				message: "상대방이 수락했습니다.",
+			});
+		}
+
 		if (gameSocket) {
 			// console.log('gameSocket: ', socket);
 			gameSocket.on("connect", () => {
@@ -210,9 +216,15 @@ const OverView: NextPageWithLayout = () => {
 			gameSocket.on("finishGame", () => {
 				setOnGame(false);
 			});
+			return () => {
+				gameSocket.off("finishGame");
+				gameSocket.off('getMatching');
+				gameSocket.off("connect");
+				gameSocket.off("getGameHistory");
+			};
 			// gameSocket.emit('getGameHistory'); // 이거 삭제 해야 하나?
 		}
-	}, [gameSocket, setOnGame, setStartGame]);
+	}, []);
 
 	// socketio 로 자동 매칭 요청
 	const handleMatching = () => {

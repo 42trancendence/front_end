@@ -69,11 +69,12 @@ const Canvas: React.FC = () => {
 		getGamePlayersInfo(roomId);
   }, []);
 
-  const { successed } = useContext(NotifyContext);
+  const { successed, failed } = useContext(NotifyContext);
 	function leaveGame() {
-		successed({
+		failed({
 			header: "게임요청",
-			message: "게임에서 퇴장되었습니다.",
+      type: "game",
+		  message: "게임에서 퇴장되었습니다.",
 		});
 	}
 
