@@ -154,9 +154,9 @@ const Canvas: React.FC = () => {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     console.log(e.key);
-    if (e.key === 'ArrowLeft') {
+    if (e.key === 'ArrowUp') {
       gameSocket?.emit('postKey', 'up');
-    } else if (e.key === 'ArrowRight') {
+    } else if (e.key === 'ArrowDown') {
       gameSocket?.emit('postKey', 'down');
     }
   }
