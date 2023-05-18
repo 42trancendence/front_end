@@ -68,9 +68,9 @@ const Canvas: React.FC = () => {
 		getGamePlayersInfo(roomId);
   }, []);
 
-  const { successed } = useContext(NotifyContext);
+  const { failed } = useContext(NotifyContext);
 	function leaveGame() {
-		successed({
+		failed({
 			header: "게임요청",
       type: "global",
 			message: "게임에서 퇴장되었습니다.",
@@ -79,6 +79,7 @@ const Canvas: React.FC = () => {
 
   // 소켓 연결(컨텍스트 세팅, socket.id 가 초기화 되는지 확인 필요)
 	const { gameSocket } = useContext(SocketContext);
+
   useEffect(() => {
     if (gameSocket) {
       gameSocket.on('updateGame', (data) => {
@@ -99,7 +100,7 @@ const Canvas: React.FC = () => {
       })
 
       gameSocket.on('postLeaveGame', (data: string) => {
-        router.push('/lobby/overview');
+        router.replace('/lobby/overview');
         setDifficulty(false);
         setChangeScore(false);
         if (data !== 'finishGame') {
