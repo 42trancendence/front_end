@@ -144,7 +144,7 @@ export default function FreindList({ userData }: any) {
 				userData.map((user: any, index: number) => (
 					<Menu as="li" key={index}>
 						<Menu.Button className="group flex w-full items-center gap-x-4 rounded-md p-2 text-sm font-normal leading-6 text-indigo-200 hover:bg-zinc-700 hover:text-white">
-							<Image
+							<img
 								className="inline-block h-7 w-7 flex-none rounded-full shadow-md"
 								src={user.avatarImageUrl}
 								alt=""

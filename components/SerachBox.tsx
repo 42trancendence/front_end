@@ -185,7 +185,7 @@ export default function SearchBox({
 												className="flex cursor-default select-none items-center justify-center rounded-xl p-3"
 											>
 												<div className="flex h-10 w-10 flex-none items-center justify-center rounded-full shadow-md">
-													<Image
+													<img
 														src={item.avatarImageUrl || DefaultAvatarPic}
 														className="h-10 w-10 text-white rounded-full shadow"
 														alt=""

@@ -39,7 +39,7 @@ const FriendNotifyMessage = ({ socket, userData, closeToast }: { socket:any, use
 	<>
 	<div className="flex items-start">
 		<div className="flex-shrink-0 pt-0.5">
-			<Image
+			<img
 				className="h-10 w-10 rounded-full"
 				src={userData.avatarImageUrl}
 				width={160}
