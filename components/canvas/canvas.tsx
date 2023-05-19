@@ -144,9 +144,9 @@ const Canvas: React.FC = () => {
 
   const render = () => {
     if (ctx && gameData) {
-      ctx.clearRect(0, 0, 1024, 640);
+      ctx.clearRect(0, 0, 1200, 800);
       ctx.fillStyle = 'black';
-      ctx.fillRect(0, 0, 1024, 640);
+      ctx.fillRect(0, 0, 1200, 800);
       drawPaddle(gameData?.paddles_[0]);
       drawPaddle(gameData?.paddles_[1]);
       drawBall(gameData?.ball_.x_, gameData?.ball_.y_);
