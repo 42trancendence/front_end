@@ -191,6 +191,23 @@ const Canvas: React.FC = () => {
         }
       });
     } else if (e.key === 'ArrowDown') {
+      gameSocket?.emit('postKey', 'down', (error: any) => {
+        if (error.status == 'FATAL') {
+          toast.error(error.message);
+          router.push("/lobby/overview");
+        }
+        else if (error.status == 'ERROR') {
+          toast.warning(error.message);
+          router.push("/lobby/overview");
+        }
+        else if (error.status == 'WARNING') {
+          toast.warning(error.message);
+          router.push("/lobby/overview");
+        }
+        else if (error.status == 'OK') {
+        }
+      });
+    }
   }
 
   const handleReadyGame = () => {
