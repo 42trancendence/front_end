@@ -85,7 +85,6 @@ export default function NavBar({ userData }: any) {
 					return null;
 				}
 			} catch (error) {
-				console.log(error);
 				localStorage.removeItem("token");
 				router.push("/");
 			}

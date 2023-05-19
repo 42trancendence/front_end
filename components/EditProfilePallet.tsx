@@ -122,7 +122,6 @@ const EditProfilePallet = ({
 		}
 		formData.append("avatarImageUrl", data.avatarImageUrl[0]);
 
-		console.log(formData);
 		try {
 			if (data.name && isNameDuplicatedPass === false) {
 				let text = "- 이름 중복 확인을 해주세요.";

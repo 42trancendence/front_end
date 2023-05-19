@@ -87,7 +87,7 @@ export default function TwoFAPage() {
 					setqrCodeImg(qrImg);
 				}
 			} catch (err) {
-				console.log(err);
+				// console.log(err);
 			}
 		};
 		createQrCode();
@@ -144,7 +144,7 @@ export default function TwoFAPage() {
 				setis2faNext("before");
 			}
 		} catch (error) {
-			console.log(error);
+			// console.log(error);
 			setis2faNext("before");
 		}
 	};
@@ -176,7 +176,7 @@ export default function TwoFAPage() {
 		} catch (error) {
 			setisValidated2fa(false);
 			openDialog("2FA 인증에 실패했습니다.", "fail");
-			console.log(error);
+			// console.log(error);
 		}
 	};
 

@@ -61,7 +61,6 @@ const Canvas: React.FC = () => {
 					return null;
 				}
 			} catch (error) {
-				console.log(error);
 			}
 		}
     const roomId = router.query.roomId;
@@ -101,15 +100,15 @@ const Canvas: React.FC = () => {
           setChangeScore(false);
           if (error.status == 'FATAL') {
             toast.error(error.message);
-            router.push("/lobby/overview");
+            router.replace("/lobby/overview");
           }
           else if (error.status == 'ERROR') {
             toast.warning(error.message);
-            router.push("/lobby/overview");
+            router.replace("/lobby/overview");
           }
           else if (error.status == 'WARNING') {
             toast.warning(error.message);
-            router.push("/lobby/overview");
+            router.replace("/lobby/overview");
           }
           else if (error.status == 'OK') {
           }
@@ -172,7 +171,6 @@ const Canvas: React.FC = () => {
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    console.log(e.key);
     if (e.key === 'ArrowUp') {
       gameSocket?.emit('postKey', 'up', (error: any) => {
         if (error.status == 'FATAL') {
@@ -299,7 +297,25 @@ const Canvas: React.FC = () => {
 
 
   const handleNotifyClose = () => {
-    gameSocket?.emit('postLeaveGame', 'finishGame')
+    gameSocket?.emit('postLeaveGame', 'finishGame' , (error: any) => {
+      setDifficulty(false);
+      setChangeScore(false);
+      if (error.status == 'FATAL') {
+        toast.error(error.message);
+        router.replace("/lobby/overview");
+      }
+      else if (error.status == 'ERROR') {
+        toast.warning(error.message);
+        router.replace("/lobby/overview");
+      }
+      else if (error.status == 'WARNING') {
+        toast.warning(error.message);
+        router.replace("/lobby/overview");
+      }
+      else {
+        router.replace("/lobby/overview");
+      }
+    });
     setShowGameModal(false);
     setStartGame(false);
   }
@@ -320,7 +336,7 @@ const Canvas: React.FC = () => {
         <nav className="relative px-4 py-4 flex flex-row justify-between items-center bg-black w-full my-4">
         <div className='flex'>
           <div className="flex flex-col items-center mt-2">
-            <Image
+            <img
               className="h-10 w-10 rounded-full bg-red-600 ring-zinc-800"
               src={avatarUrls[0]}
               alt=""
@@ -343,7 +359,7 @@ const Canvas: React.FC = () => {
           { startGame ? '' : viewReady[1] ? 'READY' : '' }
         </a>
         <div className="flex flex-col items-center mt-2">
-          <Image
+          <img
             className="h-10 w-10 rounded-full bg-green-400 ring-zinc-800"
             src={avatarUrls[1]}
             alt=""
@@ -365,7 +381,7 @@ const Canvas: React.FC = () => {
         </div> : ''
       }
           <canvas
-            ref={canvasRef} width={1024} height={640}
+            ref={canvasRef} width={1024} height={640} tabIndex={0}
           />
           <GameModal
             onClose={handleNotifyClose}

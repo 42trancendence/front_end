@@ -49,7 +49,6 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
     if (dmId !== "false") {
       socket?.emit("enterDirectMessage", { directMessageId: dmId }, (error) => {
         if (!error.status) {
-          console.log(error); // 서버에서 전달된 에러 메시지 출력
           router.push(`/lobby/chat/`);
         }
       });
@@ -68,7 +67,6 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
     const handleRouteChangeStart = (url: string) => {
       if (!url.match(/^\/lobby\/chat(?:\/)?(?:\/.*)?$/)) {
 				socket?.emit('leaveChatPage');
-				console.log('페이지를 떠납니다.');
 			}
     };
 
@@ -85,7 +83,6 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
     if (socket)
     {
       socket.on("getChatRoomMessages", function (data: any) {
-        console.log("getChatRoomMessages: ", data);
         setMessage([...data]);
       });
     }
@@ -93,7 +90,6 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
     if (socket)
     {
     socket.on("getDirectMessageUsers", function (data) {
-      console.log("users data", data);
       const newUserList = Object.keys(data)
       .filter(key => key !== 'isBlocked')
       .map(key => data[key]);
@@ -103,7 +99,6 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
       setUserMe(me);
       setIsBlocked(data.isBlocked);
       setUserLists(newUserList);
-      console.log("console data", userLists);
       setLoading(false);
     });
   }
@@ -118,7 +113,7 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
 
 
   useEffect(() => {
-    console.log("usersdata:", userLists);
+    // console.log("usersdata:", userLists);
   }, [userLists]);
 
 

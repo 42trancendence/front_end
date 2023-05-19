@@ -51,7 +51,6 @@ export default function SearchBox({
 				}
 			} catch (error) {
 				setItems([]);
-				console.log(error);
 			}
 		};
 		if (isOpen) {
@@ -83,7 +82,6 @@ export default function SearchBox({
 
 	function blockUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
-		console.log("block user data:", item);
 		chatSocket?.emit("toggleBlockUser", {userId: item.id},
 		(error: any) => {
 			if (error.status === "FATAL") {

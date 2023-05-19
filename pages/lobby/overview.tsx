@@ -77,7 +77,6 @@ const OverView: NextPageWithLayout = () => {
 			});
 			if (res.ok) {
 				const userData = await res.json();
-				console.log(userData);
 				setis2faEnabled(userData.is2FAEnabled);
 				setis2favalidating(false);
 			} else if (res.status === 401) {
@@ -93,7 +92,7 @@ const OverView: NextPageWithLayout = () => {
 			}
 		} catch (error) {
 			setis2favalidating(false);
-			console.log(error);
+			// console.log(error);
 		}
 	};
 
@@ -111,8 +110,6 @@ const OverView: NextPageWithLayout = () => {
 				});
 				if (res.ok) {
 					const historyData = await res.json();
-
-					console.log(historyData);
 
 					if (historyData.gameHistory[0].status != 'end') {
 						router.push(`/lobby/game/${historyData.gameHistory[0].roomId}`);
@@ -135,7 +132,7 @@ const OverView: NextPageWithLayout = () => {
 					return null;
 				}
 			} catch (error) {
-				console.log(error);
+				// console.log(error);
 			}
 		};
 		getGameHistory();
@@ -254,7 +251,7 @@ const OverView: NextPageWithLayout = () => {
 				</div>
 				<div className="-mt-12 flex space-x-5 self-center sm:-mt-16">
 					<div className="z-20 flex">
-						<Image
+						<img
 							className="h-24 w-24 rounded-full bg-zinc-800 shadow ring-8 ring-zinc-800 sm:h-32 sm:w-32"
 							src={avatar}
 							alt=""

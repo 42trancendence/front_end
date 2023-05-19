@@ -27,7 +27,6 @@ export default function ChatModal({
 	function KickUser(event: React.MouseEvent<HTMLElement>, item: any) {
 		event.preventDefault();
 		socket?.emit("kickUser", {userId: item.id}, (error: any) => {
-			console.log("error status: ", error);
 			if (error.status === "FATAL") {
 				toast.error(error.message);
 				router.push(`/lobby/chat/`);
@@ -110,7 +109,6 @@ export default function ChatModal({
 	}
 
 	const createDirectMessage = (id: string, name: string) => {
-		console.log("1:1 data: ", id, name);
 		socket?.emit("createDirectMessage", {
 			receiverId: id,
 		}, (error: any) => {
@@ -135,13 +133,7 @@ export default function ChatModal({
 
 	// 게임 초대 이벤트
 	const inviteUserForGame = (event: React.MouseEvent<HTMLElement>, item: any) => {
-
-		// console.log('user: ', item)
-
 		gameSocket?.emit("inviteUserForGame", { userName: item.name });
-		gameSocket?.on("error", (error) => {
-			console.log(error); // 서버에서 전달된 에러 메시지 출력
-		});
 	};
 
 	return userData.map((user: any, index: number) => (

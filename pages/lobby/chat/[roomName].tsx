@@ -115,7 +115,7 @@ const RoomPage: NextPageWithLayout = ({
 					}
 					else
 					{
-						console.log("error", error);
+						// console.log("error", error);
 					}
 				}
 			);
@@ -128,7 +128,6 @@ const RoomPage: NextPageWithLayout = ({
 	}
 
 	function handleMute(data: any) {
-		console.log("mute data:", data);
 		const unMuteTime = new Date(data);
 		setMutedTime(unMuteTime);
 		const hours = unMuteTime.getHours();
@@ -204,7 +203,6 @@ const RoomPage: NextPageWithLayout = ({
 		
 		if (socket) {
 			socket.on("getChatRoomMessages", function (data?) {
-				console.log("msg data", data);
 				if (data) setMessage(data);
 			});
 		}

@@ -54,7 +54,6 @@ const ChatRooms: NextPageWithLayout = () => {
 			}
 		};
 		chatSocket?.on("showChatRoomList", function (data) {
-			console.log(data);
 			setChatRooms(data);
 			setLoading(false);
 			showChatRoomList(data);
@@ -62,13 +61,11 @@ const ChatRooms: NextPageWithLayout = () => {
 
 		chatSocket?.on("showDirectMessageList", function (data) {
 			setDMLists(data);
-			console.log("dm room list", data);
 			showChatRoomList(data);
 		});
 
 		chatSocket?.on("showMyChatRoomList", function (data) {
 			setMyChatRooms(data);
-			console.log("my chat room list", data);
 			showChatRoomList(data);
 		});
 
