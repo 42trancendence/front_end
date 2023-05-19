@@ -336,7 +336,7 @@ const Canvas: React.FC = () => {
         <nav className="relative px-4 py-4 flex flex-row justify-between items-center bg-black w-full my-4">
         <div className='flex'>
           <div className="flex flex-col items-center mt-2">
-            <Image
+            <img
               className="h-10 w-10 rounded-full bg-red-600 ring-zinc-800"
               src={avatarUrls[0]}
               alt=""
@@ -359,7 +359,7 @@ const Canvas: React.FC = () => {
           { startGame ? '' : viewReady[1] ? 'READY' : '' }
         </a>
         <div className="flex flex-col items-center mt-2">
-          <Image
+          <img
             className="h-10 w-10 rounded-full bg-green-400 ring-zinc-800"
             src={avatarUrls[1]}
             alt=""

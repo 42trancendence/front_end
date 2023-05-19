@@ -134,7 +134,7 @@ const UserInfo: NextPageWithLayout = () => {
 				</div>
 				<div className="-mt-12 flex space-x-5 self-center sm:-mt-16">
 					<div className="z-20 flex">
-						<Image
+						<img
 							className="h-24 w-24 rounded-full bg-zinc-800 shadow ring-8 ring-zinc-800 sm:h-32 sm:w-32"
 							src={avatar}
 							alt=""
