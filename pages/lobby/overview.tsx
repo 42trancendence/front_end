@@ -38,7 +38,7 @@ const OverView: NextPageWithLayout = () => {
 	const { data: user, loading: isUserDataLoaded, error } = state.user;
 
 	const [username, setUsername] = useState("");
-	const [avatar, setavatarUrl] = useState(DefaultAvatar);
+	const [avatar, setavatarUrl] = useState("");
 	const [is2faEnabled, setis2faEnabled] = useState(false);
 	const [is2favalidating, setis2favalidating] = useState(false);
 	const [isEditOpen, setisEditOpen] = useState(false);
