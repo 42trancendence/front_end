@@ -302,6 +302,7 @@ const Canvas: React.FC = () => {
     gameSocket?.emit('postLeaveGame', 'finishGame' , (error: any) => {
       setDifficulty(false);
       setChangeScore(false);
+      console.log(error, error.status ,error.message);
       if (error.status == 'FATAL') {
         toast.error(error.message);
         router.push("/lobby/overview");
@@ -314,7 +315,8 @@ const Canvas: React.FC = () => {
         toast.warning(error.message);
         router.push("/lobby/overview");
       }
-      else if (error.status == 'OK') {
+      else {
+        router.push("/lobby/overview");
       }
     });
     setShowGameModal(false);
