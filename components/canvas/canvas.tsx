@@ -321,7 +321,7 @@ const Canvas: React.FC = () => {
   }
 
   return (
-    <div className='w-screen h-screen'>
+    <div className='w-screen' style={{ height: 'calc(100vh - 3rem)', overflow: 'hidden' }}>
       <Image
         className='absolute top-0 left-0 z-0 w-full h-full object-cover'
         src={GameBackground}
