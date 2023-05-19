@@ -61,7 +61,6 @@ const Canvas: React.FC = () => {
 					return null;
 				}
 			} catch (error) {
-				console.log(error);
 			}
 		}
     const roomId = router.query.roomId;
@@ -172,7 +171,6 @@ const Canvas: React.FC = () => {
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    console.log(e.key);
     if (e.key === 'ArrowUp') {
       gameSocket?.emit('postKey', 'up', (error: any) => {
         if (error.status == 'FATAL') {
@@ -302,7 +300,6 @@ const Canvas: React.FC = () => {
     gameSocket?.emit('postLeaveGame', 'finishGame' , (error: any) => {
       setDifficulty(false);
       setChangeScore(false);
-      console.log(error, error.status ,error.message);
       if (error.status == 'FATAL') {
         toast.error(error.message);
         router.push("/lobby/overview");

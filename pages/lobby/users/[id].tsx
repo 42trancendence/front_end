@@ -71,7 +71,7 @@ const UserInfo: NextPageWithLayout = () => {
 					return null;
 				}
 			} catch (error) {
-				console.log(error);
+				// console.log(error);
 			}
 		};
 		getUser();
@@ -108,7 +108,7 @@ const UserInfo: NextPageWithLayout = () => {
 					return null;
 				}
 			} catch (error) {
-				console.log(error);
+				// console.log(error);
 			}
 		};
 		getGameHistory();

@@ -30,7 +30,6 @@ export default function DirectChatModal({
 		  avatarImageUrl: userData[key].avatarImageUrl,
         };
 	});
-	console.log("modal data:", userData);
 	const { chatSocket: socket } = useContext(SocketContext);
 	const { gameSocket: gameSocket } = useContext(SocketContext);
 	const router = useRouter();
@@ -54,22 +53,10 @@ export default function DirectChatModal({
 	}
 
 	const { successed } = useContext(NotifyContext);
-	function onSuccessed() {
-		successed({
-			header: "게임요청",
-			message: "게임요청을 성공적으로 보냈습니다.",
-		});
-	}
 
 	// 게임 초대 이벤트
 	const inviteUserForGame = (event: React.MouseEvent<HTMLElement>, item: any) => {
-
-		// console.log('user: ', item)
-
 		gameSocket?.emit("inviteUserForGame", { userName: item.name });
-		gameSocket?.on("error", (error) => {
-			console.log(error); // 서버에서 전달된 에러 메시지 출력
-		});
 	};
 
 	return newUserList.map((user: any, index: number) => (
