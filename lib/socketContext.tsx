@@ -31,12 +31,7 @@ const reconnectSocket = async (socketApi: string, socketSetter: any) => {
 	if (!newAccessToken) {
 		router.push("/");
 	} else {
-		const newSocket = io(socketApi, {
-			extraHeaders: {
-				Authorization: `Bearer ${localStorage.getItem("token")}`,
-			},
-		});
-		socketSetter(newSocket);
+		router.reload();
 	}
 };
 
