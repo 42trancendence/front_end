@@ -437,11 +437,13 @@ const RoomPage: NextPageWithLayout = ({
 								placeholder="메시지를 입력하세요."
 								ref={inputRef}
 								onKeyDown={(event) => {
-									if (event.key === "Enter" && isMuted === false) {
+									if (event.key === "Enter") {
+									  event.preventDefault();
+									  if (isMuted === false) {
 										handleSendMessage();
-									}
-									else if (event.key === "Enter" && isMuted === true) {
+									  } else {
 										notifyMuteTime();
+									  }
 									}
 								}}
 							/>
