@@ -100,15 +100,15 @@ const Canvas: React.FC = () => {
           setChangeScore(false);
           if (error.status == 'FATAL') {
             toast.error(error.message);
-            router.push("/lobby/overview");
+            router.replace("/lobby/overview");
           }
           else if (error.status == 'ERROR') {
             toast.warning(error.message);
-            router.push("/lobby/overview");
+            router.replace("/lobby/overview");
           }
           else if (error.status == 'WARNING') {
             toast.warning(error.message);
-            router.push("/lobby/overview");
+            router.replace("/lobby/overview");
           }
           else if (error.status == 'OK') {
           }
@@ -302,18 +302,18 @@ const Canvas: React.FC = () => {
       setChangeScore(false);
       if (error.status == 'FATAL') {
         toast.error(error.message);
-        router.push("/lobby/overview");
+        router.replace("/lobby/overview");
       }
       else if (error.status == 'ERROR') {
         toast.warning(error.message);
-        router.push("/lobby/overview");
+        router.replace("/lobby/overview");
       }
       else if (error.status == 'WARNING') {
         toast.warning(error.message);
-        router.push("/lobby/overview");
+        router.replace("/lobby/overview");
       }
       else {
-        router.push("/lobby/overview");
+        router.replace("/lobby/overview");
       }
     });
     setShowGameModal(false);
