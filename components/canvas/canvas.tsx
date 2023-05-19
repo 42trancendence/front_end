@@ -5,7 +5,7 @@ import Image from "next/image";
 import GameModal from "../GameModal";
 import router from "next/router";
 import { handleRefresh } from "@/lib/auth-client";
-import ProfileBackground from "@/public/profile_background.jpg";
+import GameBackground from "@/public/profile_background.jpg";
 import { NotifyContext } from "@/lib/notifyContext";
 import { toast } from "react-toastify";
 
@@ -321,10 +321,10 @@ const Canvas: React.FC = () => {
   }
 
   return (
-    <>
+    <div className='w-screen h-screen'>
       <Image
         className='absolute top-0 left-0 z-0 w-full h-full object-cover'
-        src={ProfileBackground}
+        src={GameBackground}
         alt=''
       ></Image>
       <div className='relative w-full'>
@@ -447,7 +447,7 @@ const Canvas: React.FC = () => {
           </div>
       }
       </div>
-    </>
+    </div>
   )
 }
 
