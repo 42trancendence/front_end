@@ -299,7 +299,24 @@ const Canvas: React.FC = () => {
 
 
   const handleNotifyClose = () => {
-    gameSocket?.emit('postLeaveGame', 'finishGame')
+    gameSocket?.emit('postLeaveGame', 'finishGame' , (error: any) => {
+      setDifficulty(false);
+      setChangeScore(false);
+      if (error.status == 'FATAL') {
+        toast.error(error.message);
+        router.push("/lobby/overview");
+      }
+      else if (error.status == 'ERROR') {
+        toast.warning(error.message);
+        router.push("/lobby/overview");
+      }
+      else if (error.status == 'WARNING') {
+        toast.warning(error.message);
+        router.push("/lobby/overview");
+      }
+      else if (error.status == 'OK') {
+      }
+    });
     setShowGameModal(false);
     setStartGame(false);
   }
