@@ -68,16 +68,18 @@ const Canvas: React.FC = () => {
 		getGamePlayersInfo(roomId);
   }, []);
 
-  const { successed } = useContext(NotifyContext);
+  const { failed } = useContext(NotifyContext);
 	function leaveGame() {
-		successed({
+		failed({
 			header: "게임요청",
+      type: "global",
 			message: "게임에서 퇴장되었습니다.",
 		});
 	}
 
   // 소켓 연결(컨텍스트 세팅, socket.id 가 초기화 되는지 확인 필요)
 	const { gameSocket } = useContext(SocketContext);
+
   useEffect(() => {
     if (gameSocket) {
       gameSocket.on('updateGame', (data) => {
@@ -115,7 +117,7 @@ const Canvas: React.FC = () => {
       })
 
       gameSocket.on('postLeaveGame', (data: string) => {
-        router.push('/lobby/overview');
+        router.replace('/lobby/overview');
         setDifficulty(false);
         setChangeScore(false);
         if (data !== 'finishGame') {
@@ -171,7 +173,7 @@ const Canvas: React.FC = () => {
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     console.log(e.key);
-    if (e.key === 'ArrowLeft') {
+    if (e.key === 'ArrowUp') {
       gameSocket?.emit('postKey', 'up', (error: any) => {
         if (error.status == 'FATAL') {
           toast.error(error.message);
@@ -188,9 +190,7 @@ const Canvas: React.FC = () => {
         else if (error.status == 'OK') {
         }
       });
-    } else if (e.key === 'ArrowRight') {
-      gameSocket?.emit('postKey', 'down');
-    }
+    } else if (e.key === 'ArrowDown') {
   }
 
   const handleReadyGame = () => {

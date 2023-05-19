@@ -287,7 +287,7 @@ const ChatRooms: NextPageWithLayout = () => {
 									>
 										<div className="flex divide-x-4 divide-zinc-800">
 											<div className="z-20 flex">
-												<Image
+												<img
 													className="h-12 w-12 rounded-full bg-zinc-800 shadow ring-8 ring-zinc-800 sm:h-12 sm:w-12"
 													src={room.otherUserAvatarImageUrl}
 													alt=""

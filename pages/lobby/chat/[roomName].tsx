@@ -346,7 +346,7 @@ const RoomPage: NextPageWithLayout = ({
 												<div className="flex flex-row">
 													{msg.user.name !== username && (
 														<div className="mr-2">
-															<Image
+															<img
 																src={msg.user.avatarImageUrl}
 																alt=""
 																width={64}

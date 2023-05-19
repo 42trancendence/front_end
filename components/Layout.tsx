@@ -16,9 +16,9 @@ export const Notifications = () => {
 	return (
 		<>
 			<GlobalNotification />
+			<GameNotification />
 			<ChatNotification />
 			<FriendNotification />
-			<GameNotification />
 		</>
 	);
 };

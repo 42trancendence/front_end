@@ -57,7 +57,7 @@ const OverView: NextPageWithLayout = () => {
 	useEffect(() => {
 		setUsername(user.name);
 		setavatarUrl(user.avatarImageUrl);
-		setis2faEnabled(user.isVerified);
+		setis2faEnabled(user.isTwoFactorEnable);
 	}, [user]);
 
 	// console.log(userData);
@@ -148,10 +148,11 @@ const OverView: NextPageWithLayout = () => {
 		}
 	}, [friendSocket]);
 
-	const { successed } = useContext(NotifyContext);
+	const { successed, failed } = useContext(NotifyContext);
 	function failedMatching() {
-		successed({
+		failed({
 			header: "매칭 요청",
+			type: "global",
 			message: "매칭요청을 실패하였습니다.",
 		});
 	}
