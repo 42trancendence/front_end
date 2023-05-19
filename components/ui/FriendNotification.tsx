@@ -15,7 +15,7 @@ const FriendNotifyMessage = ({ socket, userData, closeToast }: { socket:any, use
 			{ friendName: userData.name },
 			(error: boolean) => {
 				if (error) {
-					console.log(error); // 서버에서 전달된 에러 메시지 출력
+					// console.log(error); // 서버에서 전달된 에러 메시지 출력
 				}
 			}
 		);
@@ -28,7 +28,7 @@ const FriendNotifyMessage = ({ socket, userData, closeToast }: { socket:any, use
 			{ friendName: userData.name },
 			(error: boolean) => {
 				if (error) {
-					console.log(error); // 서버에서 전달된 에러 메시지 출력
+					// console.log(error); // 서버에서 전달된 에러 메시지 출력
 				}
 			}
 		);

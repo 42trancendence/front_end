@@ -43,7 +43,6 @@ export default function Achievements({
 				}
 			} catch (error) {
 				setItems([]);
-				console.log(error);
 			}
 		};
 		if (isOpen) {

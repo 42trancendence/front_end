@@ -31,7 +31,6 @@ export default function GameNotification() {
 		// useEffect(() => {
 	if (gameSocket) {
 		gameSocket.on("requestMatching", (data) => {
-			console.log("requestMatching", data);
 			setShowGameNotification(prevShowGameNotification => true);
 			setuserData(data);
 		});

@@ -61,7 +61,6 @@ const Canvas: React.FC = () => {
 					return null;
 				}
 			} catch (error) {
-				console.log(error);
 			}
 		}
     const roomId = router.query.roomId;
@@ -172,7 +171,6 @@ const Canvas: React.FC = () => {
   }
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
-    console.log(e.key);
     if (e.key === 'ArrowUp') {
       gameSocket?.emit('postKey', 'up', (error: any) => {
         if (error.status == 'FATAL') {
@@ -314,7 +312,8 @@ const Canvas: React.FC = () => {
         toast.warning(error.message);
         router.push("/lobby/overview");
       }
-      else if (error.status == 'OK') {
+      else {
+        router.push("/lobby/overview");
       }
     });
     setShowGameModal(false);
@@ -382,7 +381,7 @@ const Canvas: React.FC = () => {
         </div> : ''
       }
           <canvas
-            ref={canvasRef} width={1024} height={640}
+            ref={canvasRef} width={1024} height={640} tabIndex={0}
           />
           <GameModal
             onClose={handleNotifyClose}

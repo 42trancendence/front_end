@@ -12,7 +12,6 @@ import { NotifyContext } from "@/lib/notifyContext";
 import usePersistentState from "./canvas/usePersistentState";
 
 export default function FreindList({ userData }: any) {
-	console.log(userData);
 	const { friendSocket: socket, chatSocket, gameSocket } = useContext(SocketContext);
 	// const [match, setMatch] = usePersistentState('onMatching', '자동 매칭');
 	const [onGame, setOnGame] = usePersistentState("onGame", false);

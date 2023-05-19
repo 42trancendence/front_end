@@ -13,7 +13,6 @@ export default function GlobalNotification() {
 	// 3초 후 알림창 닫기
 	useEffect(() => {
 
-		console.log("global", type);
 		if (show) {
 			setTimeout(() => {
 				close();

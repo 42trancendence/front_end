@@ -15,7 +15,6 @@ export default function ChatNotification() {
 
 	// 5초 후 알림창 닫기
 	useEffect(() => {
-		console.log("chat", type);
 		if (show) {
 			setTimeout(() => {
 				close();
@@ -31,7 +30,7 @@ export default function ChatNotification() {
 		// 	directMessageId: id,
 		// });
 		chatSocket?.on("error", (error) => {
-			console.log(error); // 서버에서 전달된 에러 메시지 출력
+			// console.log(error); // 서버에서 전달된 에러 메시지 출력
 		});
 		router.push(`/lobby/chat/dm/dm: ${header}?dmId=${id}`);
 	};

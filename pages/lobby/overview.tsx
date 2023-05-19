@@ -77,7 +77,6 @@ const OverView: NextPageWithLayout = () => {
 			});
 			if (res.ok) {
 				const userData = await res.json();
-				console.log(userData);
 				setis2faEnabled(userData.is2FAEnabled);
 				setis2favalidating(false);
 			} else if (res.status === 401) {
@@ -93,7 +92,7 @@ const OverView: NextPageWithLayout = () => {
 			}
 		} catch (error) {
 			setis2favalidating(false);
-			console.log(error);
+			// console.log(error);
 		}
 	};
 
@@ -111,8 +110,6 @@ const OverView: NextPageWithLayout = () => {
 				});
 				if (res.ok) {
 					const historyData = await res.json();
-
-					console.log(historyData);
 
 					if (historyData.gameHistory[0].status != 'end') {
 						router.push(`/lobby/game/${historyData.gameHistory[0].roomId}`);
@@ -135,7 +132,7 @@ const OverView: NextPageWithLayout = () => {
 					return null;
 				}
 			} catch (error) {
-				console.log(error);
+				// console.log(error);
 			}
 		};
 		getGameHistory();
