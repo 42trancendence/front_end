@@ -253,8 +253,8 @@ const RoomPage: NextPageWithLayout = ({
 		setSelectedUser("");
 		setShowUserModal(false);
 	};
-	// && event.nativeEvent.isComposing === false
-	const handleSendMessage = () => {
+
+	const handleSendMessage = (event :any) => {
 
 		const messageText = inputRef.current.value;
 		if (messageText != "")
@@ -436,7 +436,7 @@ const RoomPage: NextPageWithLayout = ({
 								placeholder="메시지를 입력하세요."
 								ref={inputRef}
 								onKeyDown={(event) => {
-									if (event.key === "Enter"  && event.nativeEvent.isComposing === false) {
+									if (event.key === "Enter" && event.nativeEvent.isComposing === false) {
 									  event.preventDefault();
 									  if (isMuted === false) {
 										handleSendMessage();

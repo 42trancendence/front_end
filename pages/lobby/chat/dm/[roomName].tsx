@@ -152,7 +152,7 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
       <p className="text-4xl text-left text-[#939efb]">{roomName.substring(3) + "님과의 1:1 대화"}</p>
       <div className="grid grid-cols-[1fr,200px] gap-4">
         <div className="p-6 rounded-[14px] bg-[#616161] overflow-y-auto max-h-[calc(100vh-240px)] min-h-[calc(100vh-240px)]">
-        <div className="flex flex-col">
+          <div className="flex flex-col">
 									{message.map((msg: any, index: number) => (
 										<div
 											className={`mb-4 flex ${
@@ -234,10 +234,11 @@ const DmRoomPage: NextPageWithLayout = ({ dmId, roomName}: { dmId: string, roomN
           placeholder="메시지를 입력하세요."
           ref={inputRef}
           onKeyDown={(event) => {
-            if (event.key === "Enter") {
+            if (event.key === "Enter" && event.nativeEvent.isComposing === false) {
+              event.preventDefault();
               handleSendMessage();
-            }
-          }}
+              }
+            }}
         />
         <button
           className="bg-blue-500 w-20 text-white py-2 px-4 rounded-lg ml-2"
