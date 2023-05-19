@@ -7,7 +7,7 @@ import router from "next/router";
 import { handleRefresh } from "@/lib/auth-client";
 import ProfileBackground from "@/public/profile_background.jpg";
 import { NotifyContext } from "@/lib/notifyContext";
-
+import { toast } from "react-toastify";
 
 const Canvas: React.FC = () => {
   const canvasRef: RefObject<HTMLCanvasElement> = useRef(null);
@@ -96,7 +96,24 @@ const Canvas: React.FC = () => {
         }
       })
       gameSocket.on('postDeleteGame', () => {
-        gameSocket.emit('postLeaveGame');
+        gameSocket.emit('postLeaveGame', (error: any) => {
+          setDifficulty(false);
+          setChangeScore(false);
+          if (error.status == 'FATAL') {
+            toast.error(error.message);
+            router.push("/lobby/overview");
+          }
+          else if (error.status == 'ERROR') {
+            toast.warning(error.message);
+            router.push("/lobby/overview");
+          }
+          else if (error.status == 'WARNING') {
+            toast.warning(error.message);
+            router.push("/lobby/overview");
+          }
+          else if (error.status == 'OK') {
+          }
+        });
       })
 
       gameSocket.on('postLeaveGame', (data: string) => {
@@ -157,37 +174,126 @@ const Canvas: React.FC = () => {
   const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
     console.log(e.key);
     if (e.key === 'ArrowUp') {
-      gameSocket?.emit('postKey', 'up');
+      gameSocket?.emit('postKey', 'up', (error: any) => {
+        if (error.status == 'FATAL') {
+          toast.error(error.message);
+          router.push("/lobby/overview");
+        }
+        else if (error.status == 'ERROR') {
+          toast.warning(error.message);
+          router.push("/lobby/overview");
+        }
+        else if (error.status == 'WARNING') {
+          toast.warning(error.message);
+          router.push("/lobby/overview");
+        }
+        else if (error.status == 'OK') {
+        }
+      });
     } else if (e.key === 'ArrowDown') {
-      gameSocket?.emit('postKey', 'down');
+      gameSocket?.emit('postKey', 'down', (error: any) => {
+        if (error.status == 'FATAL') {
+          toast.error(error.message);
+          router.push("/lobby/overview");
+        }
+        else if (error.status == 'ERROR') {
+          toast.warning(error.message);
+          router.push("/lobby/overview");
+        }
+        else if (error.status == 'WARNING') {
+          toast.warning(error.message);
+          router.push("/lobby/overview");
+        }
+        else if (error.status == 'OK') {
+        }
+      });
     }
   }
 
   const handleReadyGame = () => {
     setReady(!ready);
     if (gameSocket) {
-      gameSocket.emit('postReadyGame');
+      gameSocket.emit('postReadyGame' , (error: any) => {
+        if (error.status == 'FATAL') {
+          toast.error(error.message);
+          router.push("/lobby/overview");
+        }
+        else if (error.status == 'ERROR') {
+          toast.warning(error.message);
+          router.push("/lobby/overview");
+        }
+        else if (error.status == 'WARNING') {
+          toast.warning(error.message);
+          router.push("/lobby/overview");
+        }
+        else if (error.status == 'OK') {
+        }
+      });
     }
   }
 
   const handleDifficulty = () => {
     if (gameSocket) {
-      gameSocket.emit('postDifficulty', difficulty ? 'normal' : 'hard');
+      gameSocket.emit('postDifficulty', difficulty ? 'normal' : 'hard', (error: any) => {
+        if (error.status == 'FATAL') {
+          toast.error(error.message);
+          router.push("/lobby/overview");
+        }
+        else if (error.status == 'ERROR') {
+          toast.warning(error.message);
+          router.push("/lobby/overview");
+        }
+        else if (error.status == 'WARNING') {
+          toast.warning(error.message);
+          router.push("/lobby/overview");
+        }
+        else if (error.status == 'OK') {
+        }
+      });
       setDifficulty(!difficulty);
     }
   }
 
   const handleChangeScore = () => {
     if (gameSocket) {
-      gameSocket.emit('postChangeScore', changeScore ? 'normal' : 'hard');
+      gameSocket.emit('postChangeScore', changeScore ? 'normal' : 'hard', (error: any) => {
+        if (error.status == 'FATAL') {
+          toast.error(error.message);
+          router.push("/lobby/overview");
+        }
+        else if (error.status == 'ERROR') {
+          toast.warning(error.message);
+          router.push("/lobby/overview");
+        }
+        else if (error.status == 'WARNING') {
+          toast.warning(error.message);
+          router.push("/lobby/overview");
+        }
+        else if (error.status == 'OK') {
+        }
+      });
       setChangeScore(!changeScore);
     }
   }
 
   const handleLeaveGame = () => {
     if (gameSocket) {
-      gameSocket.emit('postDeleteGame');
-      // router.push('/lobby/overview');
+      gameSocket.emit('postDeleteGame', (error: any) => {
+        if (error.status == 'FATAL') {
+          toast.error(error.message);
+          router.push("/lobby/overview");
+        }
+        else if (error.status == 'ERROR') {
+          toast.warning(error.message);
+          router.push("/lobby/overview");
+        }
+        else if (error.status == 'WARNING') {
+          toast.warning(error.message);
+          router.push("/lobby/overview");
+        }
+        else if (error.status == 'OK') {
+        }
+      });
     }
   }
 
