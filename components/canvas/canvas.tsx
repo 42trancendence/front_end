@@ -381,7 +381,7 @@ const Canvas: React.FC = () => {
         </div> : ''
       }
           <canvas
-            ref={canvasRef} width={1024} height={640} tabIndex={0}
+            ref={canvasRef} width={1200} height={800} tabIndex={0}
           />
           <GameModal
             onClose={handleNotifyClose}
