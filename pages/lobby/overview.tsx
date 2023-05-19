@@ -2,7 +2,6 @@ import Layout from "@/components/Layout";
 import Image from "next/image";
 import DefaultAvatar from "@/public/default_avatar.svg";
 import ProfileBackground from "@/public/profile_background.jpg";
-import { NormalButton } from "@/components/ui/NormalButton";
 import { Fragment, ReactElement, useContext, useEffect, useState } from "react";
 import { handleRefresh } from "@/lib/auth-client";
 import { SocketContext, SocketProvider } from "@/lib/socketContext";
@@ -12,20 +11,18 @@ import router from "next/router";
 import Seo from "@/components/Seo";
 import EditProfilePallet from "@/components/EditProfilePallet";
 import { ExclamationCircleIcon } from "@heroicons/react/24/outline";
-import usePersistentState from "@/components/canvas/usePersistentState";
 import moment from "moment";
 import { NotifyContext } from "@/lib/notifyContext";
 import {
 	useUsersDispatch,
 	useUsersState,
-	getUser,
 	refetchUser,
 } from "@/lib/userContext";
 import Achievements from "@/components/Achievements";
 import { Menu, Switch, Transition } from "@headlessui/react";
 import clsx from "clsx";
-import Loading from "@/components/ui/Loading";
 import MiniLoading from "@/components/ui/MiniLoading";
+import { toast } from "react-toastify";
 
 interface GameHistory {
 	createAt: string;
@@ -162,14 +159,22 @@ const OverView: NextPageWithLayout = () => {
 	// socketio 로 게임방 목록 요청
 	useEffect(() => {
 		if (gameSocket) {
-			gameSocket.emit("isMatching");
-			gameSocket.on("isMatching", (data: string) => {
-				setMatch('매칭 중');
-			});
+			gameSocket.emit("isMatching", (error: any) => {
+				if (error.status === "FATAL") {
+					toast.error(error.message);
+					router.push("/lobby/overview");
+				}
+				else if (error.status === "ERROR") {
+					toast.error(error.message);
+					router.push("/lobby/overview");
+				}
+				else if (error.status === "WARNING") {
+					toast.error(error.message);
+					router.push("/lobby/overview");
+				}
+				else if (error.status === "OK") {
 
-			gameSocket.on('failedMatching', (data: string) => {
-				failedMatching();
-				setMatch('자동 매칭');
+				}
 			});
 		}
 
@@ -185,10 +190,42 @@ const OverView: NextPageWithLayout = () => {
 	const handleMatching = () => {
 		if (gameSocket) {
 			if (match == '자동 매칭') {
-				gameSocket.emit('postMatching');
+				gameSocket.emit('postMatching', (error: any) => {
+					setMatch('자동 매칭');
+					if (error.status === "FATAL") {
+						toast.error(error.message);
+						router.push("/lobby/overview");
+					}
+					else if (error.status === "ERROR") {
+						toast.error(error.message);
+						router.push("/lobby/overview");
+					}
+					else if (error.status === "WARNING") {
+						toast.error(error.message);
+						router.push("/lobby/overview");
+					}
+					else if (error.status === "OK") {
+					}
+					return ;
+				});
 				setMatch('매칭 중');
 			} else {
-				gameSocket.emit('postCancelMatching');
+				gameSocket.emit('postCancelMatching', (error: any) => {
+					if (error.status === "FATAL") {
+						toast.error(error.message);
+						router.push("/lobby/overview");
+					}
+					else if (error.status === "ERROR") {
+						toast.error(error.message);
+						router.push("/lobby/overview");
+					}
+					else if (error.status === "WARNING") {
+						toast.error(error.message);
+						router.push("/lobby/overview");
+					}
+					else if (error.status === "OK") {
+					}
+				});
 				setMatch('자동 매칭');
 			}
 		}

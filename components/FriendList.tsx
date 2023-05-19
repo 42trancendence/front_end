@@ -66,12 +66,22 @@ export default function FreindList({ userData }: any) {
 
 	// 게임 초대 이벤트
 	const inviteUserForGame = (event: React.MouseEvent<HTMLElement>, item: any) => {
-
-		// console.log('user: ', item)
-
-		gameSocket?.emit("inviteUserForGame", { userName: item.name });
-		gameSocket?.on("error", (error) => {
-			console.log(error); // 서버에서 전달된 에러 메시지 출력
+		gameSocket?.emit("inviteUserForGame", { userName: item.name }, (error: any) => {
+			if (error.status === "FATAL") {
+				toast.error(error.message);
+				router.push(`/lobby/game/`);
+			}
+			else if (error.status === "ERROR") {
+				toast.error(error.message);
+				router.push(`/lobby/game/`);
+			}
+			else if (error.status === "WARNING") {
+				toast.error(error.message);
+			}
+			else if (error.status === "OK")
+			{
+				router.push(`/lobby/game/`);
+			}
 		});
 	};
 

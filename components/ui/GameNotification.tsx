@@ -4,6 +4,7 @@ import { XMarkIcon } from "@heroicons/react/20/solid";
 import Image from "next/image";
 import { SocketContext } from "@/lib/socketContext";
 import { useRouter } from "next/router";
+import { toast } from "react-toastify";
 
 export default function GameNotification() {
 	const [showGameNotification, setShowGameNotification] = useState(false);
@@ -24,7 +25,19 @@ export default function GameNotification() {
 
 	// 게임 요청 수락
 	const acceptGame = () => {
-		gameSocket?.emit("acceptMatchingRequest");
+		gameSocket?.emit("acceptMatchingRequest", (error: any) => {
+			if (error.status === "FATAL") {
+				toast.error(error.message);
+				router.push(`/lobby/overview`);
+			} else if (error.status === "ERROR") {
+				toast.error(error.message);
+				router.push(`/lobby/overview`);
+			} else if (error.status === "WARNING") {
+				toast.error(error.message);
+				router.push(`/lobby/overview`);
+			} else if (error.status === "OK") {
+			}
+		});
 
 		setShowGameNotification(false);
 	};
