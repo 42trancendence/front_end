@@ -83,7 +83,7 @@ export default function GameNotification() {
 									<div className="flex-shrink-0 pt-0.5">
 										<Image
 											className="h-10 w-10 rounded-full"
-											src="/default-avatar.svg"
+											src={userData?.avatarImageUrl}
 											width={160}
 											height={160}
 											alt=""

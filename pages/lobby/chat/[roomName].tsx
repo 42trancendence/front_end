@@ -317,6 +317,7 @@ const RoomPage: NextPageWithLayout = ({
 			}
 		);
 		setShowCreateRoomPopup(false);
+
 	};
 
 	return (
@@ -439,7 +440,7 @@ const RoomPage: NextPageWithLayout = ({
 									if (event.key === "Enter" && event.nativeEvent.isComposing === false) {
 									  event.preventDefault();
 									  if (isMuted === false) {
-										handleSendMessage();
+										handleSendMessage(event);
 									  } else {
 										notifyMuteTime();
 									  }
